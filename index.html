@@ -94,7 +94,7 @@ td.n,th.n{text-align:right}
 .bar2 i{display:block;height:100%} .bar2 .o{background:var(--accent)} .bar2 .p{background:var(--other);opacity:.55}
 .miss{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line);font-size:13px}
 .miss .m{color:var(--muted)}
-.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro [data-v=photos],.ro #exportCsv{display:none!important}
+.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=photos],.ro [data-v=tiktok],.ro #exportCsv{display:none!important}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:10}
 #modal.on{display:flex}
 .mbox{background:var(--card);border-radius:14px;max-width:820px;width:100%;padding:16px}
@@ -133,7 +133,7 @@ td.n,th.n{text-align:right}
     <div id="jobs"></div>
   </div>
 
-  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button></div>
+  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button><button class="chip" data-v="tiktok">TikTok<span id="ttcount"></span></button></div>
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
     <span id="custom" style="display:none" class="row">
@@ -174,7 +174,29 @@ td.n,th.n{text-align:right}
     <div id="gameDetail" style="display:none"></div>
   </div>
 
+  <div id="viewTikTok" style="display:none">
+    <div class="row" style="margin:6px 0 8px;justify-content:space-between">
+      <span class="hint" id="ttInfo"></span>
+      <button class="btn primary" id="ttCheck">Check TikTok</button>
+    </div>
+    <div id="ttProg" style="display:none;margin-bottom:10px">
+      <div style="height:8px;border-radius:999px;background:var(--line);overflow:hidden"><div id="ttBar" style="height:100%;width:0;background:var(--accent);transition:width .4s"></div></div>
+      <div class="hint" id="ttStage" style="margin-top:4px"></div>
+    </div>
+    <div class="row" style="margin:6px 0 10px"><span id="ttStatus" class="row"></span></div>
+    <div class="grid" id="ttGrid"></div>
+  </div>
+
   <div id="viewPhotos" style="display:none">
+    <div class="box" id="phUpload" style="border-style:dashed">
+      <div class="row" style="justify-content:space-between">
+        <span><b>Upload photos</b> <span class="hint">Photos you saved yourself (Instagram stories, X, your phone). They go straight to “Selected”, filed by date. Drag files here or click the button.</span></span>
+        <span class="row"><label class="hint">Date <input type="date" id="upDate" title="Leave empty to use the date stored in the photo, then the file date"></label>
+          <input id="upNote" placeholder="Note / source (optional)" style="width:190px"><button class="btn primary" id="upBtn">Upload photos…</button></span>
+      </div>
+      <input type="file" id="upFile" accept="image/*" multiple style="display:none">
+      <div class="hint" id="upMsg" style="margin-top:4px"></div>
+    </div>
     <div class="row" style="margin:6px 0 10px"><span id="pstatus" class="row"></span>
       <input id="pq" placeholder="Search post text" style="flex:1;min-width:160px"></div>
     <div class="hint" style="margin-bottom:8px" id="pinfo"></div>
@@ -191,10 +213,10 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const SNAP = window.SNAPSHOT || null;
 const snapGet = u => { const p = u.split("?")[0];
   return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines
-    : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
+    : p === "/api/tiktok" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
-let photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
+let tiktok = {items: [], checked: ""}, ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
 const TN = {"进球": "Goal", "助攻": "Assist", "采访": "Interview", "活动": "Event", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
@@ -659,6 +681,38 @@ let _pid = 0; const openPid = () => _pid;
 
 // ---------- 照片 ----------
 const PST = ["待确认", "选入", "排除"];
+function renderTikTok(){
+  if(view !== "tiktok") return;
+  const items = tiktok.items || [], cnt = s => items.filter(x => x.status === s).length;
+  $("ttStatus").innerHTML = ["选入", "待确认", "排除"].map(s => `<button class="chip ${ttStatus === s ? "on" : ""}" data-ts="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
+  document.querySelectorAll("[data-ts]").forEach(b => b.onclick = () => { ttStatus = b.dataset.ts; renderTikTok(); });
+  $("ttInfo").textContent = tiktok.checked ? `Last checked ${tiktok.checked.replace("T", " ").slice(0, 16)}. Each check only adds videos you have not seen before, posted on or after ${START || "the start date"}.`
+    : `Not checked yet. Click “Check TikTok” to look for new videos on the team account (posted on or after ${START || "the start date"}).`;
+  if(ttStatus === "排除") $("ttInfo").textContent = "Excluded videos are deleted automatically 3 days after you exclude them (until then you can still move them back to Pending).";
+  const list = items.filter(x => x.status === ttStatus).sort((a, b) => b.date.localeCompare(a.date));
+  $("ttGrid").innerHTML = list.map(x => `<div class="clip" style="cursor:default"><div class="thumb" style="${x.cover ? `background-image:url('${encodeURI(x.cover)}');background-position:top` : ""}"><span class="dur">${dur(x.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(x.title.replace(/#\w+/g, "").replace(/\s+/g, " ").trim() || "TikTok video")}</div><div class="meta">${esc(x.date.slice(5))} · ${(+x.views || 0).toLocaleString()} views</div>
+      <div class="row" style="margin-top:6px"><a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener" style="text-decoration:none">Open on TikTok ↗</a>
+        ${x.status === "选入" && !ttEditing.has(x.id)      // 已选入的: 要点 Edit 才会出现 Pending / Exclude, 避免误点
+          ? `<button class="btn" data-te="${esc(x.id)}">Edit</button>`
+          : (x.status === "选入" ? `<button class="btn" data-te="${esc(x.id)}">Done</button>` : "") + PST.filter(s => s !== x.status).map(s => `<button class="btn ${s === "选入" ? "primary" : ""}" data-tm="${esc(x.id)}|${s}">${s === "选入" ? "✓ Select" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}</div></div></div>`).join("")
+    || `<div class="hint">${items.length ? "Nothing here." : "No videos yet."}</div>`;
+  document.querySelectorAll("[data-te]").forEach(b => b.onclick = () => { const id = b.dataset.te; ttEditing.has(id) ? ttEditing.delete(id) : ttEditing.add(id); renderTikTok(); });
+  document.querySelectorAll("[data-tm]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.tm.split("|"); b.disabled = true;
+    await post("/api/tiktok/mark", {id, status: st}); ttEditing.delete(id); await load(); });
+}
+async function checkTikTok(){
+  const btn = $("ttCheck"); btn.disabled = true; $("ttProg").style.display = ""; $("ttBar").style.width = "2%"; $("ttStage").textContent = "Starting…";
+  await post("/api/tiktok/check", {});
+  for(;;){
+    await new Promise(r => setTimeout(r, 700));
+    const j = (await api("/api/jobs")).filter(x => x.url === "Check TikTok").slice(-1)[0]; if(!j) continue;
+    $("ttBar").style.width = Math.round((j.progress || 0) * 100) + "%"; $("ttStage").textContent = j.error ? `${j.stage}: ${j.error}` : j.stage;
+    $("ttBar").style.background = j.error ? "var(--bad)" : "var(--accent)";
+    if(j.done) break;
+  }
+  btn.disabled = false; await load(); setTimeout(() => { if(!$("ttBar").style.background.includes("bad")) $("ttProg").style.display = "none"; }, 4000);
+}
 function renderPhotos(){
   const pend = photos.filter(p => p.status === "待确认").length;
   $("pcount").textContent = pend ? ` (${pend} pending)` : "";
@@ -666,6 +720,10 @@ function renderPhotos(){
   $("viewClips").style.display = view === "clips" ? "" : "none";
   $("viewGames").style.display = view === "games" ? "" : "none";
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
+  $("viewTikTok").style.display = view === "tiktok" ? "" : "none";
+  const ttPend = (tiktok.items || []).filter(x => x.status === "待确认").length;
+  $("ttcount").textContent = ttPend ? ` (${ttPend} pending)` : "";
+  renderTikTok();
   renderGames();
   if(view !== "photos") return;
   const cnt = s => photos.filter(p => p.status === s).length;
@@ -678,9 +736,10 @@ function renderPhotos(){
   const ids = Object.keys(groups).sort((a, b) => groups[b][0].date.localeCompare(groups[a][0].date) || (a < b ? 1 : -1));
   $("pinfo").textContent = !photos.length ? "No photos yet. Paste an X (Twitter) post link above; if the post has photos, the whole set is downloaded and you pick the ones with him here."
     : `${list.length} photos from ${ids.length} posts. ${pstatus === "待确认" ? "Click “Select” or “Exclude” under each photo; selected ones are filed by season and date, excluded ones go to “_已排除”, and you can change your mind any time." : ""}`;
+  if(pstatus === "排除") $("pinfo").textContent = "Excluded photos are deleted automatically (files included) 3 days after you exclude them; until then you can still select them again.";
   $("pgroups").innerHTML = ids.map(t => { const g = groups[t].sort((a, b) => a.idx - b.idx), f = g[0];
-    return `<div class="box"><div class="row" style="justify-content:space-between"><span><b>${esc(f.date.slice(5))}</b> · @${esc(f.author)} ·
-      <a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a> <span class="hint">(${f.count} photos)</span></span>
+    return `<div class="box"><div class="row" style="justify-content:space-between"><span><b>${esc(f.date.slice(5))}</b> · ${f.author === "upload" ? "" : `@${esc(f.author)} · `}
+      ${f.source_url ? `<a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a>` : `<span class="hint">Uploaded${f.note ? ` · ${esc(f.note)}` : ""}</span>`} <span class="hint">(${f.count} photos)</span></span>
       ${pstatus === "待确认" ? `<span class="row"><button class="btn" data-all="${t}|选入">Select all on page</button><button class="btn" data-all="${t}|排除">Exclude all on page</button></span>` : ""}</div>
       <div class="ptext">${esc(f.text)}</div>
       ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">Hint: ${esc(g.find(p => p.hint).hint)} (just a text clue; you decide which photos show him)</div>` : ""}
@@ -700,7 +759,7 @@ function openPhoto(id){
       <div style="grid-column:span 2"><label>Game</label><select id="p_game"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(p.game_id)?"selected":""}>${esc(g.date)} ${g.home?"Home vs":"Away @"} ${esc(g.opp)}</option>`).join("")}</select></div>
       <div><label>Photo type</label><select id="p_kind">${["阵容", "数据表", "其他"].map(x => `<option value="${x}" ${x===(p.kind||"其他")?"selected":""}>${tn(x)}</option>`).join("")}</select></div></div>
     <div class="cap">${esc(p.text) || "(no text)"}${p.alt ? "\n\nAlt text: " + esc(p.alt) : ""}</div>
-    <div class="hint" style="margin-top:6px">Status: ${esc(tn(p.status))} · <a href="${esc(p.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a> · File: ${esc(p.file)}</div>
+    <div class="hint" style="margin-top:6px">Status: ${esc(tn(p.status))} · ${p.source_url ? `<a href="${esc(p.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a>` : "Uploaded"} · File: ${esc(p.file)}</div>
     <div class="row" style="margin-top:10px;justify-content:space-between"><span class="row"><button class="btn primary" id="psave">Save</button><button class="btn" id="close">Close</button></span>
       <button class="btn danger" id="pdel">Delete</button></div><div class="hint" id="msg"></div>`;
   $("modal").classList.add("on");
@@ -719,9 +778,9 @@ function openClip(id, edit = false){
   const g = games.find(x => String(x.id) === String(c.game_id));
   const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">Cut from the full video at ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? " (to change the start/end, delete and add it again)" : ""}</div>` : "";
   const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">View English transcript (to check the summary)</summary><div class="cap" id="trtext">Loading…</div></details>` : "";
-  const srcLine = `<div class="hint" style="margin-top:8px">Source: <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a>${SNAP ? "" : ` · File: ${esc(c.video)}`}</div>`;
-  const head = SNAP ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener">${cv(c) ? `<img src="${cv(c)}" alt="" style="width:100%;border-radius:8px">` : ""}</a>
-    <div class="hint" style="margin-top:6px">The video is not included in this read-only copy. <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Watch it at the original source ↗</a></div>`
+  const srcLine = `<div class="hint" style="margin-top:8px">Source: <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a>${SNAP || !c.video ? "" : ` · File: ${esc(c.video)}`}</div>`;
+  const head = (SNAP || !c.video) ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener">${cv(c) ? `<img src="${cv(c)}" alt="" style="width:100%;border-radius:8px">` : ""}</a>
+    <div class="hint" style="margin-top:6px">${SNAP ? "The video is not included in this read-only copy." : "This is a link-only entry (the video was not downloaded)."} <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Watch it at the original source ↗</a></div>`
     : `<video controls preload="metadata" src="${encodeURI(c.video)}" ${cv(c) ? `poster="${cv(c)}"` : ""}></video>
     <div class="hint" id="vinfo" style="margin-top:6px">Quality: reading…</div>`;
   if(!edit){
@@ -840,7 +899,26 @@ async function poll(){
   $("nhlSync").disabled = js.some(j => !j.done && j.url === "Sync NHL official data");
   if(run.length) timer = setTimeout(poll, 2500);
 }
-async function load(){ coverVer = Date.now(); let gm, ln; [clips, nhl, photos, gm, ln] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines")]); games = gm.games || []; lineData = ln || {}; render(); }
+async function load(){ coverVer = Date.now(); let gm, ln; [clips, nhl, photos, gm, ln, tiktok] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines"), api("/api/tiktok")]); games = gm.games || []; lineData = ln || {}; render(); }
+$("ttCheck").onclick = checkTikTok;
+async function uploadPhotos(files){
+  files = [...files].filter(f => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name)); if(!files.length){ $("upMsg").textContent = "No image files found."; return; }
+  $("upBtn").disabled = true; let done = 0, skipped = [];
+  for(let i = 0; i < files.length; i += 3){                  // 每次最多传 3 张, 避免一次请求太大
+    $("upMsg").textContent = `Uploading ${Math.min(i + 3, files.length)}/${files.length}…`;
+    const batch = await Promise.all(files.slice(i, i + 3).map(f => new Promise(res => { const r = new FileReader();
+      r.onload = () => res({name: f.name, modified: f.lastModified, data: r.result.replace(/^data:(application\/octet-stream|);/, `data:${f.type || "image/heic"};`)}); r.readAsDataURL(f); })));
+    const r = await post("/api/photo/upload", {files: batch, date: $("upDate").value, note: $("upNote").value});
+    if(r.error){ $("upMsg").textContent = r.error; $("upBtn").disabled = false; return; }
+    done += r.added; skipped = skipped.concat(r.skipped || []);
+  }
+  $("upBtn").disabled = false; $("upFile").value = ""; pstatus = "选入"; await load();
+  $("upMsg").textContent = `Uploaded ${done} photo${done === 1 ? "" : "s"}.${skipped.length ? ` Skipped (unsupported): ${skipped.join(", ")}` : ""}`;
+}
+$("upBtn").onclick = () => $("upFile").click(); $("upFile").onchange = () => uploadPhotos($("upFile").files);
+const dz = $("phUpload"); ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.style.background = "var(--bg)"; }));
+["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.style.background = ""; }));
+dz.addEventListener("drop", e => uploadPhotos(e.dataTransfer.files));
 $("mkAll").onclick = async () => { $("mkAll").disabled = true; await post("/api/cover/all", {}); poll(); setTimeout(() => $("mkAll").disabled = false, 1500); };
 $("nhlSync").onclick = async () => { $("nhlSync").disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
 
