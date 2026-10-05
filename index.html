@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clip Archive</title>
+<style>
+:root{
+  --bg:#f5f4f0; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e3e0d8;
+  --accent:#1f5f8b; --accent-ink:#fff; --bad:#b4453a;
+  --goal:#c2410c; --assist:#1f5f8b; --interview:#6d4c9f; --event:#2f7d4f; --other:#6b7280;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#141618; --card:#1e2124; --ink:#e8e6e1; --muted:#9aa0a6; --line:#33373b;
+    --accent:#6cb2e0; --accent-ink:#0c1a24; --bad:#e07a6e;
+    --goal:#f08a52; --assist:#6cb2e0; --interview:#b69bdf; --event:#6fcf97; --other:#9aa0a6;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 16px 80px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font-size:22px;margin:0}
+.sub{color:var(--muted);font-size:13px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);
+  color:var(--ink);font:inherit}
+textarea{width:100%;min-height:54px;resize:vertical}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile b{display:block;font-size:28px;line-height:1.1}
+.tile span{font-size:13px;color:var(--muted)}
+.tile.g b{color:var(--goal)} .tile.a b{color:var(--assist)} .tile.i b{color:var(--interview)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--muted);font-weight:500;font-size:12px}
+tr.click{cursor:pointer} tr.click:hover{background:var(--bg)}
+td.n,th.n{text-align:right}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.clip{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
+.clip:hover{outline:2px solid var(--accent)}
+.thumb{aspect-ratio:16/9;background:var(--line) center/cover no-repeat;position:relative}
+.dur{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:1px 6px;border-radius:4px}
+.cbody{padding:8px 10px}
+.cbody .t{font-size:14px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#fff;margin-right:4px}
+.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)}
+.hint{font-size:12px;color:var(--muted)}
+.job{font-size:13px;margin-top:4px} .job.err{color:var(--bad)}
+/* 弹窗 */
+.sum{font-size:12px;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sumbox{width:100%;min-height:130px;line-height:1.6}
+.src{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px}
+.pthumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+.pth img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in;display:block;border:3px solid transparent}
+.pth.s-选入 img{border-color:var(--event)} .pth.s-排除 img{border-color:var(--bad);opacity:.5}
+.pth .pb{display:flex;gap:4px;margin-top:4px}
+.pth .pb button{flex:1;padding:3px 0;font-size:12px}
+.pth .ph{font-size:11px;color:var(--event);margin-top:2px}
+.ptext{font-size:13px;color:var(--muted);margin-top:4px;white-space:pre-wrap;max-height:84px;overflow:auto}
+.gcard{cursor:pointer} .gcard:hover{outline:2px solid var(--accent)}
+.gt{width:100%;border-collapse:collapse;font-size:13px} .gt th,.gt td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.gt th:first-child,.gt td:first-child{text-align:left} .gt.l th,.gt.l td{text-align:left}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.g2>div{min-width:0}
+.g2 .gt td,.g2 .gt th{white-space:normal} .g2 .gt td:first-child{white-space:nowrap} .g2 select{max-width:100%}
+@media (max-width:860px){.g2{grid-template-columns:1fr}}
+.gt .me td{background:rgba(31,95,139,.12);font-weight:600}
+.gt tr.r1 td{background:color-mix(in srgb,var(--accent) 17%,transparent);font-weight:600}
+.gt tr.r1 td:first-child{box-shadow:inset 3px 0 0 var(--accent);color:var(--accent)}
+.gt tr.r2 td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.gt tr.r3 td{color:var(--muted)}
+.gt td.top{color:var(--accent);font-weight:700}
+.gt td.dbar{background-repeat:no-repeat}
+.pc{display:inline-flex;align-items:center;vertical-align:middle;text-align:left} .pc .mug{flex:none;width:26px;height:26px;margin-right:6px}
+.gt td .mug,.chgi .mug{width:26px;height:26px;margin-right:6px}
+.gt td.chg.new,.chgi.new{background:color-mix(in srgb,var(--goal) 22%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--goal) 65%,transparent)}
+.gt td.chg.mv,.chgi.mv{background:color-mix(in srgb,var(--assist) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--assist) 60%,transparent)}
+.gt td.chg.out,.chgi.out{background:color-mix(in srgb,var(--muted) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--muted) 45%,transparent)}
+.gt td.chg,.chgi{background:color-mix(in srgb,var(--goal) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--goal) 55%,transparent)} .chgi{padding:1px 6px;border-radius:6px} .was{display:block;font-size:11px;font-weight:400;color:var(--muted)} .chgi .was{display:inline;margin-left:4px}
+.gsec{margin:16px 0 6px;font-size:15px;font-weight:600}
+.tag2{display:inline-block;font-size:11px;padding:0 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:4px}
+.mug{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;vertical-align:middle;margin-right:7px;background:var(--line);cursor:zoom-in}
+.tag2.ha{font-weight:700;letter-spacing:.04em;margin-left:0;margin-right:4px} .tag2.home{color:var(--accent);border-color:var(--accent)} .tag2.away{color:var(--muted)}
+.tag2.plus{background:var(--event);border-color:var(--event);color:#fff} .tag2.minus{background:var(--bad);border-color:var(--bad);color:#fff} .tag2.ppn{color:var(--assist);border-color:var(--assist)} .tag2.me{color:var(--assist);border-color:var(--assist)} .tag2.g{color:var(--goal);border-color:var(--goal)}
+.bar2{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line);min-width:120px}
+.bar2 i{display:block;height:100%} .bar2 .o{background:var(--accent)} .bar2 .p{background:var(--other);opacity:.55}
+.miss{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line);font-size:13px}
+.miss .m{color:var(--muted)}
+.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro [data-v=photos],.ro #exportCsv{display:none!important}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:10}
+#modal.on{display:flex}
+.mbox{background:var(--card);border-radius:14px;max-width:820px;width:100%;padding:16px}
+.mbox video{width:100%;border-radius:8px;background:#000;max-height:60vh}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}
+.form label{font-size:12px;color:var(--muted);display:block}
+.form input,.form select{width:100%}
+.cap{white-space:pre-wrap;background:var(--bg);border-radius:8px;padding:10px;font-size:13px;max-height:200px;overflow:auto}
+</style>
+</head>
+<body>
+<script src="data.js"></script>
+<div class="wrap">
+  <header>
+    <h1 id="title">Clip Archive</h1>
+    <div class="sub"><span id="subline"><a href="clips.csv" download style="color:var(--accent)" id="exportCsv">Export clips.csv</a> · All data stays on this computer</span></div>
+  </header>
+
+  <div class="box" id="addBox">
+    <b>Add clips / photos</b> <span class="hint">Paste YouTube or X (Twitter) links, one per line. X posts with photos go to the Photos tab automatically.</span>
+    <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;To take only part of a video, add start-end times after the link, e.g.  https://youtu.be/xxxx 12:30-13:05&#10;For several parts of one video, use one line per part"></textarea>
+    <div class="row" style="margin-top:8px">
+      <select id="addType"><option value="">Type: auto-detect</option></select>
+      <label class="hint">Game date <input type="date" id="addDate"></label>
+      <input id="addOpp" placeholder="Opponent (optional)" style="width:130px">
+      <button class="btn primary" id="add">Add &amp; download</button>
+    </div>
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Take only one part of the video (for a single link)</summary>
+      <div class="row" style="margin-top:6px">
+        <input id="addStart" placeholder="Start, e.g. 12:30" style="width:120px">
+        <span class="hint">to</span>
+        <input id="addEnd" placeholder="End, e.g. 13:05" style="width:120px">
+        <input id="addTitle" placeholder="Title for this part (optional)" style="flex:1;min-width:180px">
+      </div>
+    </details>
+    <div id="jobs"></div>
+  </div>
+
+  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button></div>
+  <div class="row" id="ranges"></div>
+  <div class="row" style="margin-top:8px">
+    <span id="custom" style="display:none" class="row">
+      <input type="date" id="from"> – <input type="date" id="to">
+    </span>
+  </div>
+
+  <div id="viewClips">
+  <div class="tiles" id="tiles"></div>
+  <div class="hint" style="margin:-4px 0 8px">Goals, assists and points are the official NHL numbers for the games in this date range; interviews and clips count what you have saved.</div>
+
+  <div class="box" id="nhlBox">
+    <div class="row" style="justify-content:space-between">
+      <span><b>NHL official data</b> <span class="hint" id="nhlUpd"></span></span>
+      <span class="row"><select id="nhlSeason"></select><button class="btn" id="nhlSync">Sync official data</button></span>
+    </div>
+    <div id="nhlSum" style="margin-top:6px"></div>
+    <div id="nhlMiss"></div>
+  </div>
+
+  <div class="box" id="weeksBox" style="display:none">
+    <b>Weekly summary</b> <span class="hint">Click a row to see only that week. Goals, assists and points are official; interviews and clips count what you have saved.</span>
+    <div style="overflow:auto;margin-top:6px"><table id="weeks"></table></div>
+  </div>
+
+  <div class="row" style="margin:14px 0 10px">
+    <span id="types" class="row"></span>
+    <input id="q" placeholder="Search title, caption, tags" style="flex:1;min-width:160px">
+    <select id="opp"><option value="">All opponents</option></select>
+    <select id="sort"><option value="new">Date: newest first</option><option value="old">Date: oldest first</option></select>
+  </div>
+  <div class="row" style="margin-bottom:8px;justify-content:space-between"><span class="hint" id="count"></span><button class="btn" id="mkAll" title="Generate a cover image (video frame + title + game info) for every clip that has none">Make covers</button></div>
+  <div class="grid" id="grid"></div>
+  </div>
+
+  <div id="viewGames" style="display:none">
+    <div id="gameList"></div>
+    <div id="gameDetail" style="display:none"></div>
+  </div>
+
+  <div id="viewPhotos" style="display:none">
+    <div class="row" style="margin:6px 0 10px"><span id="pstatus" class="row"></span>
+      <input id="pq" placeholder="Search post text" style="flex:1;min-width:160px"></div>
+    <div class="hint" style="margin-bottom:8px" id="pinfo"></div>
+    <div id="pgroups"></div>
+  </div>
+</div>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// 只读静态版: build_static.py 会把数据打包进 data.js (window.SNAPSHOT), 此时页面不访问本机服务
+const SNAP = window.SNAPSHOT || null;
+const snapGet = u => { const p = u.split("?")[0];
+  return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines
+    : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
+const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
+const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
+let photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
+// Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
+const TN = {"进球": "Goal", "助攻": "Assist", "采访": "Interview", "活动": "Event", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
+let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
+const cv = c => c.cover ? encodeURI(c.cover) + "?v=" + coverVer : (c.thumb ? encodeURI(c.thumb) : "");
+const pChip = (g, id) => { const r = dressedMap(g).get(id); return `<span class="pc">${r ? mug(g, r) : ""}<span>${esc(plabel(g, id))}</span></span>`; };   // 头像 + 号码 + 名字
+const mug = (g, r) => `<img class="mug" loading="lazy" alt="" src="${SNAP ? `headshots/${esc(g.season)}/${TEAM}/${r.id}.webp` : `/api/headshot?season=${esc(g.season)}&team=${TEAM}&id=${r.id}`}" data-name="${esc(r.name)}" onerror="this.style.visibility='hidden'">`;   // 球员头像: 由本机服务从 NHL 官网取一次, 存在 headshots/ 里
+function openMug(src, name){
+  $("mbox").innerHTML = `<div style="text-align:center"><img src="${src}" alt="" style="width:100%;max-width:336px;border-radius:14px;background:var(--bg)"><div style="margin-top:8px;font-weight:600;font-size:16px">${esc(name)}</div>
+    <div class="row" style="justify-content:center;margin-top:10px"><button class="btn" id="close">Close</button></div></div>`;
+  $("close").onclick = closeModal; $("modal").classList.add("on");
+}
+const tn = v => TN[v] || v;
+const SRC = {"未生成": "Not generated", "手写": "Manual", "官方数据": "Official data"};
+const sn = v => SRC[v] || (String(v).startsWith("Claude") ? "Claude (written in chat)" : v);
+const en = s => String(s ?? "").replace(/第(\d+)次加时/g, "OT$1").replace(/第(\d)节/g, "P$1").replace(/点球大战/g, "SO").replace(/加时/g, "OT").replace(/多打少/g, "Power play").replace(/少打多/g, "Short-handed").replace(/进球/g, "Goal").replace(/助攻/g, "Assist");
+let TYPES = [], clips = [], nhl = {events: [], seasons: {}}, range = "all", typeSel = null, openId = null, editing = false;
+
+// ---------- 日期 ----------
+const pd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const monday = d => addDays(d, -((d.getDay() + 6) % 7));
+const md = d => `${d.getMonth()+1}/${d.getDate()}`;
+function rangeBounds(){
+  const t = new Date(), m = monday(t);
+  if(range === "week") return [iso(m), iso(addDays(m, 6))];
+  if(range === "lastweek") return [iso(addDays(m, -7)), iso(addDays(m, -1))];
+  if(range === "month") return [iso(new Date(t.getFullYear(), t.getMonth(), 1)), iso(new Date(t.getFullYear(), t.getMonth() + 1, 0))];
+  if(range === "season"){ const y = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear() - 1; return [`${y}-07-01`, `${y+1}-06-30`]; }
+  if(range === "custom") return [$("from").value || "0000-01-01", $("to").value || "9999-12-31"];
+  return ["0000-01-01", "9999-12-31"];
+}
+const RANGES = [["all","All"],["week","This week"],["lastweek","Last week"],["month","This month"],["season","This season"],["custom","Custom"]];
+
+// ---------- 过滤 ----------
+function inRangeD(d){ const [a, b] = rangeBounds(); return d >= a && d <= b; }
+function inRange(c){ return inRangeD(c.game_date); }
+function visible(){
+  const q = $("q").value.trim().toLowerCase(), opp = $("opp").value;
+  let r = clips.filter(c => inRange(c) && (!typeSel || c.type === typeSel) && (!opp || c.opponent === opp) &&
+    (!q || (c.title + " " + c.caption + " " + c.tags + " " + c.opponent + " " + c.notes + " " + (c.summary || "")).toLowerCase().includes(q)));
+  r.sort((a, b) => a.game_date === b.game_date ? a.added.localeCompare(b.added) : a.game_date.localeCompare(b.game_date));
+  return $("sort").value === "new" ? r.reverse() : r;
+}
+
+// ---------- 渲染 ----------
+const tm = s => { s = Math.floor(+s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}` : `${m}:${String(x).padStart(2,"0")}`; };
+const dur = s => { s = +s || 0; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ":" + String(m).padStart(2,"0") : m) + ":" + String(x).padStart(2,"0"); };
+function render(){
+  $("ranges").innerHTML = RANGES.map(([k, n]) => `<button class="chip ${range===k?"on":""}" data-r="${k}">${n}</button>`).join("");
+  $("custom").style.display = range === "custom" ? "" : "none";
+  document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => { range = b.dataset.r; render(); });
+  $("types").innerHTML = [["", "All types"], ...TYPES.map(t => [t, tn(t)])].map(([k, n]) =>
+    `<button class="chip ${(typeSel||"")===k?"on":""}" data-t="${k}">${n}</button>`).join("");
+  document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { typeSel = b.dataset.t || null; render(); });
+
+  const inR = clips.filter(inRange);
+  const sum = k => inR.reduce((a, c) => a + (+c[k] || 0), 0);
+  const cnt = t => inR.filter(c => c.type === t).length;
+  const [a, b] = rangeBounds();
+  const gIn = games.filter(g => inRangeD(g.date) && g.player), off = k => games.length ? gIn.reduce((t, g) => t + (+g.player[k] || 0), 0) : "–";   // 进球/助攻/得分用官方比赛数据
+  $("tiles").innerHTML = `
+    <div class="tile g"><b>${off("g")}</b><span>Goals</span></div>
+    <div class="tile a"><b>${off("a")}</b><span>Assists</span></div>
+    <div class="tile"><b>${off("pts")}</b><span>Points</span></div>
+    <div class="tile i"><b>${cnt("采访")}</b><span>Interviews</span></div>
+    <div class="tile"><b>${inR.length}</b><span>Clips${range!=="all"&&range!=="custom"?` (${a.slice(5)} ~ ${b.slice(5)})`:""}</span></div>`;
+
+  // NHL 官方数据对照
+  const have = new Set(clips.map(c => c.id));
+  const ev = (nhl.events || []).filter(e => e.date >= a && e.date <= b);
+  const missing = ev.filter(e => !have.has(e.id));
+  const fetchable = missing.filter(e => e.clip);
+  const upd = Object.values(nhl.seasons || {}).map(s => s.updated).sort().slice(-1)[0];
+  $("nhlUpd").textContent = upd ? "Last synced: " + upd.replace("T", " ").slice(0, 16) : "";
+  if(!(nhl.events || []).length && !upd){
+    $("nhlSum").innerHTML = `<span class="hint">Not synced yet. Click “Sync official data” on the right to read every goal and assist in the selected season (who scored, who assisted, period and time) and find the official video clips.</span>`;
+    $("nhlMiss").innerHTML = "";
+  } else {
+    const og = ev.filter(e => e.type === "进球").length, oa = ev.filter(e => e.type === "助攻").length;
+    $("nhlSum").innerHTML = `In this date range the official record shows: <b>${og} goals</b> · <b>${oa} assists</b> (${ev.length} total). ${ev.length - missing.length} archived` +
+      (missing.length ? `; <b style="color:var(--goal)">${missing.length} missing</b>` : "; <b>all collected</b>") +
+      (fetchable.length ? ` <button class="btn primary" id="nhlGet" style="margin-left:6px">Download the ${fetchable.length} missing official clips</button>` : "");
+    $("nhlMiss").innerHTML = missing.map(e => `<div class="miss"><span class="badge ${esc(e.type)}">${esc(tn(e.type))}</span>
+      <span>${esc(e.date.slice(5))} ${e.home ? "vs" : "@"} ${esc(e.opp)} · ${esc(en(e.moment))}</span>
+      <span class="m">Goal ${esc(e.scorer)}; assists ${esc(e.assists.join(", "))}${e.strength ? " · " + esc(en(e.strength)) : ""}</span>
+      ${e.clip ? "" : `<span class="m">(no official video yet)</span>`}</div>`).join("");
+    const g = $("nhlGet"); if(g) g.onclick = async () => { g.disabled = true; await post("/api/nhl/fetch", {ids: fetchable.map(e => e.id)}); poll(); };
+  }
+
+  // 按周汇总
+  const weeks = {};
+  inR.forEach(c => { const m = iso(monday(pd(c.game_date))); (weeks[m] ||= {g:0,a:0,p:0,i:0,n:0}); const w = weeks[m];
+    w.i += c.type === "采访" ? 1 : 0; w.n++; });
+  games.filter(g => inRangeD(g.date) && g.player).forEach(g => { const m = iso(monday(pd(g.date))); (weeks[m] ||= {g:0,a:0,p:0,i:0,n:0}); const w = weeks[m];
+    w.g += +g.player.g || 0; w.a += +g.player.a || 0; w.p += +g.player.pts || 0; });
+  const ks = Object.keys(weeks).sort().reverse();
+  $("weeksBox").style.display = ks.length > 1 || range === "season" || range === "all" ? "" : "none";
+  $("weeks").innerHTML = `<tr><th>Week</th><th class="n">Goals</th><th class="n">Assists</th><th class="n">Points</th><th class="n">Interviews</th><th class="n">Clips</th></tr>` +
+    ks.map(k => { const w = weeks[k], s = pd(k); return `<tr class="click" data-w="${k}"><td>${md(s)} – ${md(addDays(s, 6))}</td>
+      <td class="n">${w.g}</td><td class="n">${w.a}</td><td class="n">${w.p}</td><td class="n">${w.i}</td><td class="n">${w.n}</td></tr>`; }).join("");
+  document.querySelectorAll("[data-w]").forEach(r => r.onclick = () => { range = "custom"; $("from").value = r.dataset.w;
+    $("to").value = iso(addDays(pd(r.dataset.w), 6)); render(); window.scrollTo(0, 0); });
+
+  // 对手下拉
+  const opps = [...new Set(clips.map(c => c.opponent).filter(Boolean))].sort(), cur = $("opp").value;
+  $("opp").innerHTML = `<option value="">All opponents</option>` + opps.map(o => `<option ${o===cur?"selected":""}>${esc(o)}</option>`).join("");
+
+  const v = visible();
+  $("count").textContent = clips.length ? `${v.length} clips` : "No clips yet. Paste your first link above to start.";
+  $("grid").innerHTML = v.map(c => `<div class="clip" data-id="${esc(c.id)}">
+    <div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${c.seg_start !== "" && c.seg_start != null ? "Cut " : ""}${dur(c.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(c.title)}</div>
+    <div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(c.game_date.slice(5))}${c.opponent ? " · vs " + esc(c.opponent) : ""}</div>
+    ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("");
+  document.querySelectorAll(".clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
+  renderPhotos();
+}
+
+
+
+
+
+
+
+
+// ---------- 从上一场复制阵容分组 ----------
+// 规则: 复制上一场你填好的分组, 再用这场的实际情况检查, 对不上的留空:
+//  1) 这场没上场 -> 留空;  2) 位置组对不上(前锋/后卫/门将) -> 留空;
+//  3) 上一场填在中锋格子、这场他不是中锋 -> 留空;  上一场填在边锋格子、这场他像是中锋 -> 留空。
+//  “是不是中锋”用这场的争球次数判断: 争球最多的 4 名前锋(且至少 3 次)视为中锋。左右边锋无法从数据区分, 保留上一场的左右。
+const CENTER_N = 4, CENTER_MIN_FO = 3;
+function centersOf(g){
+  const fw = (g.lineup || {}).forwards || [];
+  if(!fw.length || fw.some(r => r.fo === undefined)) return null;     // 没有争球数据(需要重新同步)
+  return new Set([...fw].sort((a, b) => b.fo - a.fo).slice(0, CENTER_N).filter(r => r.fo >= CENTER_MIN_FO).map(r => r.id));
+}
+function copyFromPrev(g){
+  const p = prevOf(g), pl = p && lineData[String(p.id)]; if(!pl) return null;
+  const cur = dressedMap(g), centers = centersOf(g), blanks = []; let kept = 0;
+  const grpOK = (key, r) => key[0] === "F" ? ["L", "C", "R"].includes(r.pos) : key[0] === "D" ? r.pos === "D" : r.pos === "G";
+  const fix = (id, key) => {
+    if(!id) return null;
+    const r = cur.get(id);
+    if(!r){ blanks.push(`${slotLabel(key)}：${plabel(p, id)} — did not play this game`); return null; }
+    if(!grpOK(key, r)){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — listed as ${r.pos} this game, not in this position group`); return null; }
+    if(key[0] === "F" && centers){
+      const slotIsC = key[2] === "1", isC = centers.has(id);
+      if(slotIsC && !isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — played center last game but took only ${r.fo} faceoffs this game, so probably not at center`); return null; }
+      if(!slotIsC && isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — played wing last game but took ${r.fo} faceoffs this game, so probably at center now`); return null; }
+    }
+    kept++; return id; };
+  const pad = (rows, n, m) => Array.from({length: n}, (_, i) => Array.from({length: m}, (_, j) => (rows || [])[i]?.[j] ?? null));
+  const F = pad(pl.F, 4, 3).map((row, i) => row.map((id, j) => fix(id, `F${i}${j}`)));
+  const D = pad(pl.D, 3, 2).map((row, i) => row.map((id, j) => fix(id, `D${i}${j}`)));
+  const G = [0, 1].map(j => fix((pl.G || [])[j] ?? null, `G${j}0`));
+  return {draft: {F, D, G}, notice: {p, kept, blanks, noFo: !centers}};
+}
+function noticeHTML(){
+  if(!lineNotice) return "";
+  const n = lineNotice;
+  if(n.ocr) return `<div class="box" style="background:var(--bg);margin:0 0 10px">Filled in from the lineup image by reading its text on this computer (matched by jersey number). Please check it against the image before saving.
+    ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">Not matched to anyone who played this game (left blank): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
+  return `<div class="box" style="background:var(--bg);margin:0 0 10px">Copied the lineup groups from the previous game (${esc(n.p.date.slice(5))} vs ${esc(n.p.opp)}): kept <b>${n.kept}</b> slots, left <b>${n.blanks.length}</b> blank.
+    ${n.blanks.length ? `<ul class="tight">${n.blanks.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+    <div class="hint">Blank slots, and players new to this game, need to be filled in by you. “Is he a center” is judged by faceoff counts this game (the 4 forwards with the most faceoffs, at least 3); left and right wing cannot be told apart from the data, so last game’s sides are kept.</div>
+    ${n.noFo ? `<div class="hint" style="color:var(--bad)">No faceoff data for this game yet, so I could not tell whether anyone moved to center; I only checked who played. Click “Sync official data” to fill it in.</div>` : ""}</div>`;
+}
+
+
+// ---------- 卡尔松和谁一起打球 ----------
+const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+function iceHTML(g){
+  const who = g.player ? g.player.name : "Player", ice = g.ice, title = `<div class="gsec">Who ${esc(who)} played with</div>`;
+  if(ice === undefined) return title + `<div class="box hint">No on-ice combination data for this game yet. Click “Sync official data” to read it (uses the official shift records; the game must be over).</div>`;
+  if(ice === null || !g.player) return title + `<div class="box hint">Did not play this game.</div>`;
+  const T = ice.total || 1, pct = s => Math.round(s / T * 100) + "%", nm = id => pChip(g, id), pos = id => (dressedMap(g).get(id) || {}).pos || "";
+  const look = a => new Map(a || []);
+  const dAll = ice.d.all.slice(0, 5), d5 = look(ice.d["5v5"]), dPk = look(ice.d.pk), dPp = look(ice.d.pp);
+  const fAll = ice.f.all.slice(0, 9), f5 = look(ice.f["5v5"]), fPp = look(ice.f.pp), fPk = look(ice.f.pk);
+  const rk = i => i === 0 ? "r1" : i === 1 ? "r2" : "r3";      // 第 1 名最醒目, 第 2 名次之, 其余变淡
+  const topOf = (m, rows) => { let b = null, bv = 0; rows.forEach(([id]) => { if(m.has(id) && m.get(id) > bv){ b = id; bv = m.get(id); } }); return b; };
+  const bar = (v, mx) => `background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent) ${Math.round(v / (mx || 1) * 100)}%,transparent ${Math.round(v / (mx || 1) * 100)}%)`;
+  const cellT = (m, k, top) => m.has(k) ? (k === top ? `<td class="top">${mmss(m.get(k))}</td>` : `<td>${mmss(m.get(k))}</td>`) : `<td>–</td>`;
+  const centerOf = ids => ids.reduce((a, b) => ((dressedMap(g).get(b) || {}).fo || 0) > ((dressedMap(g).get(a) || {}).fo || 0) ? b : a);
+  return title + `<div class="box" style="overflow:auto">
+    <div>Total ice time <b>${mmss(ice.total)}</b>: 5v5 ${mmss(ice.sit["5v5"])} · PP ${mmss(ice.sit.pp)} · SH ${mmss(ice.sit.pk)}${ice.sit.other ? " · other " + mmss(ice.sit.other) : ""}</div>
+    <div class="hint" style="margin-top:8px">Defense partners</div>
+    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th></tr>${dAll.map(([id, s], i) => `<tr class="${rk(i)}"><td>${nm(id)}</td><td class="dbar" style="${bar(s, dAll[0][1])}"><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(d5, id, topOf(d5, dAll))}${cellT(dPp, id, topOf(dPp, dAll))}${cellT(dPk, id, topOf(dPk, dAll))}</tr>`).join("") || `<tr><td colspan="6" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">Forwards on ice together</div>
+    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th></tr>${fAll.map(([id, s], i) => `<tr class="${rk(i)}"><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td class="dbar" style="${bar(s, fAll[0][1])}"><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(f5, id, topOf(f5, fAll))}${cellT(fPp, id, topOf(fPp, fAll))}${cellT(fPk, id, topOf(fPk, fAll))}</tr>`).join("") || `<tr><td colspan="6" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">Most common forward trios on ice with him at 5v5</div>
+    <table class="gt l"><tr><th>Time</th><th>Line</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s], ti) => { const c = centerOf(ids);
+      const F = (lineData[String(g.id)] || {}).F || [], hit = F.map((row, k) => [k, row.filter(x => ids.includes(x)).length]).sort((x, y) => y[1] - x[1])[0], ln = hit && hit[1] >= 2 ? `Line ${hit[0] + 1}${hit[1] < 3 ? "*" : ""}` : "–";
+      return `<tr class="${rk(ti)}"><td class="dbar" style="${bar(s, ice.trios[0][1])}">${mmss(s)}</td><td>${ln}</td><td>${ids.map(i => `<span style="display:inline-block;margin:2px 10px 2px 0">${pChip(g, i)}${i === c ? `<span class="tag2 me">C</span>` : ""}</span>`).join("")}</td></tr>`; }).join("") || `<tr><td colspan="3" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:4px">Darkest row = most time together; the bar in the time cell is relative to the top row, and the best value in each column is colored. Line = from the lineup groups you entered (– if not entered or no match; * = only 2 of the 3 players are in that line).</div>
+    <div class="hint" style="margin-top:8px">Counted second by second from the official shift records: who was on the ice with him (goalies excluded). 5v5, PP and SH are decided by the number of skaters on each side, which can be off when a goalie is pulled. Line-change overlaps (seconds with more than 5 skaters on one side) are removed, and stretches under 5 seconds together are ignored. Time when he is off the ice is not counted; the sample is this one game, so pairings change from game to game.</div></div>`;
+}
+
+// ---------- 阵容分组(手动填写) ----------
+const FL = ["Left wing", "Center", "Right wing"];
+const dressedMap = g => { const m = new Map(); GRP.forEach(([k]) => ((g.lineup || {})[k] || []).forEach(r => m.set(r.id, r))); return m; };
+const plabel = (g, id) => { const r = id ? dressedMap(g).get(id) : null; return r ? `#${r.num} ${r.name}` : ""; };
+const slotLabel = key => { const t = key[0], i = +key[1], j = +key[2];
+  return t === "F" ? `Line ${i + 1} ${FL[j]}` : t === "D" ? `Pair ${i + 1} D${j + 1}` : (i === 0 ? "Starting goalie" : "Backup goalie"); };
+function slotsOf(L){   // key -> 球员 id
+  const m = new Map(); if(!L) return m;
+  (L.F || []).forEach((row, i) => row.forEach((id, j) => m.set(`F${i}${j}`, id)));
+  (L.D || []).forEach((row, i) => row.forEach((id, j) => m.set(`D${i}${j}`, id)));
+  (L.G || []).forEach((id, j) => m.set(`G${j}0`, id));
+  return m;
+}
+function guessLines(g){
+  const toi = r => toiSec(r.toi) || 0, fw = [...g.lineup.forwards], used = new Set();
+  const pick = pos => fw.filter(r => r.pos === pos).sort((a, b) => toi(b) - toi(a));
+  const Ls = pick("L"), Cs = pick("C"), Rs = pick("R");
+  const F = [0, 1, 2, 3].map(i => [Ls[i]?.id ?? null, Cs[i]?.id ?? null, Rs[i]?.id ?? null]);
+  F.flat().forEach(id => id && used.add(id));
+  const rest = fw.filter(r => !used.has(r.id)).sort((a, b) => toi(b) - toi(a));
+  F.forEach(row => row.forEach((id, j) => { if(!id && rest.length){ row[j] = rest.shift().id; } }));
+  const ds = [...g.lineup.defense].sort((a, b) => toi(b) - toi(a));
+  const D = [0, 1, 2].map(i => [ds[2 * i]?.id ?? null, ds[2 * i + 1]?.id ?? null]);
+  const gs = [...g.lineup.goalies].sort((a, b) => toi(b) - toi(a));
+  return {F, D, G: [gs[0]?.id ?? null, gs[1]?.id ?? null]};
+}
+
+// 按球员选: 位置的编号为 "F.i.j" / "D.i.j" / "G.j"
+function slotKeyOf(d, pid){
+  for(let i = 0; i < d.F.length; i++) for(let j = 0; j < 3; j++) if(d.F[i][j] === pid) return `F.${i}.${j}`;
+  for(let i = 0; i < d.D.length; i++) for(let j = 0; j < 2; j++) if(d.D[i][j] === pid) return `D.${i}.${j}`;
+  for(let j = 0; j < 2; j++) if(d.G[j] === pid) return `G.${j}`;
+  return null;
+}
+const slotGet = (d, k) => { const [t, i, j] = k.split("."); return t === "G" ? d.G[+i] : d[t][+i][+j]; };
+const slotSet = (d, k, v) => { const [t, i, j] = k.split("."); if(t === "G") d.G[+i] = v; else d[t][+i][+j] = v; };
+// 把某个球员放到某个位置; 位置上原来有人, 就和他互换(如果这个球员原本有位置), 否则原来那人变成“未分配”
+function placePlayer(d, pid, key){
+  const old = slotKeyOf(d, pid); if(old) slotSet(d, old, null);
+  if(key){ const other = slotGet(d, key); slotSet(d, key, pid); if(other && old) slotSet(d, old, other); }
+}
+function slotChoices(grp){
+  if(grp === "forwards") return [0, 1, 2, 3].flatMap(i => [0, 1, 2].map(j => [`F.${i}.${j}`, `Line ${i + 1} ${FL[j]}`]));
+  if(grp === "defense") return [0, 1, 2].flatMap(i => [0, 1].map(j => [`D.${i}.${j}`, `Pair ${i + 1} D${j + 1}`]));
+  return [["G.0", "Starting goalie"], ["G.1", "Backup goalie"]];
+}
+function playerModeHTML(g, d){
+  const rows = GRP.map(([k, name]) => { const arr = [...((g.lineup || {})[k] || [])].sort((a, b) => k === "goalies" ? (toiSec(b.toi) || 0) - (toiSec(a.toi) || 0) : a.num - b.num);
+    return `<tr><th colspan="6" style="background:var(--bg)">${name} (${arr.length})</th></tr>` + arr.map(r => { const cur = slotKeyOf(d, r.id);
+      return `<tr><td>#${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${esc(r.toi || "")}</td><td>${k === "goalies" ? `${r.sv ?? ""} saves` : `${r.g ?? 0} G ${r.a ?? 0} A`}</td>
+        <td><select data-pl="${r.id}" data-grp="${k}"><option value="">(unassigned)</option>${slotChoices(k).map(([key, lab]) => { const occ = slotGet(d, key);
+          return `<option value="${key}" ${key === cur ? "selected" : ""}>${lab}${occ && key !== cur ? " (currently " + esc(plabel(g, occ)) + ", will swap)" : ""}</option>`; }).join("")}</select></td></tr>`; }).join(""); }).join("");
+  const left = [...dressedMap(g).keys()].filter(id => !slotKeyOf(d, id)).length;
+  return `<table class="gt l"><tr><th>Player (NHL roster)</th><th>Pos</th><th>TOI</th><th>This game</th><th>Line</th></tr>${rows}</table>
+    <div class="hint" style="margin-top:6px">${left ? `${left} player(s) still unassigned.` : "All players who dressed are assigned."} Choosing a slot that is already taken swaps the two players.</div>`;
+}
+
+function linesHTML(g){
+  const gid = String(g.id), L = lineData[gid], editing = lineEdit === gid, pics = photos.filter(p => String(p.game_id) === gid && p.kind === "阵容" && p.status !== "排除");
+  const thumbs = pics.length ? `<div class="pthumbs" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${pics.map(p => `<div class="pth"><img src="${encodeURI(p.file)}" data-pid="${esc(p.id)}" alt=""></div>`).join("")}</div><div class="hint">Lineup images for this game are above; click to enlarge and fill in from them.</div>` : "";
+  const pg = prevOf(g), PL = pg && lineData[String(pg.id)] ? slotsOf(lineData[String(pg.id)]) : null;     // 上一场的阵容分组, 用来标出变化的位置
+  const chg = (key, id) => !!PL && (PL.get(key) ?? null) !== (id ?? null);
+  const wasOf = key => { const o = PL && PL.get(key); return o ? `<span class="was">was ${esc(plabel(pg, o))}</span>` : `<span class="was">was empty</span>`; };
+  const opts = (arr, cur) => `<option value="">(empty)</option>` + arr.map(r => `<option value="${r.id}" ${r.id === cur ? "selected" : ""}>#${esc(r.num ?? "")} ${esc(r.name)}${r.pos ? " (" + esc(r.pos) + ")" : ""}</option>`).join("");
+  let body;
+  if(editing){
+    const d = lineDraft, fw = [...g.lineup.forwards].sort((a, b) => a.num - b.num), df = [...g.lineup.defense].sort((a, b) => a.num - b.num), gk = g.lineup.goalies;
+    const slotUI = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${d.F.map((row, i) => `<tr><td>Line ${i + 1}</td>${row.map((id, j) => `<td class="${chg(`F${i}${j}`, id) ? "chg" : ""}"><select data-slot="F.${i}.${j}">${opts(fw, id)}</select>${chg(`F${i}${j}`, id) ? wasOf(`F${i}${j}`) : ""}</td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${d.D.map((row, i) => `<tr><td>Pair ${i + 1}</td>${row.map((id, j) => `<td class="${chg(`D${i}${j}`, id) ? "chg" : ""}"><select data-slot="D.${i}.${j}">${opts(df, id)}</select>${chg(`D${i}${j}`, id) ? wasOf(`D${i}${j}`) : ""}</td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th>Goalie</th><th>Starter</th><th>Backup</th></tr><tr><td></td>${d.G.map((id, j) => `<td class="${chg(`G${j}0`, id) ? "chg" : ""}"><select data-slot="G.${j}">${opts(gk, id)}</select>${chg(`G${j}0`, id) ? wasOf(`G${j}0`) : ""}</td>`).join("")}</tr></table>`;
+    const prevHas = (() => { const p = prevOf(g); return p && lineData[String(p.id)]; })();
+    body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">By player (pick a line for each player)</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">By slot (pick a player for each slot)</button>
+      ${prevHas ? `<button class="btn" id="lCopy">Copy previous lineup</button>` : ""}<button class="btn" id="lGuess">Prefill from position and TOI (a guess)</button><button class="btn" id="lOcr">Read from a lineup image…</button><input type="file" id="lOcrFile" accept="image/*" style="display:none">${pics.map((p, i) => `<button class="btn" data-ocr="${esc(p.id)}">Read lineup image ${i + 1}</button>`).join("")}</div><div class="hint" style="margin-bottom:8px">The list comes from official NHL data (who actually played). Prefill is only a starting point; check it against the lineup image.</div>
+      ${lineMode === "player" ? playerModeHTML(g, d) : slotUI}
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">Save</button><button class="btn" id="lCancel">Cancel</button><span class="hint" id="lMsg"></span></div>`;
+  } else if(L){
+    const TS = slotsOf(L), mode = PL ? lineView : "this";      // this / prev / cmp: 这一场、上一场、两场对照
+    const mugOf = (G, id) => { const r = dressedMap(G).get(id); return r ? mug(G, r) : ""; };
+    const nameIn = (G, id) => id ? `<span class="pc">${mugOf(G, id)}<span>${esc(plabel(G, id))}</span></span>` : `<span class="hint">—</span>`;
+    const cellOf = (key, tag) => {
+      const t = TS.get(key) ?? null, pv = PL ? (PL.get(key) ?? null) : null, ch = !!PL && t !== pv;
+      // 颜色: 新加入(上一场没出场)= 橙, 换了位置 = 蓝, 上一场的人这场没出场 = 灰 (和下面 “Changes vs. previous game” 里的标签颜色一致)
+      const kind = !ch ? "" : mode === "prev" ? (pv && !dressedMap(g).has(pv) ? "out" : "mv") : (t && !dressedMap(pg).has(t) ? "new" : t ? "mv" : "out"), cls = ch ? `chg ${kind}` : "";
+      const inner = mode === "prev" ? nameIn(pg, pv) + (ch ? `<span class="was">now ${t ? esc(plabel(g, t)) : "empty"}</span>` : "")
+        : mode === "cmp" ? (ch ? `<span class="was" style="text-decoration:line-through">${pv ? esc(plabel(pg, pv)) : "empty"}</span>` : "") + nameIn(g, t)
+        : nameIn(g, t) + (ch ? `<span class="was">was ${pv ? esc(plabel(pg, pv)) : "empty"}</span>` : "");
+      return {cls, inner};
+    };
+    const td = key => { const c = cellOf(key); return `<td class="${c.cls}">${c.inner}</td>`; };
+    const gl = key => { const c = cellOf(key); return `<span class="${c.cls ? "chgi " + c.cls.split(" ")[1] : ""}">${c.inner}</span>`; };
+    const nChanged = PL ? [...TS.keys()].filter(k => (TS.get(k) ?? null) !== (PL.get(k) ?? null)).length : 0;
+    const tabs = PL ? `<div class="row" style="margin-bottom:8px">${[["this", `This game (${esc(g.date.slice(5))} ${g.home ? "vs" : "@"} ${esc(g.opp)})`], ["prev", `Previous (${esc(pg.date.slice(5))} ${pg.home ? "vs" : "@"} ${esc(pg.opp)})`], ["cmp", "Compare"]]
+      .map(([k, n]) => `<button class="chip ${mode === k ? "on" : ""}" data-lv="${k}">${n}</button>`).join("")}</div>` : "";
+    const chips = `<span class="chgi new" style="padding:0 6px">New</span> not on the previous game’s roster · <span class="chgi mv" style="padding:0 6px">Moved</span> played last game, different slot${mode === "prev" ? ` · <span class="chgi out" style="padding:0 6px">Out</span> did not play this game` : ""}`;
+    const legend = !PL ? "" : mode === "prev" ? `Showing the <b>previous game’s</b> lineup groups; the small text shows who is in that slot now. ${chips}`
+      : mode === "cmp" ? `Each slot shows this game’s player; when it changed, the previous game’s player is struck through above it (${nChanged} slot${nChanged === 1 ? "" : "s"} changed). ${chips}`
+      : `Compared with the previous game (${esc(pg.date.slice(5))} vs ${esc(pg.opp)}); the small text shows who was in the slot. ${chips}`;
+    body = `${tabs}<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${[0, 1, 2, 3].map(i => `<tr><td>Line ${i + 1}</td>${[0, 1, 2].map(j => td(`F${i}${j}`)).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${[0, 1, 2].map(i => `<tr><td>Pair ${i + 1}</td>${[0, 1].map(j => td(`D${i}${j}`)).join("")}</tr>`).join("")}</table>
+      <div style="margin-top:8px">Goalies: starter ${gl("G00")} · backup ${gl("G10")}</div>
+      ${legend ? `<div class="hint" style="margin-top:6px">${legend}</div>` : ""}
+      <div class="row" style="margin-top:8px"><button class="btn" id="lEdit">Edit</button><button class="btn danger" id="lClear">Clear</button><span class="hint">Entered manually at ${esc((L.updated || "").replace("T", " ").slice(0, 16))}</span></div>`;
+  } else {
+    body = `<div class="hint">Official data only says who played, not which line they were on, so you fill it in by hand (the team posts a lineup image each game that you can copy from).</div>
+      <div style="margin-top:8px"><button class="btn primary" id="lEdit">Set lineup groups</button></div>`;
+  }
+  return `<div class="gsec">Lineup groups (lines)<span class="tag2">Manual</span></div><div class="box" style="overflow:auto">${thumbs}${body}</div>`;
+}
+function wireLines(g){
+  const gid = String(g.id), q = id => document.querySelector("#gameDetail #" + id);
+  const edit = q("lEdit"); if(edit) edit.onclick = () => { lineEdit = gid; const L = lineData[gid]; lineNotice = null;
+    if(L) lineDraft = JSON.parse(JSON.stringify({F: L.F, D: L.D, G: L.G}));
+    else { const c = copyFromPrev(g);   // 这场还没填过: 有上一场的就自动复制过来
+      if(c){ lineDraft = c.draft; lineNotice = c.notice; } else lineDraft = {F: [[null, null, null], [null, null, null], [null, null, null], [null, null, null]], D: [[null, null], [null, null], [null, null]], G: [null, null]}; }
+    renderGameDetail(); };
+  const clr = q("lClear"); if(clr) clr.onclick = async () => { if(!confirm("Clear the lineup groups for this game?")) return; await post("/api/lines", {game_id: gid, lines: null}); await load(); };
+  const can = q("lCancel"); if(can) can.onclick = () => { lineEdit = null; lineDraft = null; lineNotice = null; renderGameDetail(); };
+  const gs = q("lGuess"); if(gs) gs.onclick = () => { lineDraft = guessLines(g); lineNotice = null; renderGameDetail(); };
+  const ocr = async payload => {
+    lineNotice = null; const m = q("lMsg"); if(m) m.textContent = "Reading the image… (the first time takes about half a minute)";
+    const r = await post("/api/lines/ocr", {game_id: gid, ...payload});
+    if(r.error){ if(m) m.textContent = r.error; return; }
+    lineDraft = {F: r.F, D: r.D, G: r.G}; lineNotice = {ocr: true, unmatched: r.unmatched}; renderGameDetail(); };
+  const ob = q("lOcr"), of = q("lOcrFile"); if(ob && of){ ob.onclick = () => of.click();
+    of.onchange = () => { const f = of.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = () => ocr({image: rd.result}); rd.readAsDataURL(f); }; }
+  document.querySelectorAll("#gameDetail [data-ocr]").forEach(b => b.onclick = () => ocr({photo_id: b.dataset.ocr}));
+  document.querySelectorAll("#gameDetail [data-lv]").forEach(b => b.onclick = () => { lineView = b.dataset.lv; renderGameDetail(); });
+  const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("Overwrite what you have entered with the previous game’s lineup groups?")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
+  document.querySelectorAll("#gameDetail select[data-slot]").forEach(sel => sel.onchange = () => {
+    const [t, i, j] = sel.dataset.slot.split("."), v = sel.value ? +sel.value : null, d = lineDraft;
+    if(v){ // 同一个人只能在一个位置: 从别处移走
+      d.F.forEach(r => r.forEach((x, k) => { if(x === v) r[k] = null; })); d.D.forEach(r => r.forEach((x, k) => { if(x === v) r[k] = null; })); d.G.forEach((x, k) => { if(x === v) d.G[k] = null; });
+    }
+    if(t === "G") d.G[+i] = v; else d[t][+i][+j] = v; renderGameDetail(); });
+  document.querySelectorAll("#gameDetail [data-lm]").forEach(b => b.onclick = () => { lineMode = b.dataset.lm; renderGameDetail(); });
+  document.querySelectorAll("#gameDetail select[data-pl]").forEach(sel => sel.onchange = () => { placePlayer(lineDraft, +sel.dataset.pl, sel.value || null); renderGameDetail(); });
+  const sv = q("lSave"); if(sv) sv.onclick = async () => { const r = await post("/api/lines", {game_id: gid, lines: lineDraft});
+    if(r.error){ q("lMsg").textContent = r.error; return; } lineEdit = null; lineDraft = null; lineNotice = null; await load(); };
+}
+// ---------- 阵容变动: 和存档里的上一场比较 ----------
+const GRP = [["forwards", "Forwards"], ["defense", "Defense"], ["goalies", "Goalies"]];
+const toiSec = t => { const m = /^(\d+):(\d+)$/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+function prevOf(g){
+  const asc = [...games].sort((a, b) => a.date.localeCompare(b.date) || String(a.id).localeCompare(String(b.id)));
+  const i = asc.findIndex(x => String(x.id) === String(g.id));
+  return i > 0 ? asc[i - 1] : null;
+}
+function rosterDiff(g){
+  const p = prevOf(g); if(!p) return null;
+  const mk = x => { const m = new Map(); GRP.forEach(([k, n]) => ((x.lineup || {})[k] || []).forEach(r => m.set(r.id, {...r, grp: k, grpName: n}))); return m; };
+  const cur = mk(g), prev = mk(p), scrNow = new Set(g.scratches || []), scrPrev = new Set(p.scratches || []);
+  const ins = [...cur.values()].filter(r => !prev.has(r.id)).map(r => ({...r, why: scrPrev.has(r.name) ? "Scratched last game" : "Not on last game’s roster"}));
+  const outs = [...prev.values()].filter(r => !cur.has(r.id)).map(r => ({...r, why: scrNow.has(r.name) ? "Scratched this game" : "Not on this game’s roster (official data gives no reason: injury, demotion or trade)"}));
+  // 对位: 同一组(前锋/后卫/门将)里先配同位置的, 再配剩下的。只是“位置上的对应”, 不代表真的上了同一条线
+  const pairs = [], used = new Set();
+  [true, false].forEach(strict => ins.forEach(i => { if(i.paired) return;
+    const o = outs.find(o => o.grp === i.grp && !used.has(o.id) && (!strict || o.pos === i.pos));
+    if(o){ used.add(o.id); i.paired = true; pairs.push([i, o]); } }));
+  const short = [...cur.values()].filter(r => r.grp !== "goalies" && toiSec(r.toi) !== null && toiSec(r.toi) < 300);
+  const gl = (g.lineup.goalies || []).filter(r => toiSec(r.toi) > 0);
+  const gPrev = (p.lineup.goalies || []).filter(r => toiSec(r.toi) > 0);
+  return {p, ins, outs, pairs, short, goalies: gl, gPrev, same: !ins.length && !outs.length};
+}
+const pl = (r, g) => `<span class="pc">${g ? mug(g, r) : ""}<span>#${esc(r.num ?? "")} ${esc(r.name)} (${esc(r.pos || r.grpName)})</span></span>`;
+function rosterHTML(g){
+  const d = rosterDiff(g);
+  if(!d) return `<div class="gsec">Lineup changes</div><div class="box hint">The archive has no earlier game (the previous game is before the start date and was not collected), so there is nothing to compare.</div>`;
+  const row = (title, arr, f) => arr.length ? `<div style="margin-top:8px"><b>${title}（${arr.length}）</b><ul class="tight">${arr.map(f).join("")}</ul></div>` : "";
+  return `<div class="gsec">Changes vs. previous game <span class="hint" style="font-weight:400">(previous: ${esc(d.p.date.slice(5))} vs ${esc(d.p.opp)})</span></div>
+    <div class="box">${d.same ? `<b>The roster is identical to the previous game.</b>` : ""}
+      ${row("New in lineup", d.ins, r => `<li>${pl(r, g)} <span class="tag2 g">${esc(r.why)}</span></li>`)}
+      ${row("Out of lineup", d.outs, r => `<li>${pl(r, g)} <span class="tag2">${esc(r.why)}</span></li>`)}
+      ${d.goalies.length > 1 ? `<div style="margin-top:8px"><b>Both goalies played</b> (probably a mid-game change; official data gives each one’s TOI but not the order): ${d.goalies.map(r => `${esc(r.name)} ${esc(r.toi)}`).join(", ")}</div>` : ""}
+      ${(d.goalies[0] && d.gPrev[0] && d.goalies[0].id !== d.gPrev[0].id) ? `<div style="margin-top:8px"><b>Starting goalie changed</b>: previous ${esc(d.gPrev[0].name)}, this game ${esc(d.goalies[0].name)}</div>` : ""}
+      ${d.short.length ? `<div style="margin-top:8px"><b>Very short TOI (under 5 minutes)</b> <span class="hint">For reference only: could be an early exit, penalty or tactics; official data gives no reason</span><ul class="tight">${d.short.map(r => `<li>${pl(r, g)} · ${esc(r.toi)}</li>`).join("")}</ul></div>` : ""}
+      ${(g.scratches || []).length ? `<div style="margin-top:8px" class="hint">Scratches this game: ${g.scratches.map(esc).join(", ")}</div>` : ""}
+    </div>`;
+}
+
+// ---------- 比赛 ----------
+const OUTC = {"胜": "var(--event)", "负": "var(--bad)", "加时负": "var(--goal)", "点球负": "var(--goal)"};
+const SCAT = [["sog", "Shots"], ["hits", "Hits"], ["blockedShots", "Blocks"], ["giveaways", "Giveaways"], ["takeaways", "Takeaways"], ["pim", "PIM (minutes)"],
+  ["powerPlay", "Power play (goals/chances)"], ["faceoffWinningPctg", "Faceoff win %"]];
+const fv = (k, v) => k === "faceoffWinningPctg" ? (Math.round(v * 1000) / 10) + "%" : v;
+const haTag = g => g.home ? `<span class="tag2 ha home">HOME</span>` : `<span class="tag2 ha away">AWAY</span>`;
+const stLine = (g, pre) => { const st = g.standing; if(!st) return ""; const f = x => `${esc(x.team)} <b>${x.pts} pts</b> (${x.w}-${x.l}-${x.otl}, ${x.gp} GP)`;
+  return `<div class="hint">${pre}${f(st.our)} · ${f(st.opp)}</div>`; };
+const gLabel = g => `${g.date.slice(5)} ${g.home ? "home" : "away"} vs ${g.opp}`;
+function gameItems(g){
+  const gid = String(g.id);
+  return {cs: clips.filter(c => String(c.game_id) === gid), ps: photos.filter(p => String(p.game_id) === gid && p.status !== "排除"),
+    miss: (nhl.events || []).filter(e => String(e.game_id) === gid && !clips.find(c => c.id === e.id))};
+}
+function clipHTML(c){
+  return `<div class="clip" data-id="${esc(c.id)}"><div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(en(c.moment || ""))}</div>
+    ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`;
+}
+function renderGames(){
+  if(view !== "games") return;
+  if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
+  openGame = null; $("gameDetail").style.display = "none"; $("gameList").style.display = "";
+  const list = games.filter(g => inRangeD(g.date));
+  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
+    <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
+    ? `<div class="box hint">No game data yet. Click “Sync official data” at the top right to read this season’s finished games: scores, team stats, rosters and the scoring timeline, and to file your existing clips, interviews and photos under the matching game by date.</div>` : "") +
+    list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
+      return `<div class="box gcard" data-g="${esc(g.id)}"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
+        <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
+        <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
+        ${stLine(g, "Regular season: ")}
+        <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "No previous game to compare"; })()}</div>
+        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length ? ` · <b style="color:var(--goal)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("");
+  document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
+  const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
+}
+function renderGameDetail(){
+  const g = games.find(x => String(x.id) === String(openGame)), it = gameItems(g), m = g.player, L = g.lineup || {};
+  const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
+  const sec = (title, arr, extra = "") => arr.length || extra ? `<div class="gsec">${title}</div>${arr.length ? `<div class="grid">${arr.map(clipHTML).join("")}</div>` : ""}${extra}` : "";
+  const pr = r => `<tr class="${r.id === Number(openPid()) ? "me" : ""}"><td>${mug(g, r)}${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${r.g ?? ""}</td><td>${r.a ?? ""}</td><td>${r.pts ?? ""}</td><td>${r.pm ?? ""}</td><td>${r.hits ?? ""}</td><td>${r.sog ?? ""}</td><td>${r.blk ?? ""}</td><td>${esc(r.toi || "")}</td></tr>`;
+  const head = `<tr><th>Player</th><th>Pos</th><th>G</th><th>A</th><th>P</th><th>+/-</th><th>Hits</th><th>Shots</th><th>Blocks</th><th>TOI</th></tr>`;
+  const photoGroup = k => { const a = it.ps.filter(p => (p.kind || "其他") === k); return a.length ? `<div class="hint" style="margin:8px 0 2px">${k === "数据表" ? "Stats sheet images" : k === "阵容" ? "Lineup images" : "Other photos"}</div><div class="pthumbs">${a.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt=""><div class="ph" style="color:var(--muted)">${esc(tn(p.status))}</div></div>`).join("")}</div>` : ""; };
+  $("gameDetail").innerHTML = `<button class="btn" id="gBack">← Back to games</button>
+    <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span style="font-size:18px"><b>${esc(g.date)}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
+      <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
+      ${stLine(g, "Regular-season standings after this game: ")}
+      <div class="hint">${esc(g.venue)} · Coach ${esc(g.coach)} (opponent ${esc(g.opp_coach)})${(g.stars || []).length ? " · Three stars: " + g.stars.map(s => `${s.star}. ${esc(s.name)} (${esc(s.team)})`).join("  ") : ""}</div></div>
+    <div class="gsec">Karlsson this game</div>
+    <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
+    <div class="gsec">Team stats</div>
+    <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
+      return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
+    <div class="g2"><div>${linesHTML(g)}${rosterHTML(g)}</div><div>${iceHTML(g)}</div></div>
+    <div class="gsec">Scoring timeline</div>
+    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
+      return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period))} ${esc(x.time || "")}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
+        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? `<span class="hint">Not downloaded</span>` : "")}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
+      const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
+      return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}, which the NHL does not count toward +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
+    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), it.miss.length ? `<div class="box"><b style="color:var(--goal)">${it.miss.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${it.miss.filter(e => e.clip).length}</button></div>` : "")}
+    ${sec("Pre-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
+    ${sec("Post-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
+    ${sec("Interviews (not marked pre/post-game)", clipsBy(c => c.type === "采访" && !c.phase))}
+    ${sec("Other videos", clipsBy(c => !["进球", "助攻", "采访"].includes(c.type)))}
+    ${it.ps.length ? `<div class="gsec">Photos</div>${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}` : ""}
+    <div class="gsec">Roster (PIT)</div>
+    <div class="box" style="overflow:auto"><div class="hint">Forwards</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
+      <div class="hint" style="margin-top:8px">Defense</div><table class="gt">${head}${(L.defense || []).map(pr).join("")}</table>
+      <div class="hint" style="margin-top:8px">Goalies</div><table class="gt"><tr><th>Player</th><th>Shots against</th><th>Saves</th><th>GA</th><th>Sv%</th><th>Result</th><th>TOI</th></tr>${(L.goalies || []).map(r => `<tr><td>${mug(g, r)}${esc(r.num ?? "")} ${esc(r.name)}</td><td>${r.sa ?? ""}</td><td>${r.sv ?? ""}</td><td>${r.ga ?? ""}</td><td>${r.svp != null ? (Math.round(r.svp * 1000) / 1000).toFixed(3) : ""}</td><td>${esc(r.dec || "")}</td><td>${esc(r.toi || "")}</td></tr>`).join("")}</table>
+      ${(g.scratches || []).length ? `<div class="hint" style="margin-top:8px">Scratches: ${g.scratches.map(esc).join(", ")}</div>` : ""}</div>
+    <div class="hint" style="margin-top:10px">Data comes from the official public NHL API. To save a table as an image, use a macOS screenshot (Shift+Command+4).</div>`;
+  $("gBack").onclick = () => { openGame = null; lineEdit = null; lineDraft = null; lineNotice = null; renderGames(); };
+  wireLines(g);
+  document.querySelectorAll("#gameDetail .clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
+  document.querySelectorAll("#gameDetail img.mug").forEach(im => im.onclick = () => openMug(im.src, im.dataset.name));
+  document.querySelectorAll("#gameDetail [data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
+  document.querySelectorAll("#gameDetail [data-oc]").forEach(a => a.onclick = e => { e.preventDefault(); openClip(a.dataset.oc); });
+  const gg = $("gGet"); if(gg) gg.onclick = async () => { gg.disabled = true; await post("/api/nhl/fetch", {ids: it.miss.filter(e => e.clip).map(e => e.id)}); poll(); };
+}
+let _pid = 0; const openPid = () => _pid;
+
+// ---------- 照片 ----------
+const PST = ["待确认", "选入", "排除"];
+function renderPhotos(){
+  const pend = photos.filter(p => p.status === "待确认").length;
+  $("pcount").textContent = pend ? ` (${pend} pending)` : "";
+  document.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === view));
+  $("viewClips").style.display = view === "clips" ? "" : "none";
+  $("viewGames").style.display = view === "games" ? "" : "none";
+  $("viewPhotos").style.display = view === "photos" ? "" : "none";
+  renderGames();
+  if(view !== "photos") return;
+  const cnt = s => photos.filter(p => p.status === s).length;
+  $("pstatus").innerHTML = PST.map(s => `<button class="chip ${pstatus===s?"on":""}" data-ps="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
+  document.querySelectorAll("[data-ps]").forEach(b => b.onclick = () => { pstatus = b.dataset.ps; renderPhotos(); });
+  const q = $("pq").value.trim().toLowerCase();
+  const list = photos.filter(p => p.status === pstatus && inRangeD(p.date) && (!q || (p.text + " " + p.alt + " " + p.note).toLowerCase().includes(q)));
+  const groups = {};
+  list.forEach(p => (groups[p.tweet_id] ||= []).push(p));
+  const ids = Object.keys(groups).sort((a, b) => groups[b][0].date.localeCompare(groups[a][0].date) || (a < b ? 1 : -1));
+  $("pinfo").textContent = !photos.length ? "No photos yet. Paste an X (Twitter) post link above; if the post has photos, the whole set is downloaded and you pick the ones with him here."
+    : `${list.length} photos from ${ids.length} posts. ${pstatus === "待确认" ? "Click “Select” or “Exclude” under each photo; selected ones are filed by season and date, excluded ones go to “_已排除”, and you can change your mind any time." : ""}`;
+  $("pgroups").innerHTML = ids.map(t => { const g = groups[t].sort((a, b) => a.idx - b.idx), f = g[0];
+    return `<div class="box"><div class="row" style="justify-content:space-between"><span><b>${esc(f.date.slice(5))}</b> · @${esc(f.author)} ·
+      <a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a> <span class="hint">(${f.count} photos)</span></span>
+      ${pstatus === "待确认" ? `<span class="row"><button class="btn" data-all="${t}|选入">Select all on page</button><button class="btn" data-all="${t}|排除">Exclude all on page</button></span>` : ""}</div>
+      <div class="ptext">${esc(f.text)}</div>
+      ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">Hint: ${esc(g.find(p => p.hint).hint)} (just a text clue; you decide which photos show him)</div>` : ""}
+      <div class="pthumbs">${g.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt="">
+        <div class="pb">${PST.filter(s => s !== p.status).map(s => `<button class="btn" data-mk="${esc(p.id)}|${s}">${s === "选入" ? "✓ Select" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}</div>
+        ${p.alt ? `<div class="ph" title="${esc(p.alt)}">Has alt text</div>` : ""}</div>`).join("")}</div></div>`; }).join("");
+  document.querySelectorAll("[data-mk]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.mk.split("|"); await post("/api/photo/mark", {ids: [id], status: st}); await load(); });
+  document.querySelectorAll("[data-all]").forEach(b => b.onclick = async () => { const [t, st] = b.dataset.all.split("|");
+    await post("/api/photo/mark", {ids: groups[t].map(p => p.id), status: st}); await load(); });
+  document.querySelectorAll("[data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
+}
+function openPhoto(id){
+  const p = photos.find(x => x.id === id); if(!p) return;
+  $("mbox").innerHTML = `<img src="${encodeURI(p.file)}" style="width:100%;border-radius:8px;max-height:70vh;object-fit:contain;background:#000" alt="">
+    <div class="form"><div><label>Date</label><input type="date" id="p_date" value="${esc(p.date)}"></div>
+      <div style="grid-column:span 2"><label>My notes</label><input id="p_note" value="${esc(p.note)}"></div>
+      <div style="grid-column:span 2"><label>Game</label><select id="p_game"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(p.game_id)?"selected":""}>${esc(g.date)} ${g.home?"Home vs":"Away @"} ${esc(g.opp)}</option>`).join("")}</select></div>
+      <div><label>Photo type</label><select id="p_kind">${["阵容", "数据表", "其他"].map(x => `<option value="${x}" ${x===(p.kind||"其他")?"selected":""}>${tn(x)}</option>`).join("")}</select></div></div>
+    <div class="cap">${esc(p.text) || "(no text)"}${p.alt ? "\n\nAlt text: " + esc(p.alt) : ""}</div>
+    <div class="hint" style="margin-top:6px">Status: ${esc(tn(p.status))} · <a href="${esc(p.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a> · File: ${esc(p.file)}</div>
+    <div class="row" style="margin-top:10px;justify-content:space-between"><span class="row"><button class="btn primary" id="psave">Save</button><button class="btn" id="close">Close</button></span>
+      <button class="btn danger" id="pdel">Delete</button></div><div class="hint" id="msg"></div>`;
+  $("modal").classList.add("on");
+  $("close").onclick = closeModal;
+  $("psave").onclick = async () => { const r = await post("/api/photo/update", {id, fields: {date: $("p_date").value, note: $("p_note").value, game_id: $("p_game").value, kind: $("p_kind").value}});
+    if(r.error){ $("msg").textContent = r.error; return; } await load(); openPhoto(id); $("msg").textContent = "Saved"; };
+  $("pdel").onclick = async () => { if(!confirm("Delete this photo? The file will be moved to the library/.trash folder.")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
+}
+document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.dataset.v; renderPhotos(); });
+$("pq").oninput = renderPhotos;
+
+// ---------- 弹窗 ----------
+function openClip(id, edit = false){
+  const c = clips.find(x => x.id === id); if(!c) return; openId = id; editing = edit;
+  const gen_ok = ["采访", "活动", "其他"].includes(c.type);
+  const g = games.find(x => String(x.id) === String(c.game_id));
+  const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">Cut from the full video at ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? " (to change the start/end, delete and add it again)" : ""}</div>` : "";
+  const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">View English transcript (to check the summary)</summary><div class="cap" id="trtext">Loading…</div></details>` : "";
+  const srcLine = `<div class="hint" style="margin-top:8px">Source: <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a>${SNAP ? "" : ` · File: ${esc(c.video)}`}</div>`;
+  const head = SNAP ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener">${cv(c) ? `<img src="${cv(c)}" alt="" style="width:100%;border-radius:8px">` : ""}</a>
+    <div class="hint" style="margin-top:6px">The video is not included in this read-only copy. <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Watch it at the original source ↗</a></div>`
+    : `<video controls preload="metadata" src="${encodeURI(c.video)}" ${cv(c) ? `poster="${cv(c)}"` : ""}></video>
+    <div class="hint" id="vinfo" style="margin-top:6px">Quality: reading…</div>`;
+  if(!edit){
+    const meta = [c.game_date, tn(c.type), c.opponent && "vs " + c.opponent, (+c.goals ? `${c.goals} goal(s)` : ""), (+c.assists ? `${c.assists} assist(s)` : ""), en(c.moment), tn(c.phase),
+      g && `${g.home ? "Home vs" : "Away @"} ${g.opp} ${g.our_score}–${g.opp_score}`].filter(Boolean).map(esc).join(" · ");
+    const sum = (c.summary || "").trim();
+    $("mbox").innerHTML = head + `
+    <h3 style="margin:10px 0 4px">${esc(c.title)}</h3>
+    <div class="hint">${meta}</div>
+    ${c.tags ? `<div class="hint" style="margin-top:4px">Tags: ${esc(c.tags)}</div>` : ""}
+    <div style="margin:12px 0 4px"><b style="font-size:13px">Summary</b><span class="src" id="sumSrc">${esc(sn(c.summary_src || "未生成"))}</span></div>
+    <div class="cap" id="sumView" style="max-height:none">${sum ? esc(sum) : (SNAP ? "(No summary.)" : "(No summary yet. Click “Edit” to write one, or generate it below.)")}</div>
+    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "Regenerate summary" : "Generate summary"}</button>` : ""}${trBlock}</div>
+    ${c.notes ? `<div class="hint" style="margin:10px 0 4px">My notes</div><div class="cap">${esc(c.notes)}</div>` : ""}
+    ${segInfo}
+    <div class="hint" style="margin:10px 0 4px">Original caption under the video</div>
+    <div class="cap">${esc(c.caption) || "(no caption)"}</div>
+    ${srcLine}
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <span class="row"><button class="btn primary" id="edit">Edit</button><button class="btn" id="mkCover">${c.cover ? "Regenerate cover" : "Make cover"}</button>${c.cover ? `<a class="btn" href="${cv(c)}" download="${esc(c.id)}_cover.jpg" style="text-decoration:none">Save cover</a>` : ""}<button class="btn" id="close">Close</button></span>
+      <button class="btn danger" id="del">Delete</button></div>
+    <div class="hint" id="msg"></div>`;
+  } else {
+    $("mbox").innerHTML = head + `
+    <div class="form">
+      <div style="grid-column:1/-1"><label>Title</label><input id="f_title" value="${esc(c.title)}"></div>
+      <div style="grid-column:1/-1"><label>Cover headline (the big text on the cover; leave empty to use the title)</label><input id="f_cover_title" value="${esc(c.cover_title || "")}"></div>
+      <div><label>Game date</label><input type="date" id="f_game_date" value="${esc(c.game_date)}"></div>
+      <div><label>Type</label><select id="f_type">${TYPES.map(t => `<option value="${t}" ${t===c.type?"selected":""}>${tn(t)}</option>`).join("")}</select></div>
+      <div><label>Goals</label><input type="number" min="0" id="f_goals" value="${c.goals}"></div>
+      <div><label>Assists</label><input type="number" min="0" id="f_assists" value="${c.assists}"></div>
+      <div><label>Opponent</label><input id="f_opponent" value="${esc(c.opponent)}"></div>
+      <div><label>Moment (e.g. P2 12:34)</label><input id="f_moment" value="${esc(c.moment)}"></div>
+      <div style="grid-column:span 2"><label>Game</label><select id="f_game_id"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(c.game_id)?"selected":""}>${esc(g.date)} ${g.home?"Home vs":"Away @"} ${esc(g.opp)}  ${g.our_score}–${g.opp_score}</option>`).join("")}</select></div>
+      <div><label>Interview phase</label><select id="f_phase">${["", "赛前", "赛后"].map(x => `<option value="${x}" ${x===(c.phase||"")?"selected":""}>${x ? tn(x) : "(n/a)"}</option>`).join("")}</select></div>
+      <div style="grid-column:1/-1"><label>Tags (comma-separated)</label><input id="f_tags" value="${esc(c.tags)}"></div>
+      <div style="grid-column:1/-1"><label>My notes</label><input id="f_notes" value="${esc(c.notes)}"></div>
+    </div>
+    <div style="margin:10px 0 4px"><b style="font-size:13px">Summary</b><span class="src" id="sumSrc">${esc(sn(c.summary_src || "未生成"))}</span></div>
+    <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "No summary yet. Click “Generate summary” below: it first transcribes to an English transcript on this computer, then summarizes with a cloud model." : "No summary yet. You can write a few lines yourself."}">${esc(c.summary || "")}</textarea>
+    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "Regenerate summary" : "Generate summary"}</button>` : ""}${trBlock}</div>
+    <div class="hint">${gen_ok ? "The AI summary is written in Chinese by a cloud model from the English transcript (the video itself is not uploaded). It may miss points or get things wrong, so check it against the transcript; anything you edit is marked “Manual”." : "Goal/assist summaries are generated directly from official data."}</div>
+    ${segInfo}
+    <div class="hint" style="margin-bottom:4px">Original caption under the video</div>
+    <div class="cap">${esc(c.caption) || "(no caption)"}</div>
+    ${srcLine}
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <span class="row"><button class="btn primary" id="save">Save changes</button><button class="btn" id="cancel">Cancel</button></span>
+      <button class="btn danger" id="del">Delete</button></div>
+    <div class="hint" id="msg"></div>`;
+  }
+  $("modal").classList.add("on");
+  if(!SNAP) api("/api/probe?id=" + encodeURIComponent(id)).then(p => { const el = $("vinfo"); if(!el || openId !== id) return;
+    el.textContent = p.error ? "Quality: " + p.error : `Quality: ${p.width}×${p.height} · ${p.fps} fps · video ${(p.vbr / 1e6).toFixed(1)} Mbps · ${p.vcodec}` +
+      (p.acodec ? ` · audio ${p.acodec} ${Math.round(p.abr / 1000)} kbps` : "") + ` · ${(p.size / 1e6).toFixed(1)} MB`; });
+  if(edit){
+    $("f_type").onchange = () => { const t = $("f_type").value; $("f_goals").value = t === "进球" ? 1 : 0; $("f_assists").value = t === "助攻" ? 1 : 0; };
+    $("cancel").onclick = () => openClip(id);
+    $("save").onclick = async () => {
+      const f = {}; ["title","cover_title","game_date","type","goals","assists","opponent","moment","tags","notes","summary","game_id","phase"].forEach(k => f[k] = $("f_" + k).value);
+      const r = await post("/api/update", {id, fields: f});
+      if(r.error){ $("msg").textContent = r.error; return; }
+      await load(); openClip(id); $("msg").textContent = "Saved";
+    };
+  } else {
+    $("close").onclick = closeModal;
+    $("edit").onclick = () => openClip(id, true);
+    $("mkCover").onclick = async () => { const b = $("mkCover"); b.disabled = true; b.textContent = "Making cover…";
+      const r = await post("/api/cover", {id}); if(r.error){ $("msg").textContent = r.error; b.disabled = false; b.textContent = "Make cover"; return; }
+      coverVer = Date.now(); await load(); openClip(id); };
+  }
+  const gen = $("gen"); if(gen) gen.onclick = async () => {
+    if(c.summary && !confirm("Regenerating will overwrite the current summary (including anything you wrote). Continue?")) return;
+    gen.disabled = true; gen.textContent = "Started; see the task list at the top of the page";
+    const r = await post("/api/summarize", {id}); if(r.error) alert(r.error); poll(); };
+  const trd = $("trd"); if(trd) trd.ontoggle = async () => { if(trd.open && !trd.dataset.done){ trd.dataset.done = 1;
+    try { $("trtext").textContent = await (await fetch(encodeURI(c.transcript))).text(); } catch(e){ $("trtext").textContent = "Failed to load"; } } };
+  $("del").onclick = async () => {
+    if(!confirm("Delete this clip? The file will be moved to the library/.trash folder, not erased immediately.")) return;
+    await post("/api/delete", {id}); closeModal(); load();
+  };
+}
+function closeModal(){ $("modal").classList.remove("on"); const v = document.querySelector("#mbox video"); if(v) v.pause(); $("mbox").innerHTML = ""; openId = null; }
+$("modal").onclick = e => { if(e.target === $("modal")) closeModal(); };
+document.onkeydown = e => { if(e.key === "Escape") closeModal(); };
+
+// ---------- 添加 ----------
+let timer = null;
+const seenJobs = new Set();
+$("add").onclick = async () => {
+  const r = await post("/api/add", {urls: $("urls").value, type: $("addType").value, date: $("addDate").value, opponent: $("addOpp").value.trim(),
+    start: $("addStart").value, end: $("addEnd").value, title: $("addTitle").value});
+  if(r.error){ alert(r.error); return; }
+  if(r.warn) alert("Some lines were not recognized and were skipped: " + r.warn);
+  $("urls").value = ""; $("addStart").value = $("addEnd").value = $("addTitle").value = ""; poll();
+};
+async function poll(){
+  clearTimeout(timer);
+  const js = await api("/api/jobs");
+  const run = js.filter(j => !j.done), bad = js.filter(j => j.error), ok = js.filter(j => j.done && !j.error);
+  $("jobs").innerHTML = (js.length ? `<div class="hint">In progress ${run.length} · Done ${ok.length} · Failed ${bad.length}</div>` : "") +
+    [...run, ...bad].slice(0, 8).map(j => `<div class="job ${j.error ? "err" : ""}">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}${j.error ? "：" + esc(j.error) : ""}</div>`).join("") +
+    (!run.length ? ok.slice(-2).map(j => `<div class="job">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}</div>`).join("") : "");
+  const fresh = js.filter(j => j.done && !seenJobs.has(j.id));
+  fresh.forEach(j => seenJobs.add(j.id));
+  const added = js.some(j => j.done && !j.error && j.clip && !clips.find(c => c.id === j.clip));
+  if(fresh.some(j => j.photos)){ view = "photos"; pstatus = "待确认"; }
+  if(added || fresh.length || (js.some(j => j.done && j.stage.startsWith("Done:")) && !run.length)){
+    await load();
+    // 正在看的片段如果刚生成了摘要, 只更新摘要框, 不覆盖其他还没保存的修改
+    if(openId && fresh.some(j => j.clip === openId)){ const c = clips.find(x => x.id === openId);
+      if(c && $("sumView")) $("sumView").textContent = (c.summary || "").trim() || (SNAP ? "(No summary.)" : "(No summary yet. Click “Edit” to write one, or generate it below.)");
+      if(c && ($("f_summary") || $("sumView"))){ if($("f_summary")) $("f_summary").value = c.summary || ""; $("sumSrc").textContent = sn(c.summary_src || "未生成");
+        const g = $("gen"); if(g){ g.disabled = false; g.textContent = "Regenerate summary"; } } }
+  }
+  $("nhlSync").disabled = js.some(j => !j.done && j.url === "Sync NHL official data");
+  if(run.length) timer = setTimeout(poll, 2500);
+}
+async function load(){ coverVer = Date.now(); let gm, ln; [clips, nhl, photos, gm, ln] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines")]); games = gm.games || []; lineData = ln || {}; render(); }
+$("mkAll").onclick = async () => { $("mkAll").disabled = true; await post("/api/cover/all", {}); poll(); setTimeout(() => $("mkAll").disabled = false, 1500); };
+$("nhlSync").onclick = async () => { $("nhlSync").disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
+
+["q","opp","sort","from","to"].forEach(id => $(id).oninput = $(id).onchange = render);
+(async () => {
+  const cfg = await api("/api/config"); TYPES = cfg.types; TEAM = cfg.nhl_team || "PIT";
+  if(SNAP){ document.body.classList.add("ro"); $("subline").textContent = `Read-only copy · updated ${SNAP.built} · videos open at their original source`; }
+  document.title = cfg.title; $("title").textContent = cfg.title; _pid = cfg.nhl_player_id || 0;
+  $("addType").innerHTML = `<option value="">Type: auto-detect</option>` + TYPES.map(t => `<option value="${t}">${tn(t)}</option>`).join("");
+  const t = new Date(), y0 = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear() - 1;
+  START = cfg.archive_start || "";
+  $("nhlSeason").innerHTML = [0, 1, 2].filter(k => !START || `${y0 - k + 1}-06-30` >= START).map(k => { const y = y0 - k; return `<option value="${y}${y+1}">${y}-${String(y+1).slice(2)} season${k===0?" (current)":""}</option>`; }).join("");
+  if(START){ $("addDate").min = START; }
+  await load(); poll();
+})();
+</script>
+</body>
+</html>
