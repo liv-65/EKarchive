@@ -51,7 +51,7 @@ td.n,th.n{text-align:right}
 .cbody .t{font-size:14px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meta{font-size:12px;color:var(--muted);margin-top:3px}
 .badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#fff;margin-right:4px}
-.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)} .badge.在场进球{background:var(--event)} .badge.失球{background:var(--bad)}
+.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)} .badge.在场进球{background:var(--event)} .badge.失球{background:var(--bad)} .badge.失误{background:#c28b1a}
 .hint{font-size:12px;color:var(--muted)}
 .job{font-size:13px;margin-top:4px} .job.err{color:var(--bad)}
 /* 弹窗 */
@@ -219,7 +219,7 @@ const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r =>
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
 let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
-const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "采访": "Interview", "活动": "Event", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
+const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "失误": "Mistake", "采访": "Interview", "活动": "Event", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
 const cv = c => c.cover ? encodeURI(c.cover) + "?v=" + coverVer : (c.thumb ? encodeURI(c.thumb) : "");
 const pChip = (g, id) => { const r = dressedMap(g).get(id); return `<span class="pc">${r ? mug(g, r) : ""}<span>${esc(plabel(g, id))}</span></span>`; };   // 头像 + 号码 + 名字
@@ -232,7 +232,9 @@ function openMug(src, name){
 const tn = v => TN[v] || v;
 const SRC = {"未生成": "Not generated", "手写": "Manual", "官方数据": "Official data"};
 const sn = v => SRC[v] || (String(v).startsWith("Claude") ? "Claude (written in chat)" : v);
-const en = s => String(s ?? "").replace(/第(\d+)次加时/g, "OT$1").replace(/第(\d)节/g, "P$1").replace(/点球大战/g, "SO").replace(/加时/g, "OT").replace(/多打少/g, "Power play").replace(/少打多/g, "Short-handed").replace(/进球/g, "Goal").replace(/助攻/g, "Assist");
+// 官方时间是“这一节已经打了多久”(正计时); 比赛屏幕上是倒计时 -> 页面里一律显示屏幕时间 (每节 20 分钟, 常规赛加时 5 分钟)
+const scr = (len, mm, ss) => { const r = Math.max(0, len - (+mm * 60 + +ss)); return `${Math.floor(r / 60)}:${String(r % 60).padStart(2, "0")}`; };
+const en = s => String(s ?? "").replace(/第(\d+)次加时\s+(\d+):(\d+)/g, (m, n, mm, ss) => `OT${n} ${scr(300, mm, ss)}`).replace(/第(\d)节\s+(\d+):(\d+)/g, (m, n, mm, ss) => `P${n} ${scr(1200, mm, ss)}`).replace(/(^|[^次\d])加时\s+(\d+):(\d+)/g, (m, pre, mm, ss) => `${pre}OT ${scr(300, mm, ss)}`).replace(/第(\d+)次加时/g, "OT$1").replace(/第(\d)节/g, "P$1").replace(/点球大战/g, "SO").replace(/加时/g, "OT").replace(/多打少/g, "Power play").replace(/少打多/g, "Short-handed").replace(/进球/g, "Goal").replace(/助攻/g, "Assist");
 let TYPES = [], clips = [], nhl = {events: [], seasons: {}}, range = "all", typeSel = null, openId = null, editing = false;
 
 // ---------- 日期 ----------
@@ -712,19 +714,20 @@ function renderGameDetail(){
     <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
       return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
     <div class="g2"><div>${linesHTML(g)}${rosterHTML(g)}</div><div>${iceHTML(g)}</div></div>
-    <div class="gsec">Scoring timeline</div>
+    <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times are the on-screen game clock, counting down)</span></div>
     <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
-      return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period))} ${esc(x.time || "")}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
+      return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
         <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? `<span class="hint">Not downloaded</span>` : "")}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
       const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
       return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}, which the NHL does not count toward +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
     ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), it.miss.length ? `<div class="box"><b style="color:var(--goal)">${it.miss.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${it.miss.filter(e => e.clip).length}</button></div>` : "")}
     ${sec("PIT goals with EK on ice (no point)", clipsBy(c => c.type === "在场进球"))}
     ${sec("Goals against (EK on ice)", clipsBy(c => c.type === "失球"))}
+    ${sec("Mistakes", clipsBy(c => c.type === "失误"))}
     ${sec("Pre-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
     ${sec("Post-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
     ${sec("Interviews (not marked pre/post-game)", clipsBy(c => c.type === "采访" && !c.phase))}
-    ${sec("Other videos", clipsBy(c => !["进球", "助攻", "在场进球", "失球", "采访"].includes(c.type)))}
+    ${sec("Other videos", clipsBy(c => !["进球", "助攻", "在场进球", "失球", "失误", "采访"].includes(c.type)))}
     ${it.ps.length ? `<div class="gsec">Photos</div>${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}` : ""}
     <div class="gsec">Roster (PIT)</div>
     <div class="box" style="overflow:auto"><div class="hint">Forwards</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
@@ -876,7 +879,7 @@ function openClip(id, edit = false){
       <div><label>Goals</label><input type="number" min="0" id="f_goals" value="${c.goals}"></div>
       <div><label>Assists</label><input type="number" min="0" id="f_assists" value="${c.assists}"></div>
       <div><label>Opponent</label><input id="f_opponent" value="${esc(c.opponent)}"></div>
-      <div><label>Moment (e.g. P2 12:34)</label><input id="f_moment" value="${esc(c.moment)}"></div>
+      <div><label>Moment (stored as elapsed time, e.g. 第2节 15:32 = 4:28 on the screen clock)</label><input id="f_moment" value="${esc(c.moment)}"></div>
       <div style="grid-column:span 2"><label>Game</label><select id="f_game_id"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(c.game_id)?"selected":""}>${esc(g.date)} ${g.home?"Home vs":"Away @"} ${esc(g.opp)}  ${g.our_score}–${g.opp_score}</option>`).join("")}</select></div>
       <div><label>Interview phase</label><select id="f_phase">${["", "赛前", "赛后"].map(x => `<option value="${x}" ${x===(c.phase||"")?"selected":""}>${x ? tn(x) : "(n/a)"}</option>`).join("")}</select></div>
       <div style="grid-column:1/-1"><label>Tags (comma-separated)</label><input id="f_tags" value="${esc(c.tags)}"></div>
