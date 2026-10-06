@@ -692,6 +692,33 @@ function renderGames(){
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
   const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
 }
+function specialHTML(g){
+  const S = g.special; if(!S) return "";
+  const me = Number(openPid()), mm = n => mmss(n);
+  // 位置按“阵容分组”里填的线来标: 前锋第几线的左翼/中锋/右翼, 后卫第几对; 没填阵容分组时只按官方的前锋/后卫标
+  const role = {}, LD = lineData[String(g.id)];
+  if(LD){ (LD.F || []).forEach((row, i) => row.forEach((id, j) => { if(id) role[id] = {o: j, t: ["LW", "C", "RW"][j], ln: "L" + (i + 1)}; }));
+    (LD.D || []).forEach((row, i) => row.forEach((id, j) => { if(id) role[id] = {o: 3, t: "D", ln: "P" + (i + 1)}; })); }
+  const dset = new Set(((g.lineup || {}).defense || []).map(r => r.id)), fset = new Set(((g.lineup || {}).forwards || []).map(r => r.id));
+  const roleOf = id => role[id] || (dset.has(id) ? {o: 3, t: "D", ln: ""} : fset.has(id) ? {o: 1, t: "F", ln: ""} : {o: 4, t: "", ln: ""});
+  const pTag = ([id, n]) => { const r = roleOf(id); return `<span style="white-space:nowrap" title="${esc((dressedMap(g).get(id) || {}).name || id)} · ${n}s${r.ln ? " · " + r.ln : ""}"><b>#${esc((dressedMap(g).get(id) || {}).num ?? "?")}</b> <span class="tag2" style="margin-left:2px">${r.t}${r.ln ? " " + r.ln : ""}</span> <span class="hint">${n}s</span></span>`; };
+  const tbl = (k, name) => { const us = S.units[k]; if(!us.length) return "";
+    return `<div class="hint" style="margin:8px 0 2px"><b>${k === "pp" ? "Power play (PIT has more skaters)" : "Penalty kill (PIT has fewer skaters)"}</b></div>
+      <table class="gt l"><tr><th>Unit</th><th>Skaters (top 5; position and line from your Lineup groups)</th><th>Time</th><th title="How many separate times this unit went on the ice">Stints</th>${k === "pp" ? `<th title="Goals For: PIT goals while this unit was on the ice">GF</th>` : `<th title="Goals Against: goals PIT allowed while this unit was on the ice">GA</th><th title="Short-Handed Goals: PIT goals scored while shorthanded with this unit on the ice">SHG</th>`}</tr>${us.map(u => `<tr class="${u.players.some(p => p[0] === me) ? "me" : ""}"><td><b>${name}${u.u}</b></td>
+        <td>${[...u.players.slice(0, 5)].sort((a, b) => roleOf(a[0]).o - roleOf(b[0]).o || b[1] - a[1]).map(pTag).join(" &nbsp; ")}${u.players.length > 5 ? ` <span class="hint" title="Also on ice for part of this unit's time">· also ${u.players.slice(5).map(([id, n]) => `#${esc((dressedMap(g).get(id) || {}).num ?? "?")} ${roleOf(id).t} ${n}s`).join(", ")}</span>` : ""}</td><td>${mm(u.secs)}</td><td>${u.stints}</td>${k === "pp" ? `<td>${u.gf ? `<b class="good">${u.gf}</b>` : 0}</td>` : `<td>${u.ga ? `<b class="bad">${u.ga}</b>` : 0}</td><td>${u.gf || 0}</td>`}</tr>`).join("")}</table>`; };
+  const rows = S.stretches.map(st => { const nm = st.kind === "pp" ? "PP" : "PK";
+    return `<tr><td>${esc(en(st.period + " " + st.start))}</td><td><span class="tag2" style="margin-left:0">${nm}</span></td><td>${mm(st.dur)}</td><td>${(() => { const p = st.pen != null && (g.penalties || [])[st.pen]; if(!p) return `<span class="hint">–</span>`; const mine = p.team === "PIT", r = mine ? roleOf(p.pid) : null;
+        return `${esc(p.player)}${mine ? ` <span class="tag2" style="margin-left:2px">${r.t}${r.ln ? " " + r.ln : ""}</span>` : ""} <span class="hint">${esc(p.rule)}</span>${(st.start_on || []).length ? `<div class="hint">On ice at the whistle: ${[...st.start_on].sort((a, b) => roleOf(a).o - roleOf(b).o).map(id => pTag([id, 0]).replace(/ <span class="hint">0s<\/span>/, "")).join(" &nbsp; ")}</div>` : ""}`; })()}</td><td>${st.segs.map(sg => `<b>${nm}${sg.u}</b> <span class="hint">${mm(sg.dur)}</span>`).join(" → ")}</td><td>${st.goals.map(x => x.gf ? `<span class="tag2 plus" style="margin-left:0">PIT goal</span>` : `<span class="tag2 minus" style="margin-left:0">PIT goal against</span>`).join(" ") || `<span class="hint">–</span>`}</td></tr>`; }).join("");
+  return `<div class="gsec">Special teams units <span class="hint" style="font-weight:400">(rebuilt per second from shift data; PP1/PK1 = the unit with the most time; start times are the on-screen clock; hover a number for the name; “also” = played only part of it)</span></div>
+    <div class="box" style="overflow:auto">${tbl("pp", "PP")}${tbl("pk", "PK")}
+      ${rows ? `<div class="hint" style="margin:10px 0 2px"><b>Each opportunity</b> — a PK is not a fixed unit: it starts from whoever was on the ice with the penalized player when the whistle blew, and the team may change skaters afterwards. A power play is likewise just whoever the coach sends out.</div><table class="gt l"><tr><th>Start</th><th></th><th>Length</th><th>Penalty</th><th>Units in order</th><th>Goals</th></tr>${rows}</table>` : `<span class="hint">No special-teams time.</span>`}</div>`;
+}
+function penHTML(g){
+  const P = g.penalties; if(!P) return "";
+  const mine = P.filter(x => x.team === "PIT"), opp = P.filter(x => x.team !== "PIT"), mins = a => a.reduce((n, x) => n + (+x.min || 0), 0);
+  return `<div class="gsec">Penalties <span class="hint" style="font-weight:400">(PIT ${mine.length} · ${mins(mine)} min — ${esc(g.opp)} ${opp.length} · ${mins(opp)} min; times are the on-screen game clock)</span></div>
+    <div class="box" style="overflow:auto">${P.length ? `<table class="gt l"><tr><th>Time</th><th>Team</th><th>Player</th><th>Penalty</th><th>Min</th><th>Drawn by</th><th>EK on ice</th></tr>${P.map(x => `<tr><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team === "PIT" ? "PIT" : g.opp)}</td><td>${esc(x.player)}</td><td>${esc(x.rule)}${x.type && x.type !== "MIN" ? `<span class="tag2">${esc(x.type)}</span>` : ""}</td><td>${x.min ?? ""}</td><td>${esc(x.drawn)}</td><td>${x.ek === true ? "On" : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td></tr>`).join("")}</table>` : `<span class="hint">No penalties.</span>`}</div>`;
+}
 function renderGameDetail(){
   const g = games.find(x => String(x.id) === String(openGame)), it = gameItems(g), m = g.player, L = g.lineup || {};
   const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
@@ -714,6 +741,7 @@ function renderGameDetail(){
     <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
       return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
     <div class="g2"><div>${linesHTML(g)}${rosterHTML(g)}</div><div>${iceHTML(g)}</div></div>
+    ${penHTML(g)}${specialHTML(g)}
     <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times are the on-screen game clock, counting down)</span></div>
     <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
       return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
