@@ -631,6 +631,10 @@ const fv = (k, v) => k === "faceoffWinningPctg" ? (Math.round(v * 1000) / 10) + 
 const haTag = g => g.home ? `<span class="tag2 ha home">HOME</span>` : `<span class="tag2 ha away">AWAY</span>`;
 const stLine = (g, pre) => { const st = g.standing; if(!st) return ""; const f = x => `${esc(x.team)} <b>${x.pts} pts</b> (${x.w}-${x.l}-${x.otl}, ${x.gp} GP)`;
   return `<div class="hint">${pre}${f(st.our)} · ${f(st.opp)}</div>`; };
+// 对手强弱: 对手赛后积分/战绩 + 这场双方射门数(只一行, 不加表格)
+const oppLine = g => { const st = g.standing, sg = (g.team_stats || {}).sog; if(!st && !sg) return "";
+  const cmp = st ? (st.opp.pts > st.our.pts ? `<span style="color:var(--bad)">${esc(g.opp)} had a stronger record than PIT</span>` : st.opp.pts < st.our.pts ? `${esc(g.opp)} had a weaker record than PIT` : `${esc(g.opp)} and PIT had the same points`) + ` (${st.opp.pts} vs ${st.our.pts} pts)` : "";
+  return `<div class="hint">Opponent: ${[cmp, sg ? `shots on goal PIT ${esc(sg.our)} – ${esc(g.opp)} ${esc(sg.opp)}` : ""].filter(Boolean).join(" · ")}</div>`; };
 const gLabel = g => `${g.date.slice(5)} ${g.home ? "home" : "away"} vs ${g.opp}`;
 function gameItems(g){
   const gid = String(g.id);
@@ -700,6 +704,7 @@ function renderGameDetail(){
     <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span style="font-size:18px"><b>${esc(g.date)}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
       <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
       ${stLine(g, "Regular-season standings after this game: ")}
+      ${oppLine(g)}
       <div class="hint">${esc(g.venue)} · Coach ${esc(g.coach)} (opponent ${esc(g.opp_coach)})${g.officials && (g.officials.referees || []).length ? ` · Referees: ${g.officials.referees.map(esc).join(", ")}` : ""}${g.officials && (g.officials.linesmen || []).length ? ` · Linesmen: ${g.officials.linesmen.map(esc).join(", ")}` : ""}${(g.stars || []).length ? " · Three stars: " + g.stars.map(s => `${s.star}. ${esc(s.name)} (${esc(s.team)})`).join("  ") : ""}</div></div>
     <div class="gsec">Karlsson this game</div>
     <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
