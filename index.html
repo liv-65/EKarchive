@@ -305,7 +305,8 @@ function render(){
 
   // NHL 官方数据对照
   const have = new Set(clips.map(c => c.id));
-  const ev = (nhl.events || []).filter(e => e.date >= a && e.date <= b);
+  const ONICE = ["在场进球", "失球"];      // 他在冰上时的进球/丢球: 不放进批量下载, 需要哪个再单独下载
+  const ev = (nhl.events || []).filter(e => e.date >= a && e.date <= b && !ONICE.includes(e.type));
   const missing = ev.filter(e => !have.has(e.id));
   const fetchable = missing.filter(e => e.clip);
   const upd = Object.values(nhl.seasons || {}).map(s => s.updated).sort().slice(-1)[0];
@@ -809,6 +810,10 @@ function penHTML(g){
 function renderGameDetail(){
   const g = games.find(x => String(x.id) === String(openGame)), it = gameItems(g), m = g.player, L = g.lineup || {};
   const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
+  const missMain = it.miss.filter(e => !["在场进球", "失球"].includes(e.type));       // 批量下载只管他自己的进球/助攻
+  const onIceMiss = type => { const m = it.miss.filter(e => e.type === type); if(!m.length) return "";      // 冰上进球/丢球: 需要哪个才下载哪个
+    return `<div class="box"><div class="hint" style="margin-bottom:6px">Not downloaded — pick the ones you need:</div>${m.map(e => `<div class="row" style="align-items:center;gap:8px;margin:4px 0"><span>${esc(en(e.moment))}</span><span class="hint">${esc(e.scorer)}${e.assists.length ? " (" + esc(e.assists.join(", ")) + ")" : ""}${e.strength ? " · " + esc(en(e.strength)) : ""} · ${esc(e.score)}</span>
+      ${e.clip ? `<button class="btn" data-dl="${esc(e.id)}">⬇ Download</button>` : `<span class="hint">(no official video yet)</span>`}</div>`).join("")}</div>`; };
   const sec = (title, arr, extra = "") => arr.length || extra ? `<div class="gsec">${title}</div>${arr.length ? `<div class="grid">${arr.map(clipHTML).join("")}</div>` : ""}${extra}` : "";
   // 数值着色: 好的数据用绿色, 差的用红色, 0 不着色。进球/助攻/得分/抢断/射门/封堵越多越好, 冲撞是中性的不着色, 正负值看正负, 失误越多越差
   const cv2 = (v, kind) => { const n = +v; if(v === "" || v == null || !n) return `<td>${v ?? ""}</td>`; const good = kind === "bad" ? false : kind === "pm" ? n > 0 : true, bad = kind === "bad" ? true : kind === "pm" && n < 0;
@@ -833,12 +838,12 @@ function renderGameDetail(){
     <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times are the on-screen game clock, counting down)</span></div>
     <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
       return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
-        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? `<span class="hint">Not downloaded</span>` : "")}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
+        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? `<span class="hint">Not downloaded</span>` : (x.ek === true && x.clip ? `<button class="btn" data-dl="${esc(x.clip)}" style="padding:2px 8px;font-size:12px">⬇ Download</button>` : ""))}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
       const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
       return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}, which the NHL does not count toward +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
-    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), it.miss.length ? `<div class="box"><b style="color:var(--goal)">${it.miss.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${it.miss.filter(e => e.clip).length}</button></div>` : "")}
-    ${sec("PIT goals with EK on ice (no point)", clipsBy(c => c.type === "在场进球"))}
-    ${sec("Goals against (EK on ice)", clipsBy(c => c.type === "失球"))}
+    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), missMain.length ? `<div class="box"><b style="color:var(--goal)">${missMain.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${missMain.filter(e => e.clip).length}</button></div>` : "")}
+    ${sec("PIT goals with EK on ice (no point)", clipsBy(c => c.type === "在场进球"), onIceMiss("在场进球"))}
+    ${sec("Goals against (EK on ice)", clipsBy(c => c.type === "失球"), onIceMiss("失球"))}
     ${sec("Mistakes", clipsBy(c => c.type === "失误"))}
     ${sec("Pre-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
     ${sec("Post-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
@@ -857,7 +862,8 @@ function renderGameDetail(){
   document.querySelectorAll("#gameDetail img.mug").forEach(im => im.onclick = () => openMug(im.src, im.dataset.name));
   document.querySelectorAll("#gameDetail [data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
   document.querySelectorAll("#gameDetail [data-oc]").forEach(a => a.onclick = e => { e.preventDefault(); openClip(a.dataset.oc); });
-  const gg = $("gGet"); if(gg) gg.onclick = async () => { gg.disabled = true; await post("/api/nhl/fetch", {ids: it.miss.filter(e => e.clip).map(e => e.id)}); poll(); };
+  const gg = $("gGet"); if(gg) gg.onclick = async () => { gg.disabled = true; await post("/api/nhl/fetch", {ids: missMain.filter(e => e.clip).map(e => e.id)}); poll(); };
+  document.querySelectorAll("#gameDetail [data-dl]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Downloading…"; await post("/api/nhl/fetch", {ids: [b.dataset.dl]}); poll(); });
 }
 let _pid = 0; const openPid = () => _pid;
 
