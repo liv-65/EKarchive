@@ -96,7 +96,7 @@ td.n,th.n{text-align:right}
 .miss{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line);font-size:13px}
 .miss .m{color:var(--muted)}
 @media (max-width:600px){.gmini{position:static!important;margin-top:6px}}
-.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=photos],.ro [data-v=tiktok],.ro [data-v=news],.ro #exportCsv{display:none!important}
+.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=photos],.ro [data-v=tiktok],.ro [data-v=news],.ro [data-v=youtube],.ro #exportCsv{display:none!important}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:10}
 #modal.on{display:flex}
 .mbox{background:var(--card);border-radius:14px;max-width:820px;width:100%;padding:16px}
@@ -135,7 +135,7 @@ td.n,th.n{text-align:right}
     <div id="jobs"></div>
   </div>
 
-  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button><button class="chip" data-v="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-v="news">News</button></div>
+  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button><button class="chip" data-v="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-v="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-v="news">News</button></div>
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
     <span id="custom" style="display:none" class="row">
@@ -176,6 +176,18 @@ td.n,th.n{text-align:right}
     <div id="gameDetail" style="display:none"></div>
   </div>
 
+  <div id="viewYouTube" style="display:none">
+    <div class="row" style="margin:6px 0 8px;justify-content:space-between">
+      <span class="hint" id="ytInfo"></span>
+      <button class="btn primary" id="ytCheck">Check YouTube</button>
+    </div>
+    <div id="ytProg" style="display:none;margin-bottom:10px">
+      <div style="height:8px;border-radius:999px;background:var(--line);overflow:hidden"><div id="ytBar" style="height:100%;width:0;background:var(--accent);transition:width .4s"></div></div>
+      <div class="hint" id="ytStage" style="margin-top:4px"></div>
+    </div>
+    <div class="row" style="margin:6px 0 10px"><span id="ytStatus" class="row"></span></div>
+    <div class="grid" id="ytGrid"></div>
+  </div>
   <div id="viewNews" style="display:none"></div>
   <div id="viewTikTok" style="display:none">
     <div class="row" style="margin:6px 0 8px;justify-content:space-between">
@@ -216,10 +228,10 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const SNAP = window.SNAPSHOT || null;
 const snapGet = u => { const p = u.split("?")[0];
   return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines
-    : p === "/api/tiktok" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
+    : p === "/api/tiktok" || p === "/api/youtube" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
-let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
+let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
 const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "失误": "Mistake", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
@@ -573,6 +585,7 @@ function wireLines(g){
     of.onchange = () => { const f = of.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = () => ocr({image: rd.result}); rd.readAsDataURL(f); }; }
   document.querySelectorAll("#gameDetail [data-ocr]").forEach(b => b.onclick = () => ocr({photo_id: b.dataset.ocr}));
   document.querySelectorAll("#gameDetail [data-iv]").forEach(btn => btn.onclick = () => { iceView = btn.dataset.iv; renderGameDetail(); });
+  document.querySelectorAll("#gameDetail [data-pb]").forEach(b => b.onclick = () => { perfBase = b.dataset.pb; try { localStorage.setItem("perfBase", perfBase); } catch(e){} renderGameDetail(); });
   document.querySelectorAll("#gameDetail [data-lvbase]").forEach(sel => sel.onchange = () => { lineBaseFor[String(g.id)] = sel.value; renderGameDetail(); });
   document.querySelectorAll("#gameDetail [data-lv]").forEach(b => b.onclick = () => { lineView = b.dataset.lv; renderGameDetail(); });
   const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("Overwrite what you have entered with the previous game’s lineup groups?")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
@@ -695,24 +708,67 @@ function renderGames(){
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
   const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
 }
-// 本场表现指针表盘: 只用数据表指标和他在冰上的 5v5 进失球, 换算成相对“一般水平”的加减分。权重和基准都在这里, 可以直接改。
-const PERF = {tier: ["Very poor", "Poor", "Average", "Good", "Excellent"], color: ["#c0392b", "#e08a3c", "#d4b43a", "#7fb85a", "#2f9e5b"],
-  base: 50, scale: 8, toiBase: 22, pts: [1, 3], gd: [0.75, 1.5], sog: [1.5, 0.3, 0.6], blk: [0.2, 0.6], net: [0.3, 1.2], toi: [4, 0.75]};
-function perfScore(g){
+// 本场表现指针表盘: 每项先换成相对基准的标准分 z = (本场 − 基准平均) ÷ 基准标准差(限 ±3), 再按权重 w 加权相加得到综合分;
+// 综合分在基准“单场分布”里排第几(百分位)决定档位和指针位置。基准有两套, 可以在表盘上切换:
+//   self   = Karlsson 自己 2025-26 常规赛 75 场(NHL 官方接口)——默认, 看这场比他去年的水平好还是差
+//   league = 联盟后卫 2025-26 常规赛 14,963 个单场(上冰不少于 12 分钟)——看这场放在联盟里算什么水平
+// 权重 w 是我按重要程度定的(没有做回归); 抢断减失误记分员人工判定、对进攻型后卫噪声大, 所以权重只给 0.2; 平均/标准差/分位数是从数据算出来的, 换赛季时可以重新取数更新。
+const PERF = {tier: ["Very poor", "Poor", "Average", "Good", "Excellent"], color: ["#c0392b", "#e08a3c", "#d4b43a", "#7fb85a", "#2f9e5b"], cap: 3,
+  bands: [10, 30, 70, 90],                      // 百分位分界: 0-10 很差 · 10-30 偏差 · 30-70 一般 · 70-90 不错 · 90-100 很好
+  w: {pts: 1.0, gd: 0.6, sog: 0.5, blk: 0.35, net: 0.2, toi: 0.5},
+  base: {
+    self: {label: "his own 2025-26", short: "his 2025-26 games", games: 75, who: "Karlsson's average",
+      m: {pts: [0.88, 1.019], gd: [0.107, 1.638], sog: [2.347, 1.709], blk: [0.853, 0.811], net: [-0.867, 1.32], toi: [23.6, 2.902]},          // [平均, 标准差]
+      q: [-3.17, -2.76, -2.24, -1.91, -1.54, -1.28, -1.09, -0.84, -0.48, -0.39, -0.21, 0.13, 0.57, 0.7, 1.01, 1.17, 1.57, 1.96, 2.29, 2.78, 4.54]},
+    league: {label: "NHL defensemen", short: "NHL defenseman games", games: 14963, who: "NHL defenseman average",
+      m: {pts: [0.362, 0.630], gd: [0.034, 1.295], sog: [1.317, 1.290], blk: [1.396, 1.283], net: [-0.741, 1.140], toi: [19.88, 3.842]},
+      q: [-4.04, -2.26, -1.91, -1.68, -1.47, -1.28, -1.1, -0.93, -0.74, -0.56, -0.36, -0.14, 0.09, 0.35, 0.64, 0.99, 1.35, 1.82, 2.4, 3.32, 7.66]}}};     // q = 该基准单场综合分的 0%,5%,…,100% 分位数
+let perfBase = (() => { try { return localStorage.getItem("perfBase") === "league" ? "league" : "self"; } catch(e){ return "self"; } })();
+function perfPct(t, q){         // 综合分 -> 百分位(在分位数表里线性插值)
+  if(t <= q[0]) return 0; if(t >= q[q.length - 1]) return 100;
+  let i = 0; while(q[i + 1] < t) i++;
+  return 5 * (i + (q[i + 1] === q[i] ? 0 : (t - q[i]) / (q[i + 1] - q[i])));
+}
+function perfScore(g, which = perfBase){
   const m = g.player; if(!m) return null;
-  const cl = (v, lim) => Math.max(-lim, Math.min(lim, v)), P = PERF, rows = [];
-  rows.push({k: "Points (G + A)", v: cl((m.g || 0) + (m.a || 0), P.pts[1]) * P.pts[0], note: `${(m.g || 0) + (m.a || 0)} point${(m.g || 0) + (m.a || 0) === 1 ? "" : "s"}`});
+  const P = PERF, B = P.base[which], rows = [];
+  const add = (k, label, x, note, tip) => { const [mu, sd] = B.m[k], w = P.w[k], z = Math.max(-P.cap, Math.min(P.cap, (x - mu) / sd));
+    rows.push({k: label, v: w * z, note, tip: `${tip ? tip + ". " : ""}${B.who} ${k === "toi" ? mmss(Math.round(mu * 60)) : mu.toFixed(2)} per game`}); };
+  const pts = (m.g || 0) + (m.a || 0);
+  add("pts", "Points (G + A)", pts, `${pts} point${pts === 1 ? "" : "s"}`);
   const sc = g.scoring || [];
   if(sc.some(x => x.ek === true || x.ek === false)){       // 在冰上的 5v5 进失球, 多打少进球不算(和官方 +/- 同口径)
     const on = sc.filter(x => x.ek === true && x.strength !== "pp"), gd = on.filter(x => x.team === "PIT").length - on.filter(x => x.team !== "PIT").length;
-    rows.push({k: "On-ice goal difference", v: cl(gd * P.gd[0], P.gd[1]), note: `${gd > 0 ? "+" : ""}${gd}`, tip: "Even-strength and short-handed goals only; power-play goals are not counted, same as the official +/-"});
+    add("gd", "On-ice goal difference", gd, `${gd > 0 ? "+" : ""}${gd}`, "Power-play goals are not counted, same as the official +/-");
   }
-  if(m.sog != null) rows.push({k: "Shots", v: cl((m.sog - P.sog[0]) * P.sog[1], P.sog[2]), note: `${m.sog} on goal`});
-  if(m.blk != null) rows.push({k: "Blocked shots", v: Math.min(m.blk * P.blk[0], P.blk[1]), note: `${m.blk}`});
-  if(m.take != null && m.give != null) rows.push({k: "Takeaways − giveaways", v: cl((m.take - m.give) * P.net[0], P.net[1]), note: `${m.take} − ${m.give}`});
-  const ts = toiSec(m.toi); if(ts != null) rows.push({k: "Ice time", v: cl((ts / 60 - P.toiBase) / P.toi[0], P.toi[1]), note: `${m.toi} (typical ${P.toiBase}:00)`});
-  const total = rows.reduce((s, r) => s + r.v, 0), idx = Math.max(0, Math.min(100, Math.round(P.base + P.scale * total)));
-  return {rows, total, idx, tier: Math.min(4, Math.floor(idx / 20))};
+  if(m.sog != null) add("sog", "Shots", m.sog, `${m.sog} on goal`);
+  if(m.blk != null) add("blk", "Blocked shots", m.blk, `${m.blk}`);
+  if(m.take != null && m.give != null) add("net", "Takeaways − giveaways", m.take - m.give, `${m.take} − ${m.give}`);
+  const ts = toiSec(m.toi); if(ts != null) add("toi", "Ice time", ts / 60, `${m.toi}`);
+  const total = rows.reduce((s, r) => s + r.v, 0), pct = perfPct(total, B.q), b = P.bands;
+  const tier = pct < b[0] ? 0 : pct < b[1] ? 1 : pct < b[2] ? 2 : pct < b[3] ? 3 : 4;
+  // 指针位置: 5 个等宽色段, 每段对应一个百分位区间(10/20/40/20/10), 区间内线性
+  const lo = [0, ...b], hi = [...b, 100], idx = Math.round(tier * 20 + (pct - lo[tier]) / (hi[tier] - lo[tier]) * 20);
+  return {rows, total, pct, idx: Math.max(0, Math.min(100, idx)), tier, base: B};
+}
+function perfGauge(g){
+  const r = perfScore(g); if(!r) return "";
+  const cx = 110, cy = 105, R = 84, pt = (deg, rad = R) => [cx + rad * Math.cos(deg * Math.PI / 180), cy - rad * Math.sin(deg * Math.PI / 180)];
+  const arcs = PERF.color.map((c, i) => { const [x1, y1] = pt(180 - i * 36 - 0.8), [x2, y2] = pt(180 - (i + 1) * 36 + 0.8);
+    return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${c}" stroke-width="18" ${r.tier === i ? "" : 'opacity=".38"'}/>`; }).join("");
+  const [nx, ny] = pt(180 - r.idx * 1.8, 70), color = PERF.color[r.tier], mx = Math.max(1, ...r.rows.map(x => Math.abs(x.v)));
+  const better = Math.round(r.pct);
+  const bars = r.rows.map(x => `<div style="display:grid;grid-template-columns:minmax(120px,190px) 1fr 44px;gap:8px;align-items:center;margin:5px 0;font-size:13px"><span title="${esc(x.tip || "")}">${esc(x.k)} <span class="hint" style="font-size:12px">· ${esc(x.note)}</span></span>
+    <span style="position:relative;height:8px;background:var(--line);border-radius:4px"><i style="position:absolute;top:0;height:8px;border-radius:4px;background:${x.v >= 0 ? "var(--event)" : "var(--bad)"};${x.v >= 0 ? `left:50%;width:${x.v / mx * 50}%` : `right:50%;width:${-x.v / mx * 50}%`}"></i></span>
+    <b style="text-align:right;color:${x.v > 0.05 ? "var(--event)" : x.v < -0.05 ? "var(--bad)" : "var(--muted)"}">${Math.abs(x.v) < 0.05 ? "0.0" : (x.v > 0 ? "+" : "") + x.v.toFixed(1)}</b></div>`).join("");
+  return `<div class="box" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center"><div style="text-align:center;min-width:220px">
+      <svg viewBox="0 0 220 128" width="220" role="img" aria-label="Performance gauge: ${PERF.tier[r.tier]}, better than ${better} percent of ${r.base.short}">${arcs}
+        <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="var(--ink)"/>
+        <text x="${pt(180, R + 4)[0] - 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="start">worst</text><text x="${pt(0, R + 4)[0] + 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="end">best</text></svg>
+      <div style="font-size:22px;font-weight:700;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Better than ${better}% of ${r.base.short}</div>
+      <div class="row" style="justify-content:center;margin:6px 0 0;gap:6px"><button class="chip ${perfBase === "self" ? "on" : ""}" data-pb="self" title="Compare with Karlsson's own 2025-26 regular season (75 games)">vs his 2025-26</button><button class="chip ${perfBase === "league" ? "on" : ""}" data-pb="league" title="Compare with all NHL defenseman games in 2025-26">vs NHL defensemen</button></div></div>
+    <div style="flex:1;min-width:260px"><div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row is how far above or below ${esc(r.base.label)} (weighted); hover a row for the average</div>${bars}
+      <div class="hint" style="margin-top:6px">Compared with ${esc(r.base.short)} (${r.base.games.toLocaleString("en-US")} games, NHL 2025-26 regular season). The weights are my own judgment, and one game is a small sample — this is not an official rating. Tiers: bottom 10% / 10–30% / middle 40% / 70–90% / top 10%.</div></div></div>`;
 }
 function perfMini(g){
   const r = perfScore(g); if(!r) return "";
@@ -720,25 +776,8 @@ function perfMini(g){
   const arcs = PERF.color.map((c, i) => { const [x1, y1] = pt(180 - i * 36 - 1.2), [x2, y2] = pt(180 - (i + 1) * 36 + 1.2);
     return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${c}" stroke-width="8" ${r.tier === i ? "" : 'opacity=".38"'}/>`; }).join("");
   const [nx, ny] = pt(180 - r.idx * 1.8, 28);
-  return `<div style="text-align:center;flex:none;width:90px" title="Performance index ${r.idx} / 100"><svg viewBox="0 0 90 50" width="90" role="img" aria-label="Performance: ${PERF.tier[r.tier]}">${arcs}<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--ink)"/></svg>
+  return `<div style="text-align:center;flex:none;width:90px" title="Better than ${Math.round(r.pct)}% of ${r.base.short}"><svg viewBox="0 0 90 50" width="90" role="img" aria-label="Performance: ${PERF.tier[r.tier]}">${arcs}<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--ink)"/></svg>
     <div style="font-size:12px;font-weight:700;color:${PERF.color[r.tier]};margin-top:-2px">${PERF.tier[r.tier]}</div></div>`;
-}
-function perfGauge(g){
-  const r = perfScore(g); if(!r) return "";
-  const cx = 110, cy = 105, R = 84, pt = (deg, rad = R) => [cx + rad * Math.cos(deg * Math.PI / 180), cy - rad * Math.sin(deg * Math.PI / 180)];
-  const arcs = PERF.color.map((c, i) => { const [x1, y1] = pt(180 - i * 36 - 0.8), [x2, y2] = pt(180 - (i + 1) * 36 + 0.8);
-    return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${c}" stroke-width="18" ${r.tier === i ? "" : 'opacity=".38"'}/>`; }).join("");
-  const [nx, ny] = pt(180 - r.idx * 1.8, 70), color = PERF.color[r.tier], mx = Math.max(1.5, ...r.rows.map(x => Math.abs(x.v)));
-  const bars = r.rows.map(x => `<div style="display:grid;grid-template-columns:minmax(120px,190px) 1fr 44px;gap:8px;align-items:center;margin:5px 0;font-size:13px"><span title="${esc(x.tip || "")}">${esc(x.k)} <span class="hint" style="font-size:12px">· ${esc(x.note)}</span></span>
-    <span style="position:relative;height:8px;background:var(--line);border-radius:4px"><i style="position:absolute;top:0;height:8px;border-radius:4px;background:${x.v >= 0 ? "var(--event)" : "var(--bad)"};${x.v >= 0 ? `left:50%;width:${x.v / mx * 50}%` : `right:50%;width:${-x.v / mx * 50}%`}"></i></span>
-    <b class="${x.v > 0.05 ? "tg" : x.v < -0.05 ? "tb" : ""}" style="text-align:right;color:${x.v > 0.05 ? "var(--event)" : x.v < -0.05 ? "var(--bad)" : "var(--muted)"}">${x.v > 0 ? "+" : ""}${x.v.toFixed(1)}</b></div>`).join("");
-  return `<div class="box" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center"><div style="text-align:center;min-width:220px">
-      <svg viewBox="0 0 220 128" width="220" role="img" aria-label="Performance gauge: ${PERF.tier[r.tier]}, ${r.idx} out of 100">${arcs}
-        <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="var(--ink)"/>
-        <text x="${pt(180, R + 4)[0] - 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="start">0</text><text x="${pt(0, R + 4)[0] + 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="end">100</text></svg>
-      <div style="font-size:22px;font-weight:700;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Index ${r.idx} / 100</div></div>
-    <div style="flex:1;min-width:260px"><div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row is points above or below an average game for a defenseman</div>${bars}
-      <div class="hint" style="margin-top:6px">A rough index from the box score and 5v5 on-ice goals. One game is a small sample and this is not an official rating; weights are at the top of <code>perfScore</code> in the page source.</div></div></div>`;
 }
 function specialHTML(g){
   const S = g.special; if(!S) return "";
@@ -864,6 +903,46 @@ function renderTikTok(){
   document.querySelectorAll("[data-tm]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.tm.split("|"); b.disabled = true;
     await post("/api/tiktok/mark", {id, status: st}); ttEditing.delete(id); await load(); });
 }
+function renderYouTube(){
+  if(view !== "youtube") return;
+  const items = youtube.items || [], cnt = s => items.filter(x => x.status === s).length;
+  $("ytStatus").innerHTML = ["待确认", "选入", "排除"].map(s => `<button class="chip ${ytStatus === s ? "on" : ""}" data-ys="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
+  document.querySelectorAll("[data-ys]").forEach(b => b.onclick = () => { ytStatus = b.dataset.ys; renderYouTube(); });
+  $("ytInfo").textContent = youtube.checked ? `Last checked ${youtube.checked.replace("T", " ").slice(0, 16)}. Each check only adds videos you have not seen before, posted on or after ${youtube.since || "yesterday"}, from the 5 channels listed in the YouTube check.`
+    : "Not checked yet. “Check YouTube” looks at SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN and Pittsburgh Hockey Now, starting from yesterday.";
+  if(ytStatus === "排除") $("ytInfo").textContent = "Excluded videos are deleted automatically 3 days after you exclude them (until then you can still move them back to Pending).";
+  if(ytStatus === "选入") $("ytInfo").textContent = "Selected videos are downloaded into Clips. Moving one back does not delete the downloaded clip; delete it from Clips if you want it gone.";
+  const list = items.filter(x => x.status === ytStatus).sort((a, b) => (+b.mentions - +a.mentions) || b.date.localeCompare(a.date));
+  $("ytGrid").innerHTML = list.map(x => `<div class="clip" style="cursor:default"><div class="thumb" style="${x.thumb ? `background-image:url('${encodeURI(x.thumb)}')` : ""}"><span class="dur">${dur(x.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(x.title)}</div><div class="meta">${esc(x.channel)} · ${esc(x.date.slice(5))} · ${(+x.views || 0).toLocaleString()} views${x.mentions ? ` · <b style="color:var(--event)">Mentions Karlsson</b>` : ""}</div>
+      <div class="row" style="margin-top:6px"><a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener" style="text-decoration:none">Open on YouTube ↗</a>
+        ${x.status === "选入" ? (clips.some(c => String(c.id).split(/_\d/)[0] === x.id)
+          ? `<button class="btn primary" data-yo="${esc(x.id)}">▶ Downloaded — open clip</button>`
+          : `<button class="btn primary" data-yr="${esc(x.id)}">⬇ Download now</button> <span class="hint">not in Clips yet (still downloading, or it failed)</span>`) : ""}
+        ${x.status === "选入" && !ytEditing.has(x.id)
+          ? `<button class="btn" data-ye="${esc(x.id)}">Edit</button>`
+          : (x.status === "选入" ? `<button class="btn" data-ye="${esc(x.id)}">Done</button>` : "") + PST.filter(s => s !== x.status).map(s => `<button class="btn ${s === "选入" ? "primary" : ""}" data-ym="${esc(x.id)}|${s}">${s === "选入" ? "✓ Download" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}
+      </div></div></div>`).join("") || `<div class="hint">${items.length ? "Nothing here." : "No videos yet."}</div>`;
+  document.querySelectorAll("[data-yo]").forEach(b => b.onclick = () => { const c = clips.find(c => String(c.id).split(/_\d/)[0] === b.dataset.yo); if(c){ view = "clips"; render(); openClip(c.id); } });
+  document.querySelectorAll("[data-yr]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Starting…"; const r = await post("/api/youtube/mark", {id: b.dataset.yr, status: "选入", retry: true}); if(r.error) alert(r.error);
+    $("ytInfo").textContent = "Download started — it appears in Clips when it finishes (see the progress at the top of the page)."; setTimeout(load, 4000); });
+  document.querySelectorAll("[data-ye]").forEach(b => b.onclick = () => { const id = b.dataset.ye; ytEditing.has(id) ? ytEditing.delete(id) : ytEditing.add(id); renderYouTube(); });
+  document.querySelectorAll("[data-ym]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.ym.split("|"); b.disabled = true;
+    const r = await post("/api/youtube/mark", {id, status: st}); if(r.error) alert(r.error); ytEditing.delete(id); await load();
+    if(st === "选入"){ ytStatus = "选入"; renderYouTube(); $("ytInfo").textContent = "Download started — find it in the Selected tab; it turns into “Downloaded — open clip” when it finishes."; setTimeout(load, 8000); } });
+}
+async function checkYouTube(){
+  const btn = $("ytCheck"); btn.disabled = true; $("ytProg").style.display = ""; $("ytBar").style.width = "2%"; $("ytStage").textContent = "Starting…";
+  await post("/api/youtube/check", {});
+  for(;;){
+    await new Promise(r => setTimeout(r, 900));
+    const j = (await api("/api/jobs")).filter(x => x.url === "Check YouTube").slice(-1)[0]; if(!j) continue;
+    $("ytBar").style.width = Math.round((j.progress || 0) * 100) + "%"; $("ytStage").textContent = j.error ? `${j.stage}: ${j.error}` : j.stage;
+    $("ytBar").style.background = j.error ? "var(--bad)" : "var(--accent)";
+    if(j.done) break;
+  }
+  btn.disabled = false; await load(); setTimeout(() => { if(!$("ytBar").style.background.includes("bad")) $("ytProg").style.display = "none"; }, 6000);
+}
 async function checkTikTok(){
   const btn = $("ttCheck"); btn.disabled = true; $("ttProg").style.display = ""; $("ttBar").style.width = "2%"; $("ttStage").textContent = "Starting…";
   await post("/api/tiktok/check", {});
@@ -885,6 +964,10 @@ function renderPhotos(){
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
   $("viewTikTok").style.display = view === "tiktok" ? "" : "none";
   $("viewNews").style.display = view === "news" ? "" : "none";
+  $("viewYouTube").style.display = view === "youtube" ? "" : "none";
+  const ytPend = (youtube.items || []).filter(x => x.status === "待确认").length;
+  $("ytcount").textContent = ytPend ? ` (${ytPend} pending)` : "";
+  renderYouTube();
   renderNews();
   const ttPend = (tiktok.items || []).filter(x => x.status === "待确认").length;
   $("ttcount").textContent = ttPend ? ` (${ttPend} pending)` : "";
@@ -1063,8 +1146,9 @@ async function poll(){
   $("nhlSync").disabled = js.some(j => !j.done && j.url === "Sync NHL official data");
   if(run.length) timer = setTimeout(poll, 2500);
 }
-async function load(){ coverVer = Date.now(); let gm, ln; [clips, nhl, photos, gm, ln, tiktok] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines"), api("/api/tiktok")]); games = gm.games || []; lineData = ln || {}; render(); }
+async function load(){ coverVer = Date.now(); let gm, ln; [clips, nhl, photos, gm, ln, tiktok, youtube] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines"), api("/api/tiktok"), api("/api/youtube")]); games = gm.games || []; lineData = ln || {}; render(); }
 $("ttCheck").onclick = checkTikTok;
+$("ytCheck").onclick = checkYouTube;
 async function uploadPhotos(files){
   files = [...files].filter(f => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name)); if(!files.length){ $("upMsg").textContent = "No image files found."; return; }
   $("upBtn").disabled = true; let done = 0, skipped = [];
