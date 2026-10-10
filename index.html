@@ -86,7 +86,18 @@ td.n,th.n{text-align:right}
 .gt td.chg.mv,.chgi.mv{background:color-mix(in srgb,var(--assist) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--assist) 60%,transparent)}
 .gt td.chg.out,.chgi.out{background:color-mix(in srgb,var(--muted) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--muted) 45%,transparent)}
 .gt td.chg,.chgi{background:color-mix(in srgb,var(--goal) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--goal) 55%,transparent)} .chgi{padding:1px 6px;border-radius:6px} .was{display:block;font-size:11px;font-weight:400;color:var(--muted)} .chgi .was{display:inline;margin-left:4px}
-.gsec{margin:16px 0 6px;font-size:15px;font-weight:600}
+.gsec{margin:24px 0 8px;font-size:17px;font-weight:700}
+.dsec{margin:10px 0}
+.dsec>summary{cursor:pointer;list-style:none;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-weight:600;font-size:14px;color:var(--muted)}
+.dsec[open]>summary{color:var(--ink);margin-bottom:8px}
+.dsec>summary::-webkit-details-marker{display:none}
+.dsec>summary::before{content:"";display:inline-block;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);margin-right:10px;vertical-align:2px;transition:transform .15s}
+.dsec[open]>summary::before{transform:rotate(45deg);vertical-align:3px}
+.dsec .gsec{font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.todo{align-items:center;gap:10px;margin:8px 0}
+.todo .n{min-width:34px;text-align:center;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--line)}
+.todo .n.hot{background:var(--accent);color:var(--accent-ink)}
+.nav .chip{font-size:15px;padding:6px 16px}
 .tag2{display:inline-block;font-size:11px;padding:0 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:4px}
 .mug{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;vertical-align:middle;margin-right:7px;background:var(--line);cursor:zoom-in}
 .tag2.ha{font-weight:700;letter-spacing:.04em;margin-left:0;margin-right:4px} .tag2.home{color:var(--accent);border-color:var(--accent)} .tag2.away{color:var(--muted)}
@@ -96,7 +107,7 @@ td.n,th.n{text-align:right}
 .miss{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line);font-size:13px}
 .miss .m{color:var(--muted)}
 @media (max-width:600px){.gmini{position:static!important;margin-top:6px}}
-.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #pickCover,.ro #dl43,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=photos],.ro [data-v=tiktok],.ro [data-v=news],.ro [data-v=youtube],.ro #exportCsv{display:none!important}
+.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #pickCover,.ro #dl43,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=inbox],.ro [data-v=add],.ro #inboxTabs,.ro #exportCsv{display:none!important}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:10}
 #modal.on{display:flex}
 .mbox{background:var(--card);border-radius:14px;max-width:820px;width:100%;padding:16px}
@@ -115,7 +126,7 @@ td.n,th.n{text-align:right}
     <div class="sub"><span id="subline"><a href="clips.csv" download style="color:var(--accent)" id="exportCsv">Export clips.csv</a> · All data stays on this computer</span></div>
   </header>
 
-  <div class="box" id="addBox">
+  <div id="viewAdd" style="display:none"><div class="box" id="addBox">
     <b>Add clips / photos</b> <span class="hint">Paste YouTube or X (Twitter) links, one per line. X posts with photos go to the Photos tab automatically.</span>
     <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;To take only part of a video, add start-end times after the link, e.g.  https://youtu.be/xxxx 12:30-13:05&#10;For several parts of one video, use one line per part"></textarea>
     <div class="row" style="margin-top:8px">
@@ -133,9 +144,12 @@ td.n,th.n{text-align:right}
       </div>
     </details>
     <div id="jobs"></div>
-  </div>
+  </div></div>
 
-  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button><button class="chip" data-v="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-v="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-v="news">News</button></div>
+  <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
+  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="add">Add</button></div>
+  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button></div>
+  <div id="rangeBar">
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
     <span id="custom" style="display:none" class="row">
@@ -143,10 +157,14 @@ td.n,th.n{text-align:right}
     </span>
   </div>
 
+  </div>
+
+  <div id="viewToday" style="display:none"></div>
   <div id="viewClips">
   <div class="tiles" id="tiles"></div>
   <div class="hint" style="margin:-4px 0 8px">Goals, assists and points are the official NHL numbers for the games in this date range; interviews and clips count what you have saved.</div>
 
+  <details class="dsec" id="officialDet"><summary>Official data &amp; weekly summary <span class="hint" id="nhlBadge"></span></summary>
   <div class="box" id="nhlBox">
     <div class="row" style="justify-content:space-between">
       <span><b>NHL official data</b> <span class="hint" id="nhlUpd"></span></span>
@@ -160,6 +178,7 @@ td.n,th.n{text-align:right}
     <b>Weekly summary</b> <span class="hint">Click a row to see only that week. Goals, assists and points are official; interviews and clips count what you have saved.</span>
     <div style="overflow:auto;margin-top:6px"><table id="weeks"></table></div>
   </div>
+  </details>
 
   <div class="row" style="margin:14px 0 10px">
     <span id="types" class="row"></span>
@@ -231,7 +250,10 @@ const snapGet = u => { const p = u.split("?")[0];
     : p === "/api/tiktok" || p === "/api/youtube" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
-let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "games", pstatus = "待确认", START = "";
+const openSecs = new Set();       // 比赛详情里展开了哪些次要区块, 重新渲染时保持
+const INBOX = ["youtube", "tiktok", "photos", "news"];
+const savedView = (() => { try { return localStorage.getItem("ekView"); } catch(e){ return null; } })();
+let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "clips", "youtube", "tiktok", "photos", "news", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add"))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
 const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "失误": "Mistake", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
@@ -309,6 +331,7 @@ function render(){
   const ev = (nhl.events || []).filter(e => e.date >= a && e.date <= b && !ONICE.includes(e.type));
   const missing = ev.filter(e => !have.has(e.id));
   const fetchable = missing.filter(e => e.clip);
+  $("nhlBadge").textContent = missing.length ? `· ${missing.length} clip${missing.length > 1 ? "s" : ""} not downloaded` : "";
   const upd = Object.values(nhl.seasons || {}).map(s => s.updated).sort().slice(-1)[0];
   $("nhlUpd").textContent = upd ? "Last synced: " + upd.replace("T", " ").slice(0, 16) : "";
   if(!(nhl.events || []).length && !upd){
@@ -695,7 +718,7 @@ function renderGames(){
   if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
   openGame = null; $("gameDetail").style.display = "none"; $("gameList").style.display = "";
   const list = games.filter(g => inRangeD(g.date));
-  $("gameList").innerHTML = seasonHTML(list) + `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
+  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
     <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
     ? `<div class="box hint">No game data yet. Click “Sync official data” at the top right to read this season’s finished games: scores, team stats, rosters and the scoring timeline, and to file your existing clips, interviews and photos under the matching game by date.</div>` : "") +
     list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
@@ -705,7 +728,8 @@ function renderGames(){
         <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
         ${stLine(g, "Regular season: ")}
         <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "No previous game to compare"; })()}</div>
-        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length ? ` · <b style="color:var(--goal)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("");
+        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length ? ` · <b style="color:var(--goal)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
+  document.querySelectorAll("#gameList details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
   const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
 }
@@ -810,6 +834,7 @@ function penHTML(g){
 function renderGameDetail(){
   const g = games.find(x => String(x.id) === String(openGame)), it = gameItems(g), m = g.player, L = g.lineup || {};
   const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
+  const dsec = (key, title, html) => `<details class="dsec" data-sec="${key}"${openSecs.has(key) ? " open" : ""}><summary>${title}</summary>${html}</details>`;
   const missMain = it.miss.filter(e => !["在场进球", "失球"].includes(e.type));       // 批量下载只管他自己的进球/助攻
   const onIceMiss = type => { const m = it.miss.filter(e => e.type === type); if(!m.length) return "";      // 冰上进球/丢球: 需要哪个才下载哪个
     return `<div class="box"><div class="hint" style="margin-bottom:6px">Not downloaded — pick the ones you need:</div>${m.map(e => `<div class="row" style="align-items:center;gap:8px;margin:4px 0"><span>${esc(en(e.moment))}</span><span class="hint">${esc(e.scorer)}${e.assists.length ? " (" + esc(e.assists.join(", ")) + ")" : ""}${e.strength ? " · " + esc(en(e.strength)) : ""} · ${esc(e.score)}</span>
@@ -830,11 +855,6 @@ function renderGameDetail(){
     <div style="margin-top:10px">${perfGauge(g)}</div>
     <div class="gsec">Karlsson this game</div>
     <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
-    <div class="gsec">Team stats</div>
-    <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
-      return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
-    <div class="g2"><div>${linesHTML(g)}${rosterHTML(g)}</div><div>${iceHTML(g)}</div></div>
-    ${penHTML(g)}${specialHTML(g)}
     <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times are the on-screen game clock, counting down)</span></div>
     <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
       return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
@@ -849,15 +869,21 @@ function renderGameDetail(){
     ${sec("Post-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
     ${sec("Interviews (not marked pre/post-game)", clipsBy(c => c.type === "采访" && !c.phase))}
     ${sec("Other videos", clipsBy(c => !["进球", "助攻", "在场进球", "失球", "失误", "采访"].includes(c.type)))}
-    ${it.ps.length ? `<div class="gsec">Photos</div>${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}` : ""}
-    <div class="gsec">Roster (PIT)</div>
-    <div class="box" style="overflow:auto"><div class="hint">Forwards</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
+    <div class="gsec">Team stats</div>
+    <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
+      return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
+    ${dsec("lines", "Lineup groups, ice time & teammates", `<div class="g2"><div>${linesHTML(g)}${rosterHTML(g)}</div><div>${iceHTML(g)}</div></div>`)}
+    ${dsec("special", "Special teams units & penalties", `${specialHTML(g)}${penHTML(g)}`)}
+    ${it.ps.length ? dsec("photos", "Photos", `${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}`) : ""}
+    ${dsec("roster", "Roster (PIT)", `    <div class="box" style="overflow:auto"><div class="hint">Forwards</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
       <div class="hint" style="margin-top:8px">Defense</div><table class="gt">${head}${(L.defense || []).map(pr).join("")}</table>
       <div class="hint" style="margin-top:8px">Goalies</div><table class="gt"><tr><th>Player</th><th>Shots against</th><th>Saves</th><th>GA</th><th>Sv%</th><th>Result</th><th>TOI</th></tr>${(L.goalies || []).map(r => `<tr><td>${mug(g, r)}${esc(r.num ?? "")} ${esc(r.name)}</td><td>${r.sa ?? ""}</td><td>${r.sv ?? ""}</td><td>${r.ga ?? ""}</td><td class="${r.svp != null && r.sa ? (r.svp >= 0.92 ? "good" : r.svp < 0.88 ? "bad" : "") : ""}">${r.svp != null ? (Math.round(r.svp * 1000) / 1000).toFixed(3) : ""}</td><td class="${r.dec === "W" ? "good" : r.dec ? "bad" : ""}">${esc(r.dec || "")}</td><td>${esc(r.toi || "")}</td></tr>`).join("")}</table>
       ${(g.scratches || []).length ? `<div class="hint" style="margin-top:8px">Scratches: ${g.scratches.map(esc).join(", ")}</div>` : ""}</div>
+`)}
     <div class="hint" style="margin-top:10px"><span style="color:var(--event);font-weight:600">Green</span> = good, <span style="color:var(--bad);font-weight:600">red</span> = bad (zeros are not colored): more goals, assists, shots, blocks and takeaways are good (hits are neutral and not colored), a positive +/- is good and a negative one is bad, giveaways are always bad; for goalies Sv% ≥ .920 is good and under .880 is bad. GV = giveaways, TK = takeaways. Data comes from the official public NHL API. To save a table as an image, use a macOS screenshot (Shift+Command+4).</div>`;
   $("gBack").onclick = () => { openGame = null; lineEdit = null; lineDraft = null; lineNotice = null; renderGames(); };
   wireLines(g);
+  document.querySelectorAll("#gameDetail details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
   document.querySelectorAll("#gameDetail .clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
   document.querySelectorAll("#gameDetail img.mug").forEach(im => im.onclick = () => openMug(im.src, im.dataset.name));
   document.querySelectorAll("#gameDetail [data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
@@ -914,22 +940,30 @@ function renderYouTube(){
   const items = youtube.items || [], cnt = s => items.filter(x => x.status === s).length;
   $("ytStatus").innerHTML = ["待确认", "选入", "排除"].map(s => `<button class="chip ${ytStatus === s ? "on" : ""}" data-ys="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
   document.querySelectorAll("[data-ys]").forEach(b => b.onclick = () => { ytStatus = b.dataset.ys; renderYouTube(); });
-  $("ytInfo").textContent = youtube.checked ? `Last checked ${youtube.checked.replace("T", " ").slice(0, 16)}. Each check only adds videos you have not seen before, posted on or after ${youtube.since || "yesterday"}, from the 5 channels listed in the YouTube check.`
-    : "Not checked yet. “Check YouTube” looks at SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN and Pittsburgh Hockey Now, starting from yesterday.";
+  $("ytInfo").textContent = youtube.checked ? `Last checked ${youtube.checked.replace("T", " ").slice(0, 16)}. Each check only adds videos you have not seen before, posted on or after ${youtube.since || "yesterday"}, from 6 channels: SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN, Pittsburgh Hockey Now and the NHL (highlights that mention the Penguins or Karlsson).`
+    : "Not checked yet. “Check YouTube” looks at SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN, Pittsburgh Hockey Now and the NHL (only videos that mention the Penguins or Karlsson), starting from yesterday.";
   if(ytStatus === "排除") $("ytInfo").textContent = "Excluded videos are deleted automatically 3 days after you exclude them (until then you can still move them back to Pending).";
   if(ytStatus === "选入") $("ytInfo").textContent = "Selected videos are downloaded into Clips. Moving one back does not delete the downloaded clip; delete it from Clips if you want it gone.";
   const list = items.filter(x => x.status === ytStatus).sort((a, b) => (+b.mentions - +a.mentions) || b.date.localeCompare(a.date));
   $("ytGrid").innerHTML = list.map(x => `<div class="clip" style="cursor:default"><div class="thumb" style="${x.thumb ? `background-image:url('${encodeURI(x.thumb)}')` : ""}"><span class="dur">${dur(x.duration)}</span></div>
     <div class="cbody"><div class="t">${esc(x.title)}</div><div class="meta">${esc(x.channel)} · ${esc(x.date.slice(5))} · ${(+x.views || 0).toLocaleString()} views${x.mentions ? ` · <b style="color:var(--event)">Mentions Karlsson</b>` : ""}</div>
       <div class="row" style="margin-top:6px"><a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener" style="text-decoration:none">Open on YouTube ↗</a>
-        ${x.status === "选入" ? (clips.some(c => String(c.id).split(/_\d/)[0] === x.id)
-          ? `<button class="btn primary" data-yo="${esc(x.id)}">▶ Downloaded — open clip</button>`
-          : `<button class="btn primary" data-yr="${esc(x.id)}">⬇ Download now</button> <span class="hint">not in Clips yet (still downloading, or it failed)</span>`) : ""}
+        ${x.status === "选入" ? (() => { const mine = clips.filter(c => String(c.id).split(/_\d/)[0] === x.id);
+          return mine.length ? mine.map(c => `<button class="btn primary" data-yo="${esc(c.id)}">▶ ${c.seg_start !== "" && c.seg_start != null ? "Clip " + mmss(Math.round(+c.seg_start)) + "–" + mmss(Math.round(+c.seg_end)) : "Downloaded — open clip"}</button>`).join(" ")
+            : `<button class="btn primary" data-yr="${esc(x.id)}">⬇ Download now</button> <span class="hint">not in Clips yet (still downloading, or it failed)</span>`; })() : ""}
+        <button class="btn" data-yc="${esc(x.id)}" title="Download only a part of this video">✂ Clip a part</button>
         ${x.status === "选入" && !ytEditing.has(x.id)
           ? `<button class="btn" data-ye="${esc(x.id)}">Edit</button>`
           : (x.status === "选入" ? `<button class="btn" data-ye="${esc(x.id)}">Done</button>` : "") + PST.filter(s => s !== x.status).map(s => `<button class="btn ${s === "选入" ? "primary" : ""}" data-ym="${esc(x.id)}|${s}">${s === "选入" ? "✓ Download" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}
-      </div></div></div>`).join("") || `<div class="hint">${items.length ? "Nothing here." : "No videos yet."}</div>`;
-  document.querySelectorAll("[data-yo]").forEach(b => b.onclick = () => { const c = clips.find(c => String(c.id).split(/_\d/)[0] === b.dataset.yo); if(c){ view = "clips"; render(); openClip(c.id); } });
+      </div>${ytClipOpen.has(x.id) ? `<div class="row" style="margin-top:6px;align-items:center;gap:6px;flex-wrap:wrap"><span class="hint">From</span><input type="text" id="ycs_${esc(x.id)}" placeholder="0:00" style="width:70px"><span class="hint">to</span><input type="text" id="yce_${esc(x.id)}" placeholder="${mmss(x.duration || 0)}" style="width:70px">
+        <button class="btn primary" data-ycd="${esc(x.id)}">Download this part</button></div><div class="hint">Times like 1:23 or 0:01:23 (video length ${mmss(x.duration || 0)}). Open the video first to find the moment; the video stays in Selected and you can clip more parts.</div>` : ""}</div></div>`).join("") || `<div class="hint">${items.length ? "Nothing here." : "No videos yet."}</div>`;
+  document.querySelectorAll("[data-yc]").forEach(b => b.onclick = () => { const id = b.dataset.yc; ytClipOpen.has(id) ? ytClipOpen.delete(id) : ytClipOpen.add(id); renderYouTube(); });
+  document.querySelectorAll("[data-ycd]").forEach(b => b.onclick = async () => { const id = b.dataset.ycd, st = $("ycs_" + id).value.trim() || "0", en = $("yce_" + id).value.trim();
+    if(!en){ alert("Enter an end time."); return; }
+    b.disabled = true; b.textContent = "Starting…"; const r = await post("/api/youtube/clip", {id, start: st, end: en});
+    if(r.error){ alert(r.error); b.disabled = false; b.textContent = "Download this part"; return; }
+    ytClipOpen.delete(id); await load(); ytStatus = "选入"; renderYouTube(); $("ytInfo").textContent = "Clip download started — it appears here and in Clips when it finishes."; setTimeout(load, 8000); });
+  document.querySelectorAll("[data-yo]").forEach(b => b.onclick = () => { const c = clips.find(c => c.id === b.dataset.yo); if(c){ view = "clips"; render(); openClip(c.id); } });
   document.querySelectorAll("[data-yr]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Starting…"; const r = await post("/api/youtube/mark", {id: b.dataset.yr, status: "选入", retry: true}); if(r.error) alert(r.error);
     $("ytInfo").textContent = "Download started — it appears in Clips when it finishes (see the progress at the top of the page)."; setTimeout(load, 4000); });
   document.querySelectorAll("[data-ye]").forEach(b => b.onclick = () => { const id = b.dataset.ye; ytEditing.has(id) ? ytEditing.delete(id) : ytEditing.add(id); renderYouTube(); });
@@ -961,10 +995,74 @@ async function checkTikTok(){
   }
   btn.disabled = false; await load(); setTimeout(() => { if(!$("ttBar").style.background.includes("bad")) $("ttProg").style.display = "none"; }, 4000);
 }
+// ---------- Today: 今天要处理的事 + 最新一场 ----------
+async function renderToday(){
+  if(view !== "today") return;
+  const el = $("viewToday");
+  const ago = ts => { const hh = (Date.now() / 1000 - ts) / 3600; return hh < 1 ? "just now" : hh < 24 ? Math.round(hh) + " h ago" : Math.round(hh / 24) + " d ago"; };
+  let todo = "";
+  if(!SNAP){
+    const have = new Set(clips.map(c => c.id)), ONI = ["在场进球", "失球"];
+    const missing = (nhl.events || []).filter(e => !have.has(e.id) && !ONI.includes(e.type) && e.clip);
+    const ytP = (youtube.items || []).filter(x => x.status === "待确认"), ytM = ytP.filter(x => x.mentions);
+    const ttP = (tiktok.items || []).filter(x => x.status === "待确认").length, phP = photos.filter(p => p.status === "待确认").length;
+    const noSum = clips.filter(c => c.type === "采访" && !(c.summary || "").trim()).length;
+    const rows = [
+      ytP.length && {n: ytP.length, hot: ytM.length, label: `YouTube video${ytP.length > 1 ? "s" : ""} to review${ytM.length ? ` — <b>${ytM.length} mention${ytM.length > 1 ? "" : "s"} Karlsson</b>` : ""}`, go: "youtube"},
+      ttP && {n: ttP, label: `TikTok video${ttP > 1 ? "s" : ""} to review`, go: "tiktok"},
+      phP && {n: phP, label: `photo${phP > 1 ? "s" : ""} to review`, go: "photos"},
+      missing.length && {n: missing.length, label: "official goal / assist clips not downloaded", act: "dlmissing"},
+      noSum && {n: noSum, label: `interview${noSum > 1 ? "s" : ""} without a summary`, go: "clips"}].filter(Boolean);
+    todo = `<div class="box"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:17px">To do</b><button class="btn" id="tdSync" title="Read the latest finished games from the NHL">Sync official data</button></div>` +
+      (rows.length ? rows.map(r => `<div class="row todo"><span class="n ${r.hot ? "hot" : ""}">${r.n}</span><span>${r.label}</span><span style="margin-left:auto">${r.act ? `<button class="btn primary" id="tdMissing">Download</button>` : `<button class="btn ${r.hot ? "primary" : ""}" data-go="${r.go}">Open</button>`}</span></div>`).join("")
+        : `<div class="hint" style="margin:8px 0">All caught up — nothing is waiting for you.</div>`) + `<div id="tdNews"></div></div>`;
+    window._tdMissing = missing.map(e => e.id);
+  }
+  const gs = [...games].sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
+  const g = gs.find(x => x.player) || gs[0];
+  let hero = "";
+  if(g){
+    const it = gameItems(g), m = g.player, pri = {"进球": 0, "助攻": 1, "失球": 2, "在场进球": 3, "采访": 4, "失误": 5};
+    const key = it.cs.filter(c => c.type in pri).sort((a, b) => pri[a.type] - pri[b.type] || (a.moment || "").localeCompare(b.moment || "")).slice(0, 4);
+    hero = `<div class="gsec" style="margin-top:20px">Latest game</div>
+      <div class="box"><div class="row" style="justify-content:space-between;align-items:center"><span style="font-size:18px"><b>${esc(g.date)}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
+        <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
+        <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
+        <div class="row" style="margin-top:8px"><button class="btn primary" id="tdOpen">Open game details</button></div></div>
+      ${perfGauge(g)}
+      ${key.length ? `<div class="gsec" style="font-size:15px">Key clips from this game</div><div class="grid">${key.map(clipHTML).join("")}</div>` : `<div class="hint" style="margin:8px 0">No clips from this game yet.</div>`}`;
+  } else {
+    hero = `<div class="box hint" style="margin-top:14px">No game data yet. ${SNAP ? "" : "Click “Sync official data” above to read the finished games."}</div>`;
+  }
+  const recent = [...clips].sort((a, b) => (b.added || "").localeCompare(a.added || "")).slice(0, 6);
+  const rec = recent.length ? `<div class="gsec">Recently added clips</div><div class="grid">${recent.map(clipHTML).join("")}</div>` : "";
+  el.innerHTML = todo + hero + rec;
+  document.querySelectorAll("#viewToday [data-go]").forEach(b => b.onclick = () => { view = b.dataset.go; renderPhotos(); window.scrollTo(0, 0); });
+  const tm = $("tdMissing"); if(tm) tm.onclick = async () => { tm.disabled = true; await post("/api/nhl/fetch", {ids: window._tdMissing || []}); poll(); };
+  const ts = $("tdSync"); if(ts) ts.onclick = async () => { ts.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
+  const to = $("tdOpen"); if(to) to.onclick = () => { openGame = String(g.id); view = "games"; renderPhotos(); window.scrollTo(0, 0); };
+  document.querySelectorAll("#viewToday .clip").forEach(c => c.onclick = () => openClip(c.dataset.id));
+  document.querySelectorAll("#viewToday [data-pb]").forEach(b => b.onclick = () => { perfBase = b.dataset.pb; try { localStorage.setItem("perfBase", perfBase); } catch(e){} renderToday(); });
+  if(!SNAP && $("tdNews")){       // 新闻: 最近 48 小时里最相关的 3 条(用已有的新闻缓存, 失败就不显示)
+    try {
+      if(!newsData) newsData = await api("/api/news");
+      const top = (newsData.items || []).filter(a => (a.tier === "top" || a.tier === "relevant") && Date.now() / 1000 - a.ts < 48 * 3600).sort((a, b) => b.ts - a.ts).slice(0, 3);
+      if($("tdNews") && top.length) $("tdNews").innerHTML = `<div class="hint" style="margin-top:8px">News in the last 48 hours</div>` + top.map(a => `<div style="margin:3px 0"><b style="color:var(--accent)">${ago(a.ts)}</b> · <a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.title)}</a> <span class="hint">${esc(a.source)}</span></div>`).join("");
+    } catch(e){}
+  }
+}
 function renderPhotos(){
   const pend = photos.filter(p => p.status === "待确认").length;
   $("pcount").textContent = pend ? ` (${pend} pending)` : "";
-  document.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === view));
+  if(INBOX.includes(view)) lastInbox = view;
+  try { localStorage.setItem("ekView", view); } catch(e){}
+  const topView = INBOX.includes(view) ? "inbox" : view;
+  document.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === topView));
+  document.querySelectorAll("[data-sv]").forEach(b => b.classList.toggle("on", b.dataset.sv === view));
+  $("inboxTabs").style.display = INBOX.includes(view) ? "" : "none";
+  $("rangeBar").style.display = (view === "games" || view === "clips") ? "" : "none";
+  $("viewToday").style.display = view === "today" ? "" : "none";
+  $("viewAdd").style.display = view === "add" ? "" : "none";
   $("viewClips").style.display = view === "clips" ? "" : "none";
   $("viewGames").style.display = view === "games" ? "" : "none";
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
@@ -977,8 +1075,11 @@ function renderPhotos(){
   renderNews();
   const ttPend = (tiktok.items || []).filter(x => x.status === "待确认").length;
   $("ttcount").textContent = ttPend ? ` (${ttPend} pending)` : "";
+  const inbTotal = pend + ytPend + ttPend;
+  $("inbcount").textContent = inbTotal ? ` (${inbTotal})` : "";
   renderTikTok();
   renderGames();
+  renderToday();
   if(view !== "photos") return;
   const cnt = s => photos.filter(p => p.status === s).length;
   $("pstatus").innerHTML = PST.map(s => `<button class="chip ${pstatus===s?"on":""}" data-ps="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
@@ -1022,7 +1123,8 @@ function openPhoto(id){
     if(r.error){ $("msg").textContent = r.error; return; } await load(); openPhoto(id); $("msg").textContent = "Saved"; };
   $("pdel").onclick = async () => { if(!confirm("Delete this photo? The file will be moved to the library/.trash folder.")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
 }
-document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.dataset.v; renderPhotos(); });
+document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.dataset.v === "inbox" ? lastInbox : b.dataset.v; renderPhotos(); window.scrollTo(0, 0); });
+document.querySelectorAll("[data-sv]").forEach(b => b.onclick = () => { view = b.dataset.sv; renderPhotos(); });
 $("pq").oninput = renderPhotos;
 
 // ---------- 弹窗 ----------
@@ -1164,6 +1266,8 @@ async function poll(){
   $("jobs").innerHTML = (js.length ? `<div class="hint">In progress ${run.length} · Done ${ok.length} · Failed ${bad.length}</div>` : "") +
     [...run, ...bad].slice(0, 8).map(j => `<div class="job ${j.error ? "err" : ""}">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}${j.error ? "：" + esc(j.error) : ""}</div>`).join("") +
     (!run.length ? ok.slice(-2).map(j => `<div class="job">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}</div>`).join("") : "");
+  const tb = $("taskBar");
+  if(tb){ if(run.length){ tb.style.display = ""; tb.innerHTML = `<b>${run.length} task${run.length > 1 ? "s" : ""} running</b> — ${esc((run[0].url || "").slice(0, 60))}: ${esc(run[0].stage)}${bad.length ? ` · ${bad.length} failed (see the Add page)` : ""}`; } else tb.style.display = "none"; }
   const fresh = js.filter(j => j.done && !seenJobs.has(j.id));
   fresh.forEach(j => seenJobs.add(j.id));
   const added = js.some(j => j.done && !j.error && j.clip && !clips.find(c => c.id === j.clip));
