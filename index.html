@@ -98,6 +98,11 @@ td.n,th.n{text-align:right}
 .todo .n{min-width:34px;text-align:center;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--line)}
 .todo .n.hot{background:var(--accent);color:var(--accent-ink)}
 .nav .chip{font-size:15px;padding:6px 16px}
+.tmb{display:inline-block;min-width:46px;text-align:center;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.tmb.pit{background:var(--accent);color:var(--accent-ink)}
+.tmb.opp{background:#c06a1f;color:#fff}
+tr.pen-pit td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
 .tag2{display:inline-block;font-size:11px;padding:0 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:4px}
 .mug{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;vertical-align:middle;margin-right:7px;background:var(--line);cursor:zoom-in}
 .tag2.ha{font-weight:700;letter-spacing:.04em;margin-left:0;margin-right:4px} .tag2.home{color:var(--accent);border-color:var(--accent)} .tag2.away{color:var(--muted)}
@@ -250,7 +255,7 @@ const snapGet = u => { const p = u.split("?")[0];
     : p === "/api/tiktok" || p === "/api/youtube" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
-const openSecs = new Set();       // 比赛详情里展开了哪些次要区块, 重新渲染时保持
+const openSecs = new Set(["lines", "roster"]);       // 比赛详情里展开了哪些次要区块, 重新渲染时保持
 const INBOX = ["youtube", "tiktok", "photos", "news"];
 const savedView = (() => { try { return localStorage.getItem("ekView"); } catch(e){ return null; } })();
 let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "clips", "youtube", "tiktok", "photos", "news", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add"))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
@@ -420,6 +425,9 @@ function copyFromPrev(g){
 function noticeHTML(){
   if(!lineNotice) return "";
   const n = lineNotice;
+  if(n.df) return `<div class="box" style="background:var(--bg);margin:0 0 10px">Filled in from the line combinations on Daily Faceoff${n.updated ? `, last updated ${esc(new Date(n.updated).toLocaleString("en-US", {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}))}` : ""} (matched to this game’s players by jersey number). Please check every slot before saving.
+    <div class="hint">Daily Faceoff only shows the <b>latest</b> lines it has, which are for the team’s next game. If this game is already over, they may not be the lines used in it. Left and right defense follow its LD / RD.${n.source ? ` Source: <a href="${esc(n.source)}" target="_blank" rel="noopener">${esc(n.source)}</a>` : ""}</div>
+    ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">Not matched to anyone who played this game (left blank): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
   if(n.ocr) return `<div class="box" style="background:var(--bg);margin:0 0 10px">Filled in from the lineup image by reading its text on this computer (matched by jersey number). Please check it against the image before saving.
     ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">Not matched to anyone who played this game (left blank): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
   return `<div class="box" style="background:var(--bg);margin:0 0 10px">Copied the lineup groups from the previous game (${esc(n.p.date.slice(5))} vs ${esc(n.p.opp)}): kept <b>${n.kept}</b> slots, left <b>${n.blanks.length}</b> blank.
@@ -553,7 +561,7 @@ function linesHTML(g){
       <table class="gt l" style="margin-top:8px"><tr><th>Goalie</th><th>Starter</th><th>Backup</th></tr><tr><td></td>${d.G.map((id, j) => `<td class="${chg(`G${j}0`, id) ? "chg" : ""}"><select data-slot="G.${j}">${opts(gk, id)}</select>${chg(`G${j}0`, id) ? wasOf(`G${j}0`) : ""}</td>`).join("")}</tr></table>`;
     const prevHas = (() => { const p = prevOf(g); return p && lineData[String(p.id)]; })();
     body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">By player (pick a line for each player)</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">By slot (pick a player for each slot)</button>
-      ${prevHas ? `<button class="btn" id="lCopy">Copy previous lineup</button>` : ""}<button class="btn" id="lGuess">Prefill from position and TOI (a guess)</button><button class="btn" id="lOcr">Read from a lineup image…</button><input type="file" id="lOcrFile" accept="image/*" style="display:none">${pics.map((p, i) => `<button class="btn" data-ocr="${esc(p.id)}">Read lineup image ${i + 1}</button>`).join("")}</div><div class="hint" style="margin-bottom:8px">The list comes from official NHL data (who actually played). Prefill is only a starting point; check it against the lineup image.</div>
+      ${prevHas ? `<button class="btn" id="lCopy">Copy previous lineup</button>` : ""}<button class="btn" id="lGuess">Prefill from position and TOI (a guess)</button><button class="btn" id="lDF" title="Fills the lines from the latest line combinations on dailyfaceoff.com; you check them before saving">Fill from Daily Faceoff</button><button class="btn" id="lOcr">Read from a lineup image…</button><input type="file" id="lOcrFile" accept="image/*" style="display:none">${pics.map((p, i) => `<button class="btn" data-ocr="${esc(p.id)}">Read lineup image ${i + 1}</button>`).join("")}</div><div class="hint" style="margin-bottom:8px">The list comes from official NHL data (who actually played). Prefill is only a starting point; check it against the lineup image.</div>
       ${lineMode === "player" ? playerModeHTML(g, d) : slotUI}
       <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">Save</button><button class="btn" id="lCancel">Cancel</button><span class="hint" id="lMsg"></span></div>`;
   } else if(L){
@@ -605,6 +613,9 @@ function wireLines(g){
     const r = await post("/api/lines/ocr", {game_id: gid, ...payload});
     if(r.error){ if(m) m.textContent = r.error; return; }
     lineDraft = {F: r.F, D: r.D, G: r.G}; lineNotice = {ocr: true, unmatched: r.unmatched}; renderGameDetail(); };
+  const dfb = q("lDF"); if(dfb) dfb.onclick = async () => { const m = q("lMsg"); if(m) m.textContent = "Reading Daily Faceoff…";
+    const r = await post("/api/lines/dailyfaceoff", {game_id: gid}); if(r.error){ if(m) m.textContent = r.error; return; }
+    lineDraft = {F: r.F, D: r.D, G: r.G}; lineNotice = {df: true, unmatched: r.unmatched, updated: r.updated, source: r.source}; renderGameDetail(); };
   const ob = q("lOcr"), of = q("lOcrFile"); if(ob && of){ ob.onclick = () => of.click();
     of.onchange = () => { const f = of.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = () => ocr({image: rd.result}); rd.readAsDataURL(f); }; }
   document.querySelectorAll("#gameDetail [data-ocr]").forEach(b => b.onclick = () => ocr({photo_id: b.dataset.ocr}));
@@ -804,16 +815,21 @@ function perfMini(g){
   return `<div style="text-align:center;flex:none;width:90px" title="Better than ${Math.round(r.pct)}% of ${r.base.short}"><svg viewBox="0 0 90 50" width="90" role="img" aria-label="Performance: ${PERF.tier[r.tier]}">${arcs}<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--ink)"/></svg>
     <div style="font-size:12px;font-weight:700;color:${PERF.color[r.tier]};margin-top:-2px">${PERF.tier[r.tier]}</div></div>`;
 }
-function specialHTML(g){
-  const S = g.special; if(!S) return "";
-  const me = Number(openPid()), mm = n => mmss(n);
-  // 位置按“阵容分组”里填的线来标: 前锋第几线的左翼/中锋/右翼, 后卫第几对; 没填阵容分组时只按官方的前锋/后卫标
+// 位置按“阵容分组”里填的线来标: 前锋第几线的左翼/中锋/右翼, 后卫第几对; 没填阵容分组时只按官方的前锋/后卫标
+function roleTools(g){
   const role = {}, LD = lineData[String(g.id)];
   if(LD){ (LD.F || []).forEach((row, i) => row.forEach((id, j) => { if(id) role[id] = {o: j, t: ["LW", "C", "RW"][j], ln: "L" + (i + 1)}; }));
     (LD.D || []).forEach((row, i) => row.forEach((id, j) => { if(id) role[id] = {o: 3, t: "D", ln: "P" + (i + 1)}; })); }
   const dset = new Set(((g.lineup || {}).defense || []).map(r => r.id)), fset = new Set(((g.lineup || {}).forwards || []).map(r => r.id));
   const roleOf = id => role[id] || (dset.has(id) ? {o: 3, t: "D", ln: ""} : fset.has(id) ? {o: 1, t: "F", ln: ""} : {o: 4, t: "", ln: ""});
-  const pTag = ([id, n]) => { const r = roleOf(id); return `<span style="white-space:nowrap" title="${esc((dressedMap(g).get(id) || {}).name || id)} · ${n}s${r.ln ? " · " + r.ln : ""}"><b>#${esc((dressedMap(g).get(id) || {}).num ?? "?")}</b> <span class="tag2" style="margin-left:2px">${r.t}${r.ln ? " " + r.ln : ""}</span> <span class="hint">${n}s</span></span>`; };
+  const meHi = Number(openPid());      // 他自己(默认 #65)在哪里出现都用亮色底 + 加粗标出来
+  const pTag = ([id, n]) => { const r = roleOf(id), me = id === meHi; return `<span style="white-space:nowrap${me ? ";background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:inset 0 0 0 1px var(--accent);border-radius:6px;padding:0 5px" : ""}" title="${esc((dressedMap(g).get(id) || {}).name || id)} · ${n}s${r.ln ? " · " + r.ln : ""}"><b${me ? ' style="color:var(--accent)"' : ""}>#${esc((dressedMap(g).get(id) || {}).num ?? "?")}</b> <span class="tag2" style="margin-left:2px">${r.t}${r.ln ? " " + r.ln : ""}</span> <span class="hint">${n}s</span></span>`; };
+  return {roleOf, pTag};
+}
+function specialHTML(g){
+  const S = g.special; if(!S) return "";
+  const me = Number(openPid()), mm = n => mmss(n);
+  const {roleOf, pTag} = roleTools(g);
   const tbl = (k, name) => { const us = S.units[k]; if(!us.length) return "";
     return `<div class="hint" style="margin:8px 0 2px"><b>${k === "pp" ? "Power play (PIT has more skaters)" : "Penalty kill (PIT has fewer skaters)"}</b></div>
       <table class="gt l"><tr><th>Unit</th><th>Skaters (top 5; position and line from your Lineup groups)</th><th>Time</th><th title="How many separate times this unit went on the ice">Stints</th>${k === "pp" ? `<th title="Goals For: PIT goals while this unit was on the ice">GF</th>` : `<th title="Goals Against: goals PIT allowed while this unit was on the ice">GA</th><th title="Short-Handed Goals: PIT goals scored while shorthanded with this unit on the ice">SHG</th>`}</tr>${us.map(u => `<tr class="${u.players.some(p => p[0] === me) ? "me" : ""}"><td><b>${name}${u.u}</b></td>
@@ -827,13 +843,16 @@ function specialHTML(g){
 }
 function penHTML(g){
   const P = g.penalties; if(!P) return "";
+  const meHi = Number(openPid());
   const mine = P.filter(x => x.team === "PIT"), opp = P.filter(x => x.team !== "PIT"), mins = a => a.reduce((n, x) => n + (+x.min || 0), 0);
   return `<div class="gsec">Penalties <span class="hint" style="font-weight:400">(PIT ${mine.length} · ${mins(mine)} min — ${esc(g.opp)} ${opp.length} · ${mins(opp)} min; times are the on-screen game clock)</span></div>
-    <div class="box" style="overflow:auto">${P.length ? `<table class="gt l"><tr><th>Time</th><th>Team</th><th>Player</th><th>Penalty</th><th>Min</th><th>Drawn by</th><th>EK on ice</th></tr>${P.map(x => `<tr><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team === "PIT" ? "PIT" : g.opp)}</td><td>${esc(x.player)}</td><td>${esc(x.rule)}${x.type && x.type !== "MIN" ? `<span class="tag2">${esc(x.type)}</span>` : ""}</td><td>${x.min ?? ""}</td><td>${esc(x.drawn)}</td><td>${x.ek === true ? "On" : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td></tr>`).join("")}</table>` : `<span class="hint">No penalties.</span>`}</div>`;
+    <div class="box" style="overflow:auto">${P.length ? `<table class="gt l"><tr><th>Time</th><th>Team</th><th>Player</th><th>Penalty</th><th>Min</th><th>Drawn by</th><th>EK on ice</th></tr>${P.map(x => `<tr class="${x.team === "PIT" ? "pen-pit" : "pen-opp"}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td><span class="tmb ${x.team === "PIT" ? "pit" : "opp"}">${esc(x.team === "PIT" ? "PIT" : g.opp)}</span></td><td>${x.pid === meHi ? `<b style="color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:inset 0 0 0 1px var(--accent);border-radius:6px;padding:0 5px">${esc(x.player)}</b>` : esc(x.player)}</td><td>${esc(x.rule)}${x.type && x.type !== "MIN" ? `<span class="tag2">${esc(x.type)}</span>` : ""}</td><td>${x.min ?? ""}</td><td>${x.drawn && x.drawn === ((dressedMap(g).get(meHi) || {}).name || "") ? `<b style="color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:inset 0 0 0 1px var(--accent);border-radius:6px;padding:0 5px">${esc(x.drawn)}</b>` : esc(x.drawn)}</td><td>${x.ek === true ? `<b style="color:var(--accent)">On</b>` : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td></tr>`).join("")}</table>` : `<span class="hint">No penalties.</span>`}</div>`;
 }
 function renderGameDetail(){
   const g = games.find(x => String(x.id) === String(openGame)), it = gameItems(g), m = g.player, L = g.lineup || {};
   const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
+  const rt = roleTools(g), meId = Number(openPid());
+  const pitOn = x => !x.pit ? `<span class="hint">–</span>` : [...x.pit].sort((a, b) => rt.roleOf(a).o - rt.roleOf(b).o).map(id => rt.pTag([id, 0]).replace(/ <span class="hint">0s<\/span>/, "").replace(/ · 0s/, "")).join(" ");
   const dsec = (key, title, html) => `<details class="dsec" data-sec="${key}"${openSecs.has(key) ? " open" : ""}><summary>${title}</summary>${html}</details>`;
   const missMain = it.miss.filter(e => !["在场进球", "失球"].includes(e.type));       // 批量下载只管他自己的进球/助攻
   const onIceMiss = type => { const m = it.miss.filter(e => e.type === type); if(!m.length) return "";      // 冰上进球/丢球: 需要哪个才下载哪个
@@ -856,8 +875,9 @@ function renderGameDetail(){
     <div class="gsec">Karlsson this game</div>
     <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
     <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times are the on-screen game clock, counting down)</span></div>
-    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
+    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th title="PIT skaters on the ice at that second, whoever scored (goalie not counted)">PIT skaters on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
       return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
+        <td>${pitOn(x)}</td>
         <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? `<span class="hint">Not downloaded</span>` : (x.ek === true && x.clip ? `<button class="btn" data-dl="${esc(x.clip)}" style="padding:2px 8px;font-size:12px">⬇ Download</button>` : ""))}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
       const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
       return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}, which the NHL does not count toward +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
