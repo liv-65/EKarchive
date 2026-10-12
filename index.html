@@ -98,6 +98,28 @@ td.n,th.n{text-align:right}
 .todo .n{min-width:34px;text-align:center;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--line)}
 .todo .n.hot{background:var(--accent);color:var(--accent-ink)}
 .nav .chip{font-size:15px;padding:6px 16px}
+.learn{display:grid;grid-template-columns:210px minmax(0,1fr);gap:24px;align-items:start}
+.learn .toc{position:sticky;top:10px;font-size:13px;max-height:90vh;overflow:auto;padding-right:6px}
+.learn .toc a{display:block;padding:4px 8px;border-radius:6px;color:var(--muted);text-decoration:none}
+.learn .toc a:hover{background:var(--line);color:var(--ink)}
+.md{max-width:780px;font-size:15.5px;line-height:1.75}
+.md h1{font-size:26px;margin:0 0 8px}
+.md h2{font-size:20px;margin:34px 0 8px;padding-top:6px;border-top:1px solid var(--line)}
+.md h3{font-size:16px;margin:22px 0 4px}
+.md p{margin:8px 0}
+.md .mdsrc{font-size:14px;margin:4px 0}
+.md .pub{color:var(--event);border-left-color:var(--event)}
+.md .conf{color:var(--muted);font-size:14px;border-left:3px solid var(--line);padding-left:10px;margin:4px 0 10px}
+.md blockquote{margin:12px 0;padding:8px 14px;border-left:4px solid var(--accent);background:var(--card);border-radius:0 8px 8px 0;color:var(--muted)}
+.md ul,.md ol{margin:6px 0 10px;padding-left:22px}
+.md li{margin:3px 0}
+.md code{background:var(--line);border-radius:5px;padding:1px 5px;font-size:13px}
+.md table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px;line-height:1.55}
+.md th,.md td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.md th{background:var(--card)}
+.md hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+.md .tscroll{overflow-x:auto}
+@media (max-width:760px){.learn{grid-template-columns:1fr}.learn .toc{position:static;max-height:none}}
 .tmb{display:inline-block;min-width:46px;text-align:center;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700}
 .tmb.pit{background:var(--accent);color:var(--accent-ink)}
 .tmb.opp{background:#c06a1f;color:#fff}
@@ -152,7 +174,7 @@ tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
   </div></div>
 
   <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
-  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="add">Add</button></div>
+  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button></div>
   <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button></div>
   <div id="rangeBar">
   <div class="row" id="ranges"></div>
@@ -165,6 +187,7 @@ tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
   </div>
 
   <div id="viewToday" style="display:none"></div>
+  <div id="viewLearn" style="display:none"></div>
   <div id="viewClips">
   <div class="tiles" id="tiles"></div>
   <div class="hint" style="margin:-4px 0 8px">Goals, assists and points are the official NHL numbers for the games in this date range; interviews and clips count what you have saved.</div>
@@ -258,7 +281,7 @@ const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy.
 const openSecs = new Set(["lines", "roster"]);       // 比赛详情里展开了哪些次要区块, 重新渲染时保持
 const INBOX = ["youtube", "tiktok", "photos", "news"];
 const savedView = (() => { try { return localStorage.getItem("ekView"); } catch(e){ return null; } })();
-let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "clips", "youtube", "tiktok", "photos", "news", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add"))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
+let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "clips", "youtube", "tiktok", "photos", "news", "learn", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add" || (savedView === "learn" && !(SNAP.guides && SNAP.guides.profile))))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
 const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "失误": "Mistake", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
@@ -1015,6 +1038,53 @@ async function checkTikTok(){
   }
   btn.disabled = false; await load(); setTimeout(() => { if(!$("ttBar").style.background.includes("bad")) $("ttProg").style.display = "none"; }, 4000);
 }
+// ---------- Learn: 读 Markdown 文档(冰球战术入门、采访观看指南) ----------
+let guideName = "profile", guideCache = {};
+function mdToHtml(src){
+  const esc2 = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inl = t => esc2(t).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, a, u) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--accent)">${a}</a>`);
+  const slug = t => t.replace(/[^\w\u4e00-\u9fa5]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+  const L = src.replace(/\r/g, "").split("\n"), out = [], toc = [];
+  let i = 0;
+  while(i < L.length){
+    const ln = L[i];
+    if(!ln.trim()){ i++; continue; }
+    let m;
+    if((m = /^(#{1,3})\s+(.*)$/.exec(ln))){ const lv = m[1].length, id = "md-" + slug(m[2]); if(lv === 2) toc.push([id, m[2]]); out.push(`<h${lv} id="${id}">${inl(m[2])}</h${lv}>`); i++; continue; }
+    if(/^---+\s*$/.test(ln)){ out.push("<hr>"); i++; continue; }
+    if(ln.startsWith(">")){ const q = []; while(i < L.length && L[i].startsWith(">")){ q.push(L[i].replace(/^>\s?/, "")); i++; } out.push(`<blockquote>${inl(q.join(" "))}</blockquote>`); continue; }
+    if(ln.startsWith("|")){ const rows = []; while(i < L.length && L[i].startsWith("|")){ rows.push(L[i]); i++; }
+      const cells = r => r.replace(/^\||\|\s*$/g, "").split("|").map(c => c.trim());
+      const head = cells(rows[0]), body = rows.slice(2).map(cells);
+      out.push(`<div class="tscroll"><table><tr>${head.map(c => `<th>${inl(c)}</th>`).join("")}</tr>${body.map(r => `<tr>${r.map(c => `<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</table></div>`); continue; }
+    if(/^\s*([-*]|\d+\.)\s+/.test(ln)){ const items = []; while(i < L.length && /^\s*([-*]|\d+\.)\s+/.test(L[i])){ const mm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(L[i]); items.push({ind: mm[1].length, ord: /\d/.test(mm[2]), t: mm[3]}); i++; }
+      const build = (from, ind) => { let h2 = "", k = from, ord = items[from].ord; h2 += ord ? "<ol>" : "<ul>";
+        while(k < items.length && items[k].ind >= ind){ if(items[k].ind > ind){ const [sub, nk] = build(k, items[k].ind); h2 = h2.replace(/<\/li>$/, "") + sub + "</li>"; k = nk; continue; } h2 += `<li>${inl(items[k].t)}</li>`; k++; }
+        return [h2 + (ord ? "</ol>" : "</ul>"), k]; };
+      out.push(build(0, items[0].ind)[0]); continue; }
+    if(/^公开：/.test(ln)){ out.push(`<p class="conf pub">✓ This item appears in the public version</p>`); i++; continue; }
+    if(/^公开(标题|正文)：/.test(ln)){ out.push(`<p class="conf">${inl(ln.replace(/^公开标题：/, "公开版标题：").replace(/^公开正文：/, "公开版正文："))}</p>`); i++; continue; }
+    if(/^来源：/.test(ln)){ out.push(`<p class="mdsrc">${inl(ln)}</p>`); i++; continue; }
+    if(/^(置信度|备注|\*\*矛盾)/.test(ln)){ out.push(`<p class="conf">${inl(ln)}</p>`); i++; continue; }
+    const p = []; while(i < L.length && L[i].trim() && !/^(#{1,3}\s|>|\||---|\s*([-*]|\d+\.)\s|置信度|备注|来源：|公开|\*\*矛盾)/.test(L[i])){ p.push(L[i]); i++; }
+    out.push(`<p>${inl(p.join(" "))}</p>`);
+  }
+  return {html: out.join("\n"), toc};
+}
+async function renderLearn(){
+  if(view !== "learn") return;
+  const el = $("viewLearn");
+  if(SNAP){ guideName = "profile"; if(!guideCache.profile) guideCache.profile = SNAP.guides && SNAP.guides.profile ? {text: SNAP.guides.profile} : {error: "Not available in this copy."}; }
+  else if(!guideCache[guideName]) guideCache[guideName] = await api("/api/guide?name=" + guideName);
+  const d = guideCache[guideName];
+  const pick = SNAP ? "" : `<div class="row" style="margin-bottom:12px">${[["profile", "Karlsson profile"], ["tactics", "Hockey tactics primer"], ["interviews", "Post-game interview guide"]].map(([k, n]) => `<button class="chip ${guideName === k ? "on" : ""}" data-gd="${k}">${n}</button>`).join("")}</div>`;
+  if(d.error){ el.innerHTML = pick + `<div class="box hint">${esc(d.error)}</div>`; document.querySelectorAll("[data-gd]").forEach(b => b.onclick = () => { guideName = b.dataset.gd; renderLearn(); }); return; }
+  const {html, toc} = mdToHtml(d.text);
+  el.innerHTML = pick + `<div class="learn"><div class="toc"><div class="hint" style="margin:0 8px 6px">On this page</div>${toc.map(([id, t]) => `<a href="#${id}" data-toc="${id}">${esc(t.replace(/^\d+\.\s*/, ""))}</a>`).join("")}</div><div class="md">${html}</div></div>`;
+  document.querySelectorAll("[data-gd]").forEach(b => b.onclick = () => { guideName = b.dataset.gd; renderLearn(); window.scrollTo(0, 0); });
+  document.querySelectorAll("[data-toc]").forEach(a => a.onclick = e => { e.preventDefault(); const t = document.getElementById(a.dataset.toc); if(t) window.scrollTo({top: t.getBoundingClientRect().top + scrollY - 10, behavior: "smooth"}); });
+}
 // ---------- Today: 今天要处理的事 + 最新一场 ----------
 async function renderToday(){
   if(view !== "today") return;
@@ -1083,6 +1153,7 @@ function renderPhotos(){
   $("rangeBar").style.display = (view === "games" || view === "clips") ? "" : "none";
   $("viewToday").style.display = view === "today" ? "" : "none";
   $("viewAdd").style.display = view === "add" ? "" : "none";
+  $("viewLearn").style.display = view === "learn" ? "" : "none";
   $("viewClips").style.display = view === "clips" ? "" : "none";
   $("viewGames").style.display = view === "games" ? "" : "none";
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
@@ -1100,6 +1171,7 @@ function renderPhotos(){
   renderTikTok();
   renderGames();
   renderToday();
+  renderLearn();
   if(view !== "photos") return;
   const cnt = s => photos.filter(p => p.status === s).length;
   $("pstatus").innerHTML = PST.map(s => `<button class="chip ${pstatus===s?"on":""}" data-ps="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
@@ -1330,7 +1402,7 @@ $("nhlSync").onclick = async () => { $("nhlSync").disabled = true; await post("/
 ["q","opp","sort","from","to"].forEach(id => $(id).oninput = $(id).onchange = render);
 (async () => {
   const cfg = await api("/api/config"); TYPES = cfg.types; TEAM = cfg.nhl_team || "PIT";
-  if(SNAP){ document.body.classList.add("ro"); $("subline").textContent = `Read-only copy · updated ${SNAP.built} · videos open at their original source`; }
+  if(SNAP){ document.body.classList.add("ro"); { const lb = document.querySelector("[data-v=learn]"); if(lb){ if(SNAP.guides && SNAP.guides.profile) lb.textContent = "Profile"; else lb.style.display = "none"; } } $("subline").textContent = `Read-only copy · updated ${SNAP.built} · videos open at their original source`; }
   document.title = cfg.title; $("title").textContent = cfg.title; _pid = cfg.nhl_player_id || 0;
   $("addType").innerHTML = `<option value="">Type: auto-detect</option>` + TYPES.map(t => `<option value="${t}">${tn(t)}</option>`).join("");
   const t = new Date(), y0 = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear() - 1;
