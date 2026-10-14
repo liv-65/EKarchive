@@ -747,6 +747,21 @@ function seasonHTML(list){
       ${fr.map(e => `<tr><td>${esc(e.name)}</td><td>${e.n}</td><td class="dbar" style="${barBg(e.sec, maxSec)}"><b>${mmss(e.sec)}</b></td><td>${Math.round(e.sec / totSec * 100)}%</td><td class="${e.gf ? "good" : ""}">${e.gf || "–"}</td><td class="${e.ga ? "bad" : ""}">${e.ga || "–"}</td>${net(e.gf - e.ga)}</tr>`).join("")}</table></div>
     <div class="hint" style="margin-top:6px">With only a few games these numbers move a lot (a forward who happened to be on the ice for one goal looks good). Treat them as a log for now; patterns only mean something after many games.</div></div>`;
 }
+const PASS = 63.5;    // 趋势图的固定及格线(百分位): Karlsson 2026 年 3 月 17 场在"对他自己 2025-26"基准下的平均百分位
+const FLOOR = 39.3;   // 固定下限: Karlsson 2025-26 表现最差的一个月(2026 年 4 月, 5 场; 场数少, 仅作参考)的平均百分位, 基准同 PASS
+function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 实线 = 对比他自己去年, 虚线 = 对比联盟后卫
+  const gs = list.filter(g => g.player).slice().sort((a, b) => a.date < b.date ? -1 : 1);
+  if(gs.length < 2) return "";
+  const W = 640, H = 200, L = 34, R = 12, T = 12, B = 30, x = i => L + (gs.length === 1 ? 0 : i * (W - L - R) / (gs.length - 1)), y = p => T + (100 - p) / 100 * (H - T - B);
+  const bands = [0, ...PERF.bands, 100].slice(0, 5).map((lo, i) => `<rect x="${L}" y="${y([...PERF.bands, 100][i]).toFixed(1)}" width="${W - L - R}" height="${(y(lo) - y([...PERF.bands, 100][i])).toFixed(1)}" fill="${PERF.color[i]}" opacity=".13"/>`).join("");
+  const grid = [0, ...PERF.bands, 100].map(p => `<text x="${L - 4}" y="${(y(p) + 3).toFixed(1)}" font-size="9" text-anchor="end" fill="var(--muted)">${p}</text>`).join("");
+  const line = (which, dash) => { const pts = gs.map((g, i) => [x(i), y(perfScore(g, which).pct), g]);
+    return `<polyline fill="none" stroke="var(--ink)" stroke-width="2" ${dash ? 'stroke-dasharray="5 4" opacity=".55"' : ""} points="${pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
+      pts.map(([px, py, g]) => { const r = perfScore(g, which); return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dash ? 3 : 4.5}" fill="${dash ? "var(--bg, #fff)" : PERF.color[r.tier]}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: ${PERF.tier[r.tier]} (better than ${Math.round(r.pct)}% of ${r.base.short})</title></circle>`; }).join(""); };
+  const labels = gs.map((g, i) => `<text x="${x(i).toFixed(1)}" y="${H - 14}" font-size="9" text-anchor="middle" fill="var(--muted)">${esc(g.date.slice(5))}</text><text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="var(--muted)">${g.home ? "" : "@"}${esc(g.opp)}</text>`).join("");
+  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game vs his own 2025-26 season · blue dotted = fixed pass line (63.5 = his best month, March 2026) · red dotted = floor (39.3 = his worst month, April 2026, 5 games) · coloured bands = the five tiers</span>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="#2f6fd0" stroke-width="1.5" stroke-dasharray="2 3"/><text x="${W - R - 2}" y="${(y(PASS) - 4).toFixed(1)}" font-size="9" text-anchor="end" fill="#2f6fd0">pass line ${PASS}</text><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="2 3"/><text x="${W - R - 2}" y="${(y(FLOOR) + 11).toFixed(1)}" font-size="9" text-anchor="end" fill="#c0392b">floor ${FLOOR}</text>${line("self", false)}${labels}</svg></div>`;
+}
 function renderGames(){
   if(view !== "games") return;
   if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
@@ -755,7 +770,7 @@ function renderGames(){
   $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
     <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
     ? `<div class="box hint">No game data yet. Click “Sync official data” at the top right to read this season’s finished games: scores, team stats, rosters and the scoring timeline, and to file your existing clips, interviews and photos under the matching game by date.</div>` : "") +
-    list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
+    trendHTML(list) + list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
       return `<div class="box gcard" data-g="${esc(g.id)}" style="position:relative"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
         <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
         <div class="gmini" style="position:absolute;right:80px;top:30px">${perfMini(g)}</div>
