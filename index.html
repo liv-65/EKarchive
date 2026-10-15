@@ -794,7 +794,7 @@ function renderGames(){
     trendHTML(list) + list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
       return `<div class="box gcard" data-g="${esc(g.id)}" style="position:relative"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
         <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
-        <div class="gmini" style="position:absolute;right:80px;top:30px">${perfMini(g)}</div>
+        <div class="gmini" style="position:absolute;right:50px;top:30px;width:160px;display:flex;flex-direction:column;align-items:center">${perfMini(g)}${pressChip(g, false)}</div>
         <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
         ${stLine(g, "Regular season: ")}
         <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "No previous game to compare"; })()}</div>
@@ -852,8 +852,21 @@ function advHTML(g){
   const pdo = a.pdo, tag = pdo >= 1.03 ? "ran hot" : pdo <= 0.97 ? "ran cold" : "about even", col = pdo >= 1.03 ? "var(--goal, #2f9e5b)" : pdo <= 0.97 ? "#c0392b" : "var(--muted)";
   return `<div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between;align-items:baseline;flex-wrap:wrap"><b>Luck check · 5v5 with him on the ice</b>
     <span><b style="font-size:20px;color:${col}">PDO ${pdo.toFixed(3)}</b> <span class="hint">${tag}</span></span></div>
-    <div class="row" style="gap:18px;margin-top:6px;flex-wrap:wrap"><span class="hint">Team shooting % <b>${pct1(a.sh)}</b></span><span class="hint">Goalie save % behind him <b>${pct1(a.sv)}</b></span><span class="hint">Shot-attempt share (Corsi) <b>${pct1(a.cf)}</b></span><span class="hint">Offensive-zone starts <b>${pct1(a.zs)}</b></span></div>
+    <div class="row" style="gap:18px;margin-top:6px;flex-wrap:wrap">${a.team_pdo != null ? `<span class="hint">Whole-team PDO <b>${a.team_pdo.toFixed(3)}</b></span>` : ""}<span class="hint">Team shooting % <b>${pct1(a.sh)}</b></span><span class="hint">Goalie save % behind him <b>${pct1(a.sv)}</b></span><span class="hint">Shot-attempt share (Corsi): him <b>${pct1(a.cf)}</b>${a.team_cf != null ? ` · whole team <b>${pct1(a.team_cf)}</b> · <b style="color:${a.cf >= a.team_cf ? "var(--goal, #2f9e5b)" : "#c0392b"}">${a.cf >= a.team_cf ? "+" : "−"}${Math.abs((a.cf - a.team_cf) * 100).toFixed(1)} pts</b>` : ""}</span><span class="hint">Offensive-zone starts <b>${pct1(a.zs)}</b></span></div>
     <div class="hint" style="margin-top:6px">PDO = team shooting % + goalie save % while he is on the ice at 5v5 (from the official NHL stats). 1.000 is neutral; far above it usually means a lucky game, far below an unlucky one. One game is only a handful of shots, so it swings a lot — read the trend, not one number.</div></div>`;
+}
+// "压制度": 他在冰上时的 Corsi(5v5 射门尝试占比) 减去球队全场的 Corsi, 单位是百分点。档位按他自己 2025-26 常规赛 75 场的这个差值分布定(同表盘的 10/30/70/90 百分位)
+const PRESS = {cuts: [-6.9, -1.0, 6.3, 14.2], tier: ["Very low", "Low", "Normal", "High", "Very high"]};
+function pressTier(g){
+  const a = g.adv; if(!a || a.cf == null || a.team_cf == null) return null;
+  const d = (a.cf - a.team_cf) * 100, c = PRESS.cuts, t = d < c[0] ? 0 : d < c[1] ? 1 : d < c[2] ? 2 : d < c[3] ? 3 : 4;
+  return {d, t, label: PRESS.tier[t], color: PERF.color[t]};
+}
+const pressRange = () => `Very low below ${PRESS.cuts[0].toFixed(0)} · Low ${PRESS.cuts[0].toFixed(0)} to ${PRESS.cuts[1].toFixed(0)} · Normal ${PRESS.cuts[1].toFixed(0)} to +${PRESS.cuts[2].toFixed(0)} · High +${PRESS.cuts[2].toFixed(0)} to +${PRESS.cuts[3].toFixed(0)} · Very high above +${PRESS.cuts[3].toFixed(0)} (points; compared with his 2025-26 games)`;
+function pressChip(g, big){
+  const p = pressTier(g); if(!p) return "";
+  const txt = `${p.d >= 0 ? "+" : "−"}${Math.abs(p.d).toFixed(1)}`;
+  return `<div title="${esc("Shot-attempt share (Corsi) with him on the ice minus the whole team's, 5v5. " + pressRange())}" style="${big ? "" : "margin-top:4px;"}font-size:${big ? 13 : 11}px;text-align:center"><span style="color:var(--muted)">Pressure </span><b style="color:${p.color}">${txt} · ${p.label}</b></div>`;
 }
 function perfGauge(g){
   const r = perfScore(g); if(!r) return "";
@@ -1017,6 +1030,7 @@ function renderGameDetail(){
       ${oppLine(g)}
       <div class="hint">${esc(g.venue)} · Coach ${esc(g.coach)} (opponent ${esc(g.opp_coach)})${g.officials && (g.officials.referees || []).length ? ` · Referees: ${g.officials.referees.map(esc).join(", ")}` : ""}${g.officials && (g.officials.linesmen || []).length ? ` · Linesmen: ${g.officials.linesmen.map(esc).join(", ")}` : ""}${(g.stars || []).length ? " · Three stars: " + g.stars.map(s => `${s.star}. ${esc(s.name)} (${esc(s.team)})`).join("  ") : ""}</div></div>
     <div style="margin-top:10px">${perfGauge(g)}</div>
+    ${pressTier(g) ? `<div class="box" style="margin-top:8px;text-align:center"><div style="font-size:15px"><span class="hint">Pressure (his shot-attempt share minus the team’s, 5v5)</span> ${pressChip(g, true).replace(/<\/?div[^>]*>/g, "")}</div><div class="hint" style="margin-top:4px">${esc(pressRange())}</div></div>` : ""}
     ${advHTML(g)}
     <div class="gsec">Karlsson this game</div>
     <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
