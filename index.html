@@ -188,7 +188,7 @@ tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
 
   <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
   <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="notes">Notes</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button></div>
-  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button></div>
+  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button></div>
   <div id="rangeBar">
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
@@ -250,6 +250,7 @@ tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
     <div class="grid" id="ytGrid"></div>
   </div>
   <div id="viewNews" style="display:none"></div>
+  <div id="viewNhlcom" style="display:none"></div>
   <div id="viewTikTok" style="display:none">
     <div class="row" style="margin:6px 0 8px;justify-content:space-between">
       <span class="hint" id="ttInfo"></span>
@@ -293,9 +294,9 @@ const snapGet = u => { const p = u.split("?")[0];
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
 const openSecs = new Set(["lines", "roster"]);       // 比赛详情里展开了哪些次要区块, 重新渲染时保持
-const INBOX = ["youtube", "tiktok", "photos", "news"];
+const INBOX = ["youtube", "tiktok", "photos", "news", "nhlcom"];
 const savedView = (() => { try { return localStorage.getItem("ekView"); } catch(e){ return null; } })();
-let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, notesData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "notes", "clips", "youtube", "tiktok", "photos", "news", "learn", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add" || savedView === "notes" || (savedView === "learn" && !(SNAP.guides && SNAP.guides.profile))))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
+let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, notesData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "notes", "clips", "youtube", "tiktok", "photos", "news", "nhlcom", "learn", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add" || savedView === "notes" || (savedView === "learn" && !(SNAP.guides && SNAP.guides.profile))))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
 const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "失误": "Mistake", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
@@ -1080,6 +1081,27 @@ const PST = ["待确认", "选入", "排除"];
 let newsData = null, newsOpen = new Set(["skip"]);
 const TIER_INFO = {top: ["Top stories", "Karlsson is the subject and it is big news (contract, trade, injury) or a long feature."], relevant: ["Relevant", "Karlsson is named in the headline."],
   background: ["Background", "Team news or game coverage that mentions the Penguins but not him in the headline."], skip: ["Not relevant", "Fantasy / betting / broadcast listings, or not about him or the team."]};
+let nhlcomData = null, nhlcomAll = false, nhlcomSel = new Set();
+async function renderNhlcom(){
+  if(view !== "nhlcom") return;
+  if(!nhlcomData) nhlcomData = await api("/api/nhlcom");
+  const d = nhlcomData, cut = d.cutoff || "", all = d.items, shown = all.filter(x => nhlcomAll || !cut || x.date >= cut);
+  const fmtDur = s => s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const row = x => `<div class="box" style="display:flex;gap:10px;align-items:center;padding:8px 12px;margin:6px 0">
+    ${x.thumb ? `<img src="${esc(x.thumb)}" width="120" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
+    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b></div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
+      <div class="hint"><a href="https://www.nhl.com/video/${esc(x.slug)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on NHL.com</a></div></div>
+    <div style="flex:none">${x.in_archive ? `<span class="badge" style="background:var(--other)">In archive</span>` : `<label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-nc="${esc(x.id)}"${nhlcomSel.has(x.id) ? " checked" : ""}> Select</label>`}</div></div>`;
+  const todo = shown.filter(x => !x.in_archive);
+  $("viewNhlcom").innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap"><span class="hint">${d.checked ? `Checked ${esc(d.checked.replace("T", " "))} · ${shown.length} interviews${cut && !nhlcomAll ? ` since ${esc(cut)}` : ""}, ${todo.length} not in the archive yet` : "Not checked yet."}</span>
+    <span class="row" style="gap:6px"><label class="hint" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="ncAll"${nhlcomAll ? " checked" : ""}> Include older seasons</label><button class="btn" id="ncGo">Check NHL.com</button><button class="btn primary" id="ncAdd"${nhlcomSel.size ? "" : " disabled"}>Download selected (${nhlcomSel.size})</button></span></div>
+    <div class="hint" id="ncMsg" style="margin-bottom:6px">Karlsson’s interviews published on NHL.com (post-game, game day, training camp, locker-room, etc.). Downloaded ones go to Clips as “Interview” and are filed under the game by date.</div>
+    ${shown.length ? shown.map(row).join("") : `<div class="box hint">Nothing here yet. Click “Check NHL.com”.</div>`}`;
+  $("ncGo").onclick = async () => { $("ncGo").disabled = true; $("ncMsg").textContent = "Reading NHL.com…"; const r = await post("/api/nhlcom/refresh", {}); if(r.error){ $("ncMsg").textContent = r.error; $("ncGo").disabled = false; } else { nhlcomData = r; renderNhlcom(); } };
+  $("ncAll").onchange = () => { nhlcomAll = $("ncAll").checked; renderNhlcom(); };
+  document.querySelectorAll("#viewNhlcom [data-nc]").forEach(c => c.onchange = () => { c.checked ? nhlcomSel.add(c.dataset.nc) : nhlcomSel.delete(c.dataset.nc); $("ncAdd").disabled = !nhlcomSel.size; $("ncAdd").textContent = `Download selected (${nhlcomSel.size})`; });
+  $("ncAdd").onclick = async () => { const ids = [...nhlcomSel]; $("ncAdd").disabled = true; const r = await post("/api/nhlcom/add", {ids}); if(r.error){ alert(r.error); return; } nhlcomSel.clear(); $("ncMsg").textContent = `Started ${r.n} download${r.n === 1 ? "" : "s"}; progress shows at the top.`; poll(); setTimeout(async () => { nhlcomData = await api("/api/nhlcom"); renderNhlcom(); }, 4000); };
+}
 async function renderNews(){
   if(view !== "news") return;
   if(!newsData) newsData = await api("/api/news");
@@ -1299,10 +1321,12 @@ function renderPhotos(){
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
   $("viewTikTok").style.display = view === "tiktok" ? "" : "none";
   $("viewNews").style.display = view === "news" ? "" : "none";
+  $("viewNhlcom").style.display = view === "nhlcom" ? "" : "none";
   $("viewYouTube").style.display = view === "youtube" ? "" : "none";
   const ytPend = (youtube.items || []).filter(x => x.status === "待确认").length;
   $("ytcount").textContent = ytPend ? ` (${ytPend} pending)` : "";
   renderYouTube();
+  renderNhlcom();
   renderNews();
   const ttPend = (tiktok.items || []).filter(x => x.status === "待确认").length;
   $("ttcount").textContent = ttPend ? ` (${ttPend} pending)` : "";
