@@ -1417,8 +1417,8 @@ function openClip(id, edit = false){
   const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">Cut from the full video at ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? " (to change the start/end, delete and add it again)" : ""}</div>` : "";
   const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">View English transcript (to check the summary)</summary><div class="cap" id="trtext">Loading…</div></details>` : "";
   const srcLine = `<div class="hint" style="margin-top:8px">Source: <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a>${SNAP || !c.video ? "" : ` · File: ${esc(c.video)}`}</div>`;
-  const head = (SNAP || !c.video) ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener">${cv(c) ? `<img src="${cv(c)}" alt="" style="width:100%;border-radius:8px">` : ""}</a>
-    <div class="hint" style="margin-top:6px">${SNAP ? "The video is not included in this read-only copy." : "This is a link-only entry (the video was not downloaded)."} <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Watch it at the original source ↗</a></div>`
+  const head = (SNAP || !c.video || c.video_off) ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener">${cv(c) ? `<img src="${cv(c)}" alt="" style="width:100%;border-radius:8px">` : ""}</a>
+    <div class="hint" style="margin-top:6px">${SNAP ? "The video is not included in this read-only copy." : c.video_off ? "Video is not on this computer." : "This is a link-only entry (the video was not downloaded)."} <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Watch it at the original source ↗</a></div>`
     : `<video controls preload="metadata" src="${encodeURI(c.video)}" ${cv(c) ? `poster="${cv(c)}"` : ""}></video>
     <div class="hint" id="vinfo" style="margin-top:6px">Quality: reading…</div>`;
   if(!edit){
