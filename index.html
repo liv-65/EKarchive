@@ -188,7 +188,7 @@ tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
 
   <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
   <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="notes">Notes</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button></div>
-  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button></div>
+  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button><button class="chip" data-sv="x">X</button></div>
   <div id="rangeBar">
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
@@ -251,6 +251,7 @@ tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
   </div>
   <div id="viewNews" style="display:none"></div>
   <div id="viewNhlcom" style="display:none"></div>
+  <div id="viewX" style="display:none"></div>
   <div id="viewTikTok" style="display:none">
     <div class="row" style="margin:6px 0 8px;justify-content:space-between">
       <span class="hint" id="ttInfo"></span>
@@ -294,9 +295,9 @@ const snapGet = u => { const p = u.split("?")[0];
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
 const openSecs = new Set(["lines", "roster"]);       // 比赛详情里展开了哪些次要区块, 重新渲染时保持
-const INBOX = ["youtube", "tiktok", "photos", "news", "nhlcom"];
+const INBOX = ["youtube", "tiktok", "photos", "news", "nhlcom", "x"];
 const savedView = (() => { try { return localStorage.getItem("ekView"); } catch(e){ return null; } })();
-let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, notesData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "notes", "clips", "youtube", "tiktok", "photos", "news", "nhlcom", "learn", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add" || savedView === "notes" || (savedView === "learn" && !(SNAP.guides && SNAP.guides.profile))))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
+let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, notesData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "notes", "clips", "youtube", "tiktok", "photos", "news", "nhlcom", "x", "learn", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add" || savedView === "notes" || (savedView === "learn" && !(SNAP.guides && SNAP.guides.profile))))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
 const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "失误": "Mistake", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
@@ -1162,6 +1163,42 @@ const PST = ["待确认", "选入", "排除"];
 let newsData = null, newsOpen = new Set(["skip"]);
 const TIER_INFO = {top: ["Top stories", "Karlsson is the subject and it is big news (contract, trade, injury) or a long feature."], relevant: ["Relevant", "Karlsson is named in the headline."],
   background: ["Background", "Team news or game coverage that mentions the Penguins but not him in the headline."], skip: ["Not relevant", "Fantasy / betting / broadcast listings, or not about him or the team."]};
+let xData = null, xOpen = null;
+const xQ = (h, q) => "https://x.com/search?q=" + encodeURIComponent((h ? `from:${h} ` : "") + q) + "&f=live";
+async function renderX(){
+  if(view !== "x") return;
+  if(!xData) xData = await api("/api/x");
+  const d = xData, pend = d.items.filter(x => x.status === "待确认"), done = d.items.filter(x => x.status === "选入"), skip = d.items.filter(x => x.status === "排除");
+  const acc = a => `<div class="box" style="padding:8px 12px;margin:6px 0"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><span><b>${esc(a.name)}</b> ${a.handle ? `<span class="hint">@${esc(a.handle)}</span>` : `<span class="hint">(no handle yet)</span>`}</span>
+      <span class="row" style="gap:6px;flex-wrap:wrap">${a.handle ? `<a class="btn" target="_blank" rel="noopener" href="${esc(xQ(a.handle, "Karlsson"))}">Search “Karlsson” ↗</a><a class="btn" target="_blank" rel="noopener" href="${esc(xQ(a.handle, "(intermission OR interview OR \"between periods\")"))}">Search intermission ↗</a><a class="btn" target="_blank" rel="noopener" href="https://x.com/${esc(a.handle)}">Profile ↗</a>`
+        : `<a class="btn" target="_blank" rel="noopener" href="https://x.com/search?q=${encodeURIComponent(a.name)}&f=user">Find the account on X ↗</a>`}<button class="btn" data-xdel="${esc(a.id)}">Remove</button></span></div>
+    <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center"><input data-xh="${esc(a.id)}" placeholder="handle, e.g. penguins" value="${esc(a.handle)}" style="width:150px"><input data-xn="${esc(a.id)}" placeholder="Note: what did you find? e.g. no intermission interviews since Oct 12" value="${esc(a.note)}" style="flex:1;min-width:200px"><button class="btn" data-xs="${esc(a.id)}">Save</button><button class="btn" data-xc="${esc(a.id)}">I checked it now</button></div>
+    <div class="hint" style="margin-top:2px">${a.checked ? "Last checked " + esc(a.checked.replace("T", " ")) : "Not checked yet"}</div></div>`;
+  const item = x => `<div class="box" style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;margin:6px 0">${x.thumb ? `<img src="${esc(x.thumb)}" width="120" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
+    <div style="flex:1;min-width:0"><div class="hint">@${esc(x.handle)} · ${esc(x.date || "date unknown")}${x.has_video === true ? ` · video${x.duration ? " " + Math.floor(x.duration / 60) + ":" + String(x.duration % 60).padStart(2, "0") : ""}` : x.has_video === false ? " · no video" : ""}</div>
+      <div style="margin:2px 0">${esc((x.text || "").slice(0, 280))}</div><div class="hint"><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on X ↗</a></div>
+      ${x.status === "待确认" ? `<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap"><select data-xt="${esc(x.id)}">${TYPES.map(t => `<option value="${t}"${t === "采访" ? " selected" : ""}>${tn(t)}</option>`).join("")}</select><input data-xd="${esc(x.id)}" type="date" value="${esc(x.date)}"><button class="btn primary" data-xin="${esc(x.id)}">Download</button><button class="btn" data-xout="${esc(x.id)}">Not needed</button></div>` : `<div class="row" style="margin-top:4px"><span class="badge" style="background:var(--other)">${x.status === "选入" ? "Downloaded (check Clips)" : "Not needed"}</span><button class="btn" data-xback="${esc(x.id)}">Move back to pending</button></div>`}</div></div>`;
+  $("viewX").innerHTML = `<div class="box"><b>X (Twitter)</b> <span class="hint">I cannot read X on my own, so you search it yourself with the buttons below, then paste any post you want here. Videos in posts are downloaded like other links.</span></div>
+    <div class="gsec" style="font-size:15px">Accounts to search</div>${d.accounts.map(acc).join("")}
+    <div class="box" style="padding:8px 12px"><div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><b class="hint">Add an account</b><input id="xaName" placeholder="Name, e.g. DK Pittsburgh Sports" style="width:220px"><input id="xaHandle" placeholder="handle (optional)" style="width:150px"><button class="btn" id="xaAdd">Add</button>
+      <a class="btn" target="_blank" rel="noopener" href="${esc(xQ("", "Karlsson (intermission OR interview) Penguins"))}">Search all of X for Karlsson interviews ↗</a></div></div>
+    <div class="gsec" style="font-size:15px">Paste post links</div>
+    <div class="box"><textarea id="xLinks" rows="3" style="width:100%;box-sizing:border-box" placeholder="https://x.com/name/status/1234567890123456789&#10;(one link per line)"></textarea><div class="row" style="margin-top:6px;gap:8px;align-items:center"><button class="btn primary" id="xAddLinks">Add to the list</button><span class="hint" id="xMsg"></span></div></div>
+    <div class="gsec" style="font-size:15px">Waiting for you (${pend.length})</div>${pend.length ? pend.map(item).join("") : `<div class="hint" style="margin:6px 0">Nothing waiting.</div>`}
+    ${done.length || skip.length ? `<details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Downloaded (${done.length}) and not needed (${skip.length})</summary>${[...done, ...skip].map(item).join("")}</details>` : ""}`;
+  const reload = async () => { xData = await api("/api/x"); renderX(); };
+  const acct = async b => { const r = await post("/api/x/account", b); if(r.error){ alert(r.error); return; } xData = r; renderX(); };
+  $("xaAdd").onclick = () => acct({op: "add", name: $("xaName").value, handle: $("xaHandle").value});
+  document.querySelectorAll("#viewX [data-xdel]").forEach(b => b.onclick = () => { if(confirm("Remove this account from the list?")) acct({op: "delete", id: b.dataset.xdel}); });
+  document.querySelectorAll("#viewX [data-xs]").forEach(b => b.onclick = () => acct({op: "update", id: b.dataset.xs, handle: document.querySelector(`[data-xh="${b.dataset.xs}"]`).value, note: document.querySelector(`[data-xn="${b.dataset.xs}"]`).value}));
+  document.querySelectorAll("#viewX [data-xc]").forEach(b => b.onclick = () => acct({op: "update", id: b.dataset.xc, handle: document.querySelector(`[data-xh="${b.dataset.xc}"]`).value, note: document.querySelector(`[data-xn="${b.dataset.xc}"]`).value, checked_now: true}));
+  $("xAddLinks").onclick = async () => { $("xAddLinks").disabled = true; const r = await post("/api/x/links", {urls: $("xLinks").value}); $("xAddLinks").disabled = false; if(r.error){ alert(r.error); return; }
+    if(!r.found){ $("xMsg").textContent = "No X post links found. A link looks like https://x.com/name/status/123…"; return; } $("xLinks").value = ""; await reload(); $("xMsg").textContent = `Added ${r.added}${r.skipped ? `, ${r.skipped} already in the list` : ""}.`; };
+  const mark = async (id, status, extra) => { const r = await post("/api/x/mark", {id, status, ...extra}); if(r.error){ alert(r.error); return; } if(status === "选入") poll(); await reload(); };
+  document.querySelectorAll("#viewX [data-xin]").forEach(b => b.onclick = () => { const id = b.dataset.xin; mark(id, "选入", {type: document.querySelector(`[data-xt="${id}"]`).value, date: document.querySelector(`[data-xd="${id}"]`).value}); });
+  document.querySelectorAll("#viewX [data-xout]").forEach(b => b.onclick = () => mark(b.dataset.xout, "排除", {}));
+  document.querySelectorAll("#viewX [data-xback]").forEach(b => b.onclick = () => mark(b.dataset.xback, "待确认", {}));
+}
 let nhlcomData = null, nhlcomAll = false, nhlcomSel = new Set();
 async function renderNhlcom(){
   if(view !== "nhlcom") return;
@@ -1403,11 +1440,13 @@ function renderPhotos(){
   $("viewTikTok").style.display = view === "tiktok" ? "" : "none";
   $("viewNews").style.display = view === "news" ? "" : "none";
   $("viewNhlcom").style.display = view === "nhlcom" ? "" : "none";
+  $("viewX").style.display = view === "x" ? "" : "none";
   $("viewYouTube").style.display = view === "youtube" ? "" : "none";
   const ytPend = (youtube.items || []).filter(x => x.status === "待确认").length;
   $("ytcount").textContent = ytPend ? ` (${ytPend} pending)` : "";
   renderYouTube();
   renderNhlcom();
+  renderX();
   renderNews();
   const ttPend = (tiktok.items || []).filter(x => x.status === "待确认").length;
   $("ttcount").textContent = ttPend ? ` (${ttPend} pending)` : "";
