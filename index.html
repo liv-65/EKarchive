@@ -289,7 +289,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 // 只读静态版: build_static.py 会把数据打包进 data.js (window.SNAPSHOT), 此时页面不访问本机服务
 const SNAP = window.SNAPSHOT || null;
 const snapGet = u => { const p = u.split("?")[0];
-  return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines
+  return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines : p === "/api/edge" ? (SNAP.edge || {})
     : p === "/api/tiktok" || p === "/api/youtube" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
@@ -784,6 +784,86 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
   return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game vs his own 2025-26 season · blue dotted = fixed pass line (63.5 = his best month, March 2026) · red dotted = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:#6a1b9a">dark ◆ = an unlucky game (PDO ≤ 0.97)</b> · coloured bands = the five tiers</span>
     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="#2f6fd0" stroke-width="1.5" stroke-dasharray="2 3"/><text x="${W - R - 2}" y="${(y(PASS) - 4).toFixed(1)}" font-size="9" text-anchor="end" fill="#2f6fd0">pass line ${PASS}</text><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="2 3"/><text x="${W - R - 2}" y="${(y(FLOOR) + 11).toFixed(1)}" font-size="9" text-anchor="end" fill="#c0392b">floor ${FLOOR}</text>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
 }
+// ---------- NHL EDGE: 赛季累计的区域时间和射门位置(球队 + 他本人), 官方追踪数据, 只在本机页面 ----------
+let edgeData = null, edgeMetric = "sog", edgeOpen = new Set(["team", "player"]);
+const EDGE_POS = {"Behind the Net": [200, 14, "Behind net"], "Crease": [200, 58, "Crease"], "L Net Side": [145, 52, "L net side"], "R Net Side": [255, 52, "R net side"], "L Corner": [75, 40, "L corner"], "R Corner": [325, 40, "R corner"],
+  "Low Slot": [200, 112, "Low slot"], "L Circle": [112, 118, "L circle"], "R Circle": [288, 118, "R circle"], "High Slot": [200, 170, "High slot"], "Outside L": [38, 135, "Outside L"], "Outside R": [362, 135, "Outside R"],
+  "L Point": [92, 228, "L point"], "R Point": [308, 228, "R point"], "Center Point": [200, 240, "Center point"], "Offensive Neutral Zone": [200, 300, "Beyond blue line"], "Beyond Red Line": [330, 305, "Beyond red line"]};
+function edgeZoneBars(rows, who){
+  const names = {all: "All situations", es: "5v5", pp: "Power play", pk: "Penalty kill"};
+  const f = r => r, bar = r => { const o = r.offensiveZonePctg * 100, n = r.neutralZonePctg * 100, d = r.defensiveZonePctg * 100, lg = (r.offensiveZoneLeagueAvg || 0) * 100;
+    const extra = r.offensiveZoneRank ? `rank ${r.offensiveZoneRank} of 32` : r.offensiveZonePercentile != null ? `better than ${Math.round(r.offensiveZonePercentile * 100)}% of skaters` : "";
+    return `<div style="margin:8px 0"><div class="row" style="justify-content:space-between"><b>${names[r.strengthCode] || r.strengthCode}</b><span class="hint">offensive zone ${o.toFixed(1)}% · league average ${lg.toFixed(1)}%${extra ? " · " + extra : ""}</span></div>
+      <div style="position:relative;display:flex;height:22px;border-radius:5px;overflow:hidden;margin-top:3px"><div style="width:${o}%;background:#2f9e5b" title="Offensive zone ${o.toFixed(1)}%"></div><div style="width:${n}%;background:#c9c2b0" title="Neutral zone ${n.toFixed(1)}%"></div><div style="width:${d}%;background:#c0392b" title="Defensive zone ${d.toFixed(1)}%"></div>
+        <div style="position:absolute;left:${lg}%;top:0;bottom:0;border-left:2px dashed #fff"></div></div>
+      <div class="row hint" style="justify-content:space-between;margin-top:2px"><span style="color:#2f9e5b">Offensive ${o.toFixed(1)}%</span><span>Neutral ${n.toFixed(1)}%</span><span style="color:#c0392b">Defensive ${d.toFixed(1)}%</span></div></div>`; };
+  return ["all", "es", "pp", "pk"].map(k => rows.find(r => r.strengthCode === k)).filter(Boolean).map(bar).join("") + `<div class="hint">White dashed line = league average share of time in the offensive zone. For ${who === "team" ? "the team" : "him"} this is time on ice, not puck possession.</div>`;
+}
+function edgeShotMap(items){      // 颜色和官方 EDGE 一样按联盟百分位: 深蓝 81 以上, 浅蓝 51–80, 斜纹 50 以下
+  const M = {sog: ["sogPercentile", "sogRank"], goals: ["goalsPercentile", "goalsRank"], pct: ["shootingPctgPercentile", "shootingPctgRank"]}[edgeMetric], mx = Math.max(1, ...items.map(i => i.sog)),
+    pc = i => i[M[0]] != null ? i[M[0]] * 100 : i[M[1]] != null ? (32 - i[M[1]]) / 31 * 100 : null, val = i => edgeMetric === "sog" ? i.sog : edgeMetric === "goals" ? i.goals : (i.shootingPctg == null ? "–" : Math.round(i.shootingPctg * 100) + "%");
+  const ring = i => i.goals > 0 && i.shootingPctg >= 0.15 ? "#2f9e5b" : i.goals > 0 && i.shootingPctg >= 0.08 ? "#d4b43a" : "#c0392b";      // 外圈: 这个区域进球了没有(命中率 15% 以上绿, 8–15% 黄, 没进或 8% 以下红)
+  const tier = i => { const p = pc(i); return p == null ? 0 : p > 80 ? 2 : p > 50 ? 1 : 0; }, fill = i => ["url(#edgeHatch)", "#4a9be0", "#1f4e79"][tier(i)];
+  const dots = items.filter(i => EDGE_POS[i.area] && i.sog > 0).map(i => { const [x, y, nm] = EDGE_POS[i.area], r = 8 + 19 * Math.sqrt(i.sog / mx), p = pc(i);
+    return `<g><title>${esc(nm)}: ${i.sog} shots on goal, ${i.goals} goal${i.goals === 1 ? "" : "s"}${i.shootingPctg != null ? `, ${(i.shootingPctg * 100).toFixed(1)}% shooting` : ""}${p != null ? ` · ${Math.round(p)}th percentile for this measure` : ""}</title><circle cx="${x}" cy="${y}" r="${(r + 4).toFixed(1)}" fill="none" stroke="${ring(i)}" stroke-width="4"/><circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${fill(i)}" stroke="#1f4e79" stroke-width="1.5"/><text x="${x}" y="${y + 4}" font-size="12" font-weight="700" text-anchor="middle" fill="${tier(i) ? "#fff" : "#1f4e79"}">${val(i)}</text></g>`; }).join("");
+  return `<svg viewBox="0 0 400 335" width="100%" style="max-width:460px" role="img" aria-label="Shots on goal by area"><defs><pattern id="edgeHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#f1f5fa"/><line x1="0" y1="0" x2="0" y2="6" stroke="#9fb6d0" stroke-width="2"/></pattern></defs>
+    <rect x="2" y="2" width="396" height="331" rx="30" fill="none" stroke="var(--line, #bbb)"/><line x1="2" y1="30" x2="398" y2="30" stroke="#c0392b" stroke-width="1.5" opacity=".6"/><rect x="178" y="30" width="44" height="22" fill="none" stroke="#c0392b" opacity=".6"/>
+    <circle cx="112" cy="118" r="42" fill="none" stroke="#2f6fd0" opacity=".25"/><circle cx="288" cy="118" r="42" fill="none" stroke="#2f6fd0" opacity=".25"/><line x1="2" y1="262" x2="398" y2="262" stroke="#2f6fd0" stroke-width="2" opacity=".35"/>${dots}</svg>
+  <div class="row hint" style="gap:12px;align-items:center;margin-top:4px"><span>Colour = how this compares with other ${items.some(i => i.sogPercentile != null) ? "players" : "teams"} at that spot, for the measure chosen above (same as NHL EDGE):</span>
+    <span><svg width="14" height="14"><rect width="14" height="14" fill="url(#edgeHatch)" stroke="#1f4e79"/></svg> 50th or lower</span><span><svg width="14" height="14"><rect width="14" height="14" fill="#4a9be0" stroke="#1f4e79"/></svg> 51–80th</span><span><svg width="14" height="14"><rect width="14" height="14" fill="#1f4e79"/></svg> 81st or higher</span></div>
+  <div class="row hint" style="gap:12px;align-items:center;margin-top:2px"><span>Outer ring = did the shots score?</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#2f9e5b" stroke-width="3"/></svg> goes in often (15%+)</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#d4b43a" stroke-width="3"/></svg> 8–15%</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#c0392b" stroke-width="3"/></svg> no goal, or under 8%</span></div>
+  <div class="hint">Circle size is always the number of shots on goal; the number inside is the measure you picked. Spots with no shots are left blank. This is a drawing of NHL’s numbers, not NHL’s own picture: the circle positions are approximate. The net is at the top.</div>`;
+}
+const EDGE_GROUPS = [["Close to the net", "the crease, the slot right in front, beside the net", ["Crease", "Low Slot", "L Net Side", "R Net Side"]],
+  ["Middle distance", "the faceoff circles, the top of the slot, corners, behind the net", ["High Slot", "L Circle", "R Circle", "Behind the Net", "L Corner", "R Corner"]],
+  ["Far away", "the points, along the boards, beyond the blue line", ["L Point", "R Point", "Center Point", "Outside L", "Outside R", "Offensive Neutral Zone", "Beyond Red Line"]]];
+function edgeVerdict(r, who){      // 大白话评价: 球队按联盟排名(32 队), 球员按百分位
+  const lab = (t, c) => `<b style="color:${c}">${t}</b>`;
+  if(who === "team" && r.offensiveZoneRank){ const k = r.offensiveZoneRank; return k <= 10 ? lab("better than most teams", "#2f9e5b") : k <= 22 ? lab("about average", "#b08a00") : lab("worse than most teams", "#c0392b"); }
+  if(r.offensiveZonePercentile != null){ const p = r.offensiveZonePercentile; return p >= .67 ? lab("better than most players", "#2f9e5b") : p >= .34 ? lab("about average", "#b08a00") : lab("worse than most players", "#c0392b"); }
+  return "";
+}
+function edgePlain(zone, shots, who){
+  const all = zone.find(r => r.strengthCode === "all"), es = zone.find(r => r.strengthCode === "es"), subj = who === "team" ? "the team" : "his team", pct = x => (x * 100).toFixed(1) + "%";
+  const lines = [];
+  if(es) lines.push(`<li><b>Where the play happens (even strength, 5v5):</b> ${who === "team" ? "The team" : "While he is on the ice, his team"} spends <b>${pct(es.offensiveZonePctg)}</b> of the time in the opponent’s end and <b>${pct(es.defensiveZonePctg)}</b> in its own end. The league average for the opponent’s end is ${pct(es.offensiveZoneLeagueAvg)}. That is ${edgeVerdict(es, who)}${es.offensiveZoneRank ? ` (${es.offensiveZoneRank}${["st", "nd", "rd"][es.offensiveZoneRank - 1] || "th"} of 32 teams)` : es.offensiveZonePercentile != null ? ` (higher than ${Math.round(es.offensiveZonePercentile * 100)}% of players)` : ""}.</li>`);
+  const det = shots.shotLocationDetails || [], total = det.reduce((s, i) => s + i.sog, 0);
+  if(total){ const g = EDGE_GROUPS.map(([nm, , areas]) => { const it = det.filter(i => areas.includes(i.area)), sog = it.reduce((s, i) => s + i.sog, 0), goals = it.reduce((s, i) => s + i.goals, 0); return {nm, sog, goals}; });
+    const c = g[0]; lines.push(`<li><b>Where the shots come from:</b> <b>${Math.round(c.sog / total * 100)}%</b> of ${who === "team" ? "the team’s" : "his"} ${total} shots on goal come from close to the net, and ${c.sog ? `<b>${Math.round(c.goals / c.sog * 100)}%</b> of those go in` : "none were taken there yet"}. Close shots go in more often than long ones, so more of them is better.</li>`); }
+  return `<ul style="margin:6px 0 10px 18px;line-height:1.55">${lines.join("")}</ul>`;
+}
+function edgeGroups(shots){
+  const det = shots.shotLocationDetails || [], total = Math.max(1, det.reduce((s, i) => s + i.sog, 0));
+  return `<table class="gt" style="margin:6px 0"><tr><th>Where from</th><th>Shots on goal</th><th>Share</th><th>Goals</th><th>Goes in</th></tr>${EDGE_GROUPS.map(([nm, desc, areas]) => { const it = det.filter(i => areas.includes(i.area)), sog = it.reduce((s, i) => s + i.sog, 0), goals = it.reduce((s, i) => s + i.goals, 0);
+    return `<tr><td><b>${nm}</b><div class="hint">${desc}</div></td><td>${sog}</td><td>${Math.round(sog / total * 100)}%</td><td>${goals}</td><td>${sog ? Math.round(goals / sog * 100) + "%" : "–"}</td></tr>`; }).join("")}</table>`;
+}
+function edgeSection(key, title, zone, shots, who){
+  const tot = (shots.shotLocationTotals || []).find(t => t.locationCode === "all" && (t.position === "all" || !t.position)) || (shots.shotLocationTotals || [])[0];
+  const sum = tot ? ` <span class="hint">· ${tot.sog} shots on goal, ${tot.goals} goals${tot.shootingPctg != null ? `, ${(tot.shootingPctg * 100).toFixed(1)}%` : ""}</span>` : "";
+  const url = who === "team" ? `https://www.nhl.com/nhl-edge/teams/${edgeData.team_id}` : `https://www.nhl.com/nhl-edge/skaters/${edgeData.player_id}/${edgeData.season}/2/shot-locations`;
+  return `<details class="dsec" data-edge="${key}"${edgeOpen.has(key) ? " open" : ""}><summary>${title}${sum}</summary><div class="box">
+    <div class="gsec" style="font-size:14px;margin:0 0 4px">Where the shots on goal come from</div>
+    <div class="row" style="gap:6px;margin:4px 0">${[["sog", "Shots on goal"], ["goals", "Goals"], ["pct", "Shooting %"]].map(([k, n]) => `<button class="chip ${edgeMetric === k ? "on" : ""}" data-em="${k}">${n}</button>`).join("")}</div>${edgeShotMap(shots.shotLocationDetails || [])}
+    <div class="gsec" style="font-size:14px;margin:14px 0 4px">Time in each zone</div>${edgeZoneBars(zone, who)}
+    <div class="hint" style="margin-top:4px">Power-play and penalty-kill rows: I would not read the league averages there; the official numbers look odd to me.</div>
+    <div class="gsec" style="font-size:14px;margin:14px 0 0">In plain words</div>${edgePlain(zone, shots, who)}
+    ${edgeGroups(shots)}
+    <div class="hint" style="margin-top:6px"><a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">See NHL’s own chart for this on NHL EDGE ↗</a></div></div></details>`;
+}
+async function loadEdge(force){
+  const el = document.getElementById("edgeBox"); if(!el) return;
+  if(!edgeData || force) edgeData = await api("/api/edge");
+  const stale = !SNAP && (!edgeData.checked || (Date.now() - new Date(edgeData.checked).getTime()) > 6 * 3600 * 1000);
+  if((stale || force) && !edgeData._tried){ el.innerHTML = `<div class="box hint">Reading NHL EDGE…</div>`; const r = await post("/api/edge/refresh", {}); if(r && !r.error){ edgeData = r; } else { edgeData._tried = true; } if(!edgeData.checked){ el.innerHTML = `<div class="box hint">${esc((r && r.error) || "Could not read NHL EDGE")}</div>`; return; } }
+  const d = edgeData; if(!d.team_zone) { el.innerHTML = ""; return; }
+  const open = edgeOpen.has("edge");
+  el.innerHTML = `<details class="dsec" data-edge="edge"${open ? " open" : ""} style="margin-bottom:10px"><summary>Season zone time and shot locations <span class="hint">· NHL EDGE tracking data, ${esc(String(d.season).replace(/^(\d{4})(\d{4})$/, "$1-$2"))} regular season so far · checked ${esc(d.checked.replace("T", " "))}</span></summary>
+    <div class="row" style="margin:6px 0;gap:8px;align-items:center">${SNAP ? "" : `<button class="btn" id="edgeRef">Refresh</button>`}<span class="hint">Season totals, not one game. Click a heading to hide or show it.</span></div>
+    ${edgeSection("team", "Team (whole squad)", d.team_zone, d.team_shots, "team")}${edgeSection("player", "Karlsson", d.player_zone, d.player_shots, "player")}</details>`;
+  el.querySelectorAll("details[data-edge]").forEach(x => x.ontoggle = () => { x.open ? edgeOpen.add(x.dataset.edge) : edgeOpen.delete(x.dataset.edge); });
+  el.querySelectorAll("[data-em]").forEach(b => b.onclick = e => { e.preventDefault(); edgeMetric = b.dataset.em; loadEdge(false); });
+  const rb = document.getElementById("edgeRef"); if(rb) rb.onclick = async () => { rb.disabled = true; rb.textContent = "Reading…"; const r = await post("/api/edge/refresh", {}); if(r && !r.error) edgeData = r; else alert((r && r.error) || "Could not read NHL EDGE"); loadEdge(false); };
+}
 function renderGames(){
   if(view !== "games") return;
   if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
@@ -792,7 +872,7 @@ function renderGames(){
   $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
     <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
     ? `<div class="box hint">No game data yet. Click “Sync official data” at the top right to read this season’s finished games: scores, team stats, rosters and the scoring timeline, and to file your existing clips, interviews and photos under the matching game by date.</div>` : "") +
-    trendHTML(list) + list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
+    trendHTML(list) + (SNAP && !(SNAP.edge && SNAP.edge.team_zone) ? "" : `<div id="edgeBox"></div>`) + list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
       return `<div class="box gcard" data-g="${esc(g.id)}" style="position:relative"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
         <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
         <div class="gmini" style="position:absolute;right:50px;top:30px;width:160px;display:flex;flex-direction:column;align-items:center">${perfMini(g)}${pressChip(g, false)}</div>
@@ -802,6 +882,7 @@ function renderGames(){
         <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length && !SNAP ? ` · <b style="color:var(--goal)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
   document.querySelectorAll("#gameList details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
+  loadEdge(false);
   const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
 }
 // 本场表现指针表盘: 每项先换成相对基准的标准分 z = (本场 − 基准平均) ÷ 基准标准差(限 ±3), 再按权重 w 加权相加得到综合分;
