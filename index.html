@@ -783,7 +783,7 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
     pdoPts.map(([px, py, g]) => { const bad = g.adv.pdo <= 0.97, z = bad ? 4.5 : 2.5;       // 运气差的比赛(PDO ≤ 0.97)用深色大点标出来, 其余保持淡色
       return `<rect x="${(px - z).toFixed(1)}" y="${(py - z).toFixed(1)}" width="${z * 2}" height="${z * 2}" fill="${bad ? "#6a1b9a" : "#9b8bb4"}" ${bad ? 'stroke="#fff" stroke-width="1"' : 'opacity=".7"'} transform="rotate(45 ${px.toFixed(1)} ${py.toFixed(1)})"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: PDO ${g.adv.pdo.toFixed(3)}${bad ? " (unlucky)" : ""} (team shooting ${pct1(g.adv.sh)}, goalie save ${pct1(g.adv.sv)})</title></rect>`; }).join("");
   return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game vs his own 2025-26 season · blue dotted = fixed pass line (63.5 = his best month, March 2026) · red dotted = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:#6a1b9a">dark ◆ = an unlucky game (PDO ≤ 0.97)</b> · coloured bands = the five tiers</span>
-    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="#2f6fd0" stroke-width="1.5" stroke-dasharray="2 3"/><text x="${W - R - 2}" y="${(y(PASS) - 4).toFixed(1)}" font-size="9" text-anchor="end" fill="#2f6fd0">pass line ${PASS}</text><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="2 3"/><text x="${W - R - 2}" y="${(y(FLOOR) + 11).toFixed(1)}" font-size="9" text-anchor="end" fill="#c0392b">floor ${FLOOR}</text>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="#2f6fd0" stroke-width="1.5" stroke-dasharray="2 3"/><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="2 3"/>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
 }
 // ---------- NHL EDGE: 赛季累计的区域时间和射门位置(球队 + 他本人), 官方追踪数据, 只在本机页面 ----------
 let edgeData = null, edgeMetric = "sog", edgeOpen = new Set(["team", "player"]);
@@ -1199,24 +1199,42 @@ async function renderX(){
   document.querySelectorAll("#viewX [data-xout]").forEach(b => b.onclick = () => mark(b.dataset.xout, "排除", {}));
   document.querySelectorAll("#viewX [data-xback]").forEach(b => b.onclick = () => mark(b.dataset.xback, "待确认", {}));
 }
-let nhlcomData = null, nhlcomAll = false, nhlcomSel = new Set();
+let nhlArt = null, nhlArtShow = new Set();
+let nhlcomData = null, nhlcomSv = (() => { try { return localStorage.getItem("nhlcomSv") === "1"; } catch(e){ return false; } })(), nhlcomSel = new Set();
 async function renderNhlcom(){
   if(view !== "nhlcom") return;
   if(!nhlcomData) nhlcomData = await api("/api/nhlcom");
-  const d = nhlcomData, cut = d.cutoff || "", all = d.items, shown = all.filter(x => nhlcomAll || !cut || x.date >= cut);
+  if(!nhlArt) nhlArt = await api("/api/nhlart");
+  const d = nhlcomData, cur = d.items.reduce((m, x) => x.season > m ? x.season : m, ""), all = d.items.filter(x => nhlcomSv || x.lang !== "sv"), shown = all.filter(x => cur ? (x.season === cur || (!x.season && x.date >= (d.cutoff || ""))) : x.date >= (d.cutoff || ""));
   const fmtDur = s => s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   const row = x => `<div class="box" style="display:flex;gap:10px;align-items:center;padding:8px 12px;margin:6px 0">
     ${x.thumb ? `<img src="${esc(x.thumb)}" width="120" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
-    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b></div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
-      <div class="hint"><a href="https://www.nhl.com/video/${esc(x.slug)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on NHL.com</a></div></div>
+    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b> ${x.lang === "sv" ? `<span class="badge" style="background:#2f6fd0" title="Only on the Swedish NHL site; often spoken in Swedish">SV</span>` : ""}</div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
+      <div class="hint"><a href="https://www.nhl.com/${x.lang === "sv" ? "sv/" : ""}video/${esc(x.slug)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on NHL.com${x.lang === "sv" ? " (Swedish site)" : ""}</a></div></div>
     <div style="flex:none">${x.in_archive ? `<span class="badge" style="background:var(--other)">In archive</span>` : `<label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-nc="${esc(x.id)}"${nhlcomSel.has(x.id) ? " checked" : ""}> Select</label>`}</div></div>`;
   const todo = shown.filter(x => !x.in_archive);
-  $("viewNhlcom").innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap"><span class="hint">${d.checked ? `Checked ${esc(d.checked.replace("T", " "))} · ${shown.length} interviews${cut && !nhlcomAll ? ` since ${esc(cut)}` : ""}, ${todo.length} not in the archive yet` : "Not checked yet."}</span>
-    <span class="row" style="gap:6px"><label class="hint" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="ncAll"${nhlcomAll ? " checked" : ""}> Include older seasons</label><button class="btn" id="ncGo">Check NHL.com</button><button class="btn primary" id="ncAdd"${nhlcomSel.size ? "" : " disabled"}>Download selected (${nhlcomSel.size})</button></span></div>
+  const acur = (nhlArt.items || []).reduce((m, x) => x.season > m ? x.season : m, ""), aall = (nhlArt.items || []).filter(x => (nhlcomSv || x.lang !== "sv") && (acur ? x.season === acur || (!x.season && x.date >= (d.cutoff || "")) : x.date >= (d.cutoff || "")));
+  const apend = aall.filter(x => x.status === "待确认"), akeep = aall.filter(x => x.status === "保留"), askip = aall.filter(x => x.status === "排除");
+  const art = x => `<div class="box" style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;margin:6px 0">${x.thumb ? `<img src="${esc(x.thumb)}" width="96" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
+    <div style="flex:1;min-width:0"><div><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">${esc(x.title)}</a> ${x.lang === "sv" ? `<span class="badge" style="background:#2f6fd0">SV</span>` : ""}</div>
+      <div class="hint">${esc(x.date)}${x.summary ? " · " + esc(x.summary.slice(0, 200)) : ""}</div></div>
+    <div style="flex:none" class="row">${x.status === "待确认" ? `<button class="btn" data-ak="${esc(x.id)}">Keep</button><button class="btn" data-ax="${esc(x.id)}">Not relevant</button>` : `<button class="btn" data-ab="${esc(x.id)}">Move back</button>`}</div></div>`;
+  const artHtml = `<div class="gsec" style="font-size:15px;margin-top:18px">Articles on NHL.com ${nhlArt.checked ? `<span class="hint">· ${aall.length} this season${acur ? ` (${esc(acur)})` : ""}, ${apend.length} waiting</span>` : ""}</div>
+    <div class="hint" style="margin-bottom:6px">Text stories that mention Karlsson. Only the headline, date, summary and link are kept, not the article text. Open the ones that look useful, then Keep or mark Not relevant. “Check NHL.com” above refreshes this too.</div>
+    ${apend.length ? apend.map(art).join("") : `<div class="box hint">${nhlArt.checked ? "Nothing waiting." : "Click “Check NHL.com” to load the articles."}</div>`}
+    ${akeep.length ? `<details style="margin-top:8px"${nhlArtShow.has("k") ? " open" : ""} data-ad="k"><summary class="hint" style="cursor:pointer">Kept (${akeep.length})</summary>${akeep.map(art).join("")}</details>` : ""}
+    ${askip.length ? `<details style="margin-top:8px"${nhlArtShow.has("s") ? " open" : ""} data-ad="s"><summary class="hint" style="cursor:pointer">Not relevant (${askip.length})</summary>${askip.map(art).join("")}</details>` : ""}`;
+  $("viewNhlcom").innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap"><span class="hint">${d.checked ? `Checked ${esc(d.checked.replace("T", " "))} · ${shown.length} interviews this season${cur ? ` (${esc(cur)})` : ""}, ${todo.length} not in the archive yet` : "Not checked yet."}</span>
+    <span class="row" style="gap:6px"><label class="hint" style="display:flex;gap:4px;align-items:center" title="Videos that only appear on nhl.com/sv, many in Swedish"><input type="checkbox" id="ncSv"${nhlcomSv ? " checked" : ""}> Include the Swedish site</label><button class="btn" id="ncGo">Check NHL.com</button><button class="btn primary" id="ncAdd"${nhlcomSel.size ? "" : " disabled"}>Download selected (${nhlcomSel.size})</button></span></div>
     <div class="hint" id="ncMsg" style="margin-bottom:6px">Karlsson’s interviews published on NHL.com (post-game, game day, training camp, locker-room, etc.). Downloaded ones go to Clips as “Interview” and are filed under the game by date.</div>
-    ${shown.length ? shown.map(row).join("") : `<div class="box hint">Nothing here yet. Click “Check NHL.com”.</div>`}`;
-  $("ncGo").onclick = async () => { $("ncGo").disabled = true; $("ncMsg").textContent = "Reading NHL.com…"; const r = await post("/api/nhlcom/refresh", {}); if(r.error){ $("ncMsg").textContent = r.error; $("ncGo").disabled = false; } else { nhlcomData = r; renderNhlcom(); } };
-  $("ncAll").onchange = () => { nhlcomAll = $("ncAll").checked; renderNhlcom(); };
+    ${shown.length ? shown.map(row).join("") : `<div class="box hint">Nothing here yet. Click “Check NHL.com”.</div>`}${artHtml}`;
+  $("ncGo").onclick = async () => { $("ncGo").disabled = true; $("ncMsg").textContent = "Reading NHL.com…"; const r = await post("/api/nhlcom/refresh", {}); const ra = await post("/api/nhlart/refresh", {}); if(!ra.error) nhlArt = ra; if(r.error){ $("ncMsg").textContent = r.error; $("ncGo").disabled = false; } else { nhlcomData = r; renderNhlcom(); } };
+  const amark = async (id, st) => { const r = await post("/api/nhlart/mark", {id, status: st}); if(r.error){ alert(r.error); return; } const it = nhlArt.items.find(x => x.id === id); if(it) it.status = st; renderNhlcom(); };
+  document.querySelectorAll("#viewNhlcom [data-ak]").forEach(b => b.onclick = () => amark(b.dataset.ak, "保留"));
+  document.querySelectorAll("#viewNhlcom [data-ax]").forEach(b => b.onclick = () => amark(b.dataset.ax, "排除"));
+  document.querySelectorAll("#viewNhlcom [data-ab]").forEach(b => b.onclick = () => amark(b.dataset.ab, "待确认"));
+  document.querySelectorAll("#viewNhlcom details[data-ad]").forEach(x => x.ontoggle = () => { const k = x.dataset.ad; x.open ? nhlArtShow.add(k) : nhlArtShow.delete(k); });
+  $("ncSv").onchange = () => { nhlcomSv = $("ncSv").checked; try { localStorage.setItem("nhlcomSv", nhlcomSv ? "1" : "0"); } catch(e){} renderNhlcom(); };
   document.querySelectorAll("#viewNhlcom [data-nc]").forEach(c => c.onchange = () => { c.checked ? nhlcomSel.add(c.dataset.nc) : nhlcomSel.delete(c.dataset.nc); $("ncAdd").disabled = !nhlcomSel.size; $("ncAdd").textContent = `Download selected (${nhlcomSel.size})`; });
   $("ncAdd").onclick = async () => { const ids = [...nhlcomSel]; $("ncAdd").disabled = true; const r = await post("/api/nhlcom/add", {ids}); if(r.error){ alert(r.error); return; } nhlcomSel.clear(); $("ncMsg").textContent = `Started ${r.n} download${r.n === 1 ? "" : "s"}; progress shows at the top.`; poll(); setTimeout(async () => { nhlcomData = await api("/api/nhlcom"); renderNhlcom(); }, 4000); };
 }
