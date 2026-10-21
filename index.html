@@ -52,6 +52,15 @@ td.n,th.n{text-align:right}
 .meta{font-size:12px;color:var(--muted);margin-top:3px}
 .badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#fff;margin-right:4px}
 .badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.训练{background:var(--train)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)} .badge.在场进球{background:var(--event)} .badge.失球{background:var(--bad)} .badge.失误{background:#c28b1a}
+.tl{position:relative;margin:18px 0 0 6px;border-left:2px solid var(--line)}
+.tli{position:relative;padding:0 0 30px 24px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.tli::before{content:"";position:absolute;left:-7px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--bg)}
+.tli.nov::before{background:var(--card);border:2px solid var(--line)}
+.tli .tx{flex:1 1 260px;min-width:0}
+.tli .tx .d{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.tli .tx h3{margin:2px 0 6px;font-size:17px;line-height:1.3}
+.tli .tx p{margin:0;color:var(--muted)}
+.tli .vids{flex:1 1 320px;min-width:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .hint{font-size:12px;color:var(--muted)}
 .job{font-size:13px;margin-top:4px} .job.err{color:var(--bad)}
 /* 弹窗 */
@@ -292,7 +301,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 // 只读静态版: build_static.py 会把数据打包进 data.js (window.SNAPSHOT), 此时页面不访问本机服务
 const SNAP = window.SNAPSHOT || null;
 const snapGet = u => { const p = u.split("?")[0];
-  return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines : p === "/api/edge" ? (SNAP.edge || {})
+  return p === "/api/config" ? SNAP.config : p === "/api/clips" ? SNAP.clips : p === "/api/nhl" ? SNAP.nhl : p === "/api/games" ? SNAP.games : p === "/api/lines" ? SNAP.lines : p === "/api/edge" ? (SNAP.edge || {}) : p === "/api/timeline" ? (SNAP.timeline || {events: []})
     : p === "/api/tiktok" || p === "/api/youtube" ? {items: [], checked: ""} : p === "/api/photos" || p === "/api/jobs" ? [] : p === "/api/ai" ? {ready: false} : {error: "This is a read-only copy."}; };
 const api = (u, o) => SNAP ? Promise.resolve(snapGet(u)) : fetch(u, o).then(r => r.json());
 const post = (u, b) => SNAP ? Promise.resolve({error: "This is a read-only copy."}) : api(u, {method: "POST", body: JSON.stringify(b)});
@@ -1241,19 +1250,41 @@ async function renderNhlcom(){
   document.querySelectorAll("#viewNhlcom [data-nc]").forEach(c => c.onchange = () => { c.checked ? nhlcomSel.add(c.dataset.nc) : nhlcomSel.delete(c.dataset.nc); $("ncAdd").disabled = !nhlcomSel.size; $("ncAdd").textContent = `Download selected (${nhlcomSel.size})`; });
   $("ncAdd").onclick = async () => { const ids = [...nhlcomSel]; $("ncAdd").disabled = true; const r = await post("/api/nhlcom/add", {ids}); if(r.error){ alert(r.error); return; } nhlcomSel.clear(); $("ncMsg").textContent = `Started ${r.n} download${r.n === 1 ? "" : "s"}; progress shows at the top.`; poll(); setTimeout(async () => { nhlcomData = await api("/api/nhlcom"); renderNhlcom(); }, 4000); };
 }
-let histQ = "";
-function renderHistory(){
+let histQ = "", histMode = "timeline", timeline = null;
+function renderTimeline(all){
+  const evs = ((timeline && timeline.events) || []).slice().sort((a, b) => b.date.localeCompare(a.date));      // 最新的在最上面
+  const used = new Set();
+  const card = c => `<div class="clip" data-hid="${esc(c.id)}"><div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(c.game_date)}</div></div></div>`;
+  const html = evs.map(e => {
+    const lo = e.date, hi = e.until || e.date, ids = new Set(e.clips || []);
+    const vs = all.filter(c => ids.has(c.id) || (c.game_date >= lo && c.game_date <= hi)).sort((a, b) => b.game_date.localeCompare(a.game_date));
+    vs.forEach(c => used.add(c.id));
+    return `<div class="tli${vs.length ? "" : " nov"}"><div class="tx"><div class="d">${esc(e.label || e.date)}</div><h3>${esc(e.title)}</h3><p>${esc(e.text || "")}</p></div>${vs.length ? `<div class="vids">${vs.map(card).join("")}</div>` : ""}</div>`;
+  }).join("");
+  const rest = all.filter(c => !used.has(c.id)).length;
+  return `<div class="tl">${html || `<div class="box hint">No timeline yet. Add events to timeline.json.</div>`}</div>${rest ? `<div class="hint" style="margin-top:6px">${rest} more past interview${rest > 1 ? "s" : ""} not placed on the timeline yet; see “All interviews”.</div>` : ""}`;
+}
+async function renderHistory(){
   if(view !== "history") return;
+  if(!timeline){ try { timeline = await api("/api/timeline"); } catch(e){ timeline = {events: []}; } if(view !== "history") return; }
+  if(histMode === "timeline"){
+    $("viewHistory").innerHTML = `<div class="row" style="margin-bottom:4px"><button class="chip on" data-hm="timeline">Timeline</button><button class="chip" data-hm="list">All interviews</button></div>` + renderTimeline(clips.filter(isHist));
+    document.querySelectorAll("[data-hm]").forEach(b => b.onclick = () => { histMode = b.dataset.hm; renderHistory(); });
+    document.querySelectorAll("[data-hid]").forEach(el => el.onclick = () => openClip(el.dataset.hid));
+    return;
+  }
   const all = clips.filter(isHist), q = histQ.trim().toLowerCase();
   const list = all.filter(c => !q || (c.title + " " + c.caption + " " + c.tags + " " + (c.summary || "")).toLowerCase().includes(q)).sort((a, b) => b.game_date.localeCompare(a.game_date));
   const by = {}; list.forEach(c => { const m = +c.game_date.slice(5, 7), y = +c.game_date.slice(0, 4), s = m >= 7 ? y : y - 1; (by[s] ||= []).push(c); });
-  $("viewHistory").innerHTML = `<div class="hint" style="margin-bottom:8px">Past interviews from before ${esc(START)}. Only interviews are kept here; game clips start on ${esc(START)}. Add one from the Add tab (type Interview, set the date) or from NHL.com → “Include earlier seasons”.</div>
+  $("viewHistory").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="chip" data-hm="timeline">Timeline</button><button class="chip on" data-hm="list">All interviews</button></div><div class="hint" style="margin-bottom:8px">Past interviews from before ${esc(START)}. Only interviews are kept here; game clips start on ${esc(START)}. Add one from the Add tab (type Interview, set the date) or from NHL.com → “Include earlier seasons”.</div>
     <div class="row" style="margin-bottom:8px"><input id="histQ" placeholder="Search title, caption, tags" value="${esc(histQ)}" style="flex:1;min-width:160px"><span class="hint">${list.length} of ${all.length} interviews</span></div>
     ${Object.keys(by).sort((a, b) => b - a).map(s => `<div class="gsec" style="font-size:15px;margin-top:14px">${s}-${String(+s + 1).slice(2)} season <span class="hint">· ${by[s].length}</span></div><div class="grid">${by[s].map(c => `<div class="clip" data-hid="${esc(c.id)}">
       <div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
       <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(c.game_date)}</div>
       ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("")}</div>`).join("") || `<div class="box hint">${all.length ? "No match." : "No past interviews yet."}</div>`}`;
   $("histQ").oninput = () => { histQ = $("histQ").value; const p = $("histQ").selectionStart; renderHistory(); $("histQ").focus(); $("histQ").setSelectionRange(p, p); };
+  document.querySelectorAll("[data-hm]").forEach(b => b.onclick = () => { histMode = b.dataset.hm; renderHistory(); });
   document.querySelectorAll("[data-hid]").forEach(el => el.onclick = () => openClip(el.dataset.hid));
 }
 async function renderNews(){
