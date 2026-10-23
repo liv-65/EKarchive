@@ -7,13 +7,15 @@
 <style>
 :root{
   --bg:#f5f4f0; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e3e0d8;
-  --accent:#1f5f8b; --accent-ink:#fff; --bad:#b4453a;
-  --goal:#c2410c; --assist:#1f5f8b; --interview:#6d4c9f; --event:#2f7d4f; --train:#0e7c86; --other:#6b7280;
+  --accent:#1f5f8b; --accent-ink:#fff; --bad:#b4453a; --good:#2f7d4f; --warn:#b08a00;
+  --goal:#c2410c; --assist:#1f5f8b; --lnew:#c2410c; --lmv:#1f5f8b; --interview:#6d4c9f; --event:#2f7d4f; --train:#0e7c86; --other:#6b7280;
+  --accent-deep:#0b63e5; --t0:#c0392b; --t1:#e08a3c; --t2:#d4b43a; --t3:#8db27a; --t4:#4f9468;
 }
 @media (prefers-color-scheme: dark){
   :root{--bg:#141618; --card:#1e2124; --ink:#e8e6e1; --muted:#9aa0a6; --line:#33373b;
-    --accent:#6cb2e0; --accent-ink:#0c1a24; --bad:#e07a6e;
-    --goal:#f08a52; --assist:#6cb2e0; --interview:#b69bdf; --event:#6fcf97; --train:#56ccd6; --other:#9aa0a6;}
+    --accent:#6cb2e0; --accent-ink:#0c1a24; --bad:#e07a6e; --good:#6fcf97; --warn:#d4b43a;
+    --goal:#f08a52; --assist:#6cb2e0; --lnew:#f08a52; --lmv:#6cb2e0; --interview:#b69bdf; --event:#6fcf97; --train:#56ccd6; --other:#9aa0a6;
+    --accent-deep:#6fb6ff; --t0:#e07a6e; --t1:#f0a060; --t2:#e0c35c; --t3:#a5c98f; --t4:#6fcf97;}
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -34,9 +36,9 @@ textarea{width:100%;min-height:54px;resize:vertical}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.tile b{display:block;font-size:28px;line-height:1.1}
+.tile b{display:block;font-size:24px;line-height:1.1;font-weight:600}
 .tile span{font-size:13px;color:var(--muted)}
-.tile.g b{color:var(--goal)} .tile.a b{color:var(--assist)} .tile.i b{color:var(--interview)}
+.tile.g b{color:var(--goal)} .tile.a b{color:var(--assist)} .tile.i b{color:var(--ink)}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
 th{color:var(--muted);font-weight:500;font-size:12px}
@@ -51,7 +53,7 @@ td.n,th.n{text-align:right}
 .cbody .t{font-size:14px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meta{font-size:12px;color:var(--muted);margin-top:3px}
 .badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#fff;margin-right:4px}
-.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.训练{background:var(--train)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)} .badge.在场进球{background:var(--event)} .badge.失球{background:var(--bad)} .badge.失误{background:#c28b1a}
+.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.训练{background:var(--train)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)} .badge.在场进球{background:var(--event)} .badge.失球{background:var(--bad)} .badge.失误{background:var(--warn)}
 .tl{position:relative;margin:18px 0 0 6px;border-left:2px solid var(--line)}
 .tli{position:relative;padding:0 0 30px 24px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
 .tli::before{content:"";position:absolute;left:-7px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--bg)}
@@ -81,20 +83,20 @@ td.n,th.n{text-align:right}
 .g2>div{min-width:0}
 .g2 .gt td,.g2 .gt th{white-space:normal} .g2 .gt td:first-child{white-space:nowrap} .g2 select{max-width:100%}
 @media (max-width:860px){.g2{grid-template-columns:1fr}}
-.gt .me td{background:rgba(31,95,139,.12);font-weight:600}
-.gt tr.r1 td{background:color-mix(in srgb,var(--accent) 17%,transparent);font-weight:600}
-.gt tr.r1 td:first-child{box-shadow:inset 3px 0 0 var(--accent);color:var(--accent)}
-.gt tr.r2 td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.gt .me td{background:color-mix(in srgb,var(--accent) 8%,transparent);font-weight:600}
+.gt tr.r1 td{font-weight:600}
+.gt tr.r1 td:first-child{color:var(--accent-deep)} .gt.tri tr.r1 td:first-child{color:inherit} .gt.tri tr.r1 td:nth-child(2){color:var(--accent-deep)}
 .gt tr.r3 td{color:var(--muted)}
 .gt td.top{color:var(--accent);font-weight:700}
 .gt td.dbar{background-repeat:no-repeat}
 .gt td.good{color:var(--event);font-weight:600} .gt td.bad{color:var(--bad);font-weight:600}
 .pc{display:inline-flex;align-items:center;vertical-align:middle;text-align:left} .pc .mug{flex:none;width:26px;height:26px;margin-right:6px}
 .gt td .mug,.chgi .mug{width:26px;height:26px;margin-right:6px}
-.gt td.chg.new,.chgi.new{background:color-mix(in srgb,var(--goal) 22%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--goal) 65%,transparent)}
-.gt td.chg.mv,.chgi.mv{background:color-mix(in srgb,var(--assist) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--assist) 60%,transparent)}
-.gt td.chg.out,.chgi.out{background:color-mix(in srgb,var(--muted) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--muted) 45%,transparent)}
-.gt td.chg,.chgi{background:color-mix(in srgb,var(--goal) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--goal) 55%,transparent)} .chgi{padding:1px 6px;border-radius:6px} .was{display:block;font-size:11px;font-weight:400;color:var(--muted)} .chgi .was{display:inline;margin-left:4px}
+.chgi.new{background:color-mix(in srgb,var(--lnew) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lnew) 60%,transparent)}
+.chgi.mv{background:color-mix(in srgb,var(--lmv) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lmv) 60%,transparent)}
+.chgi.out{background:color-mix(in srgb,var(--muted) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--muted) 45%,transparent)}
+.chgi{background:color-mix(in srgb,var(--lmv) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lmv) 55%,transparent)} .chgi{padding:1px 6px;border-radius:6px} .was{display:block;font-size:11px;font-weight:400;color:var(--muted)} .chgi .was{display:inline;margin-left:4px}
+.gt td.chg{background:none;box-shadow:none;color:var(--lmv);font-weight:600} .gt td.chg.new{color:var(--lnew)} .gt td.chg.mv{color:var(--lmv)} .gt td.chg.out{color:var(--muted)} .gt td.chg .was{color:var(--muted);font-weight:400;opacity:1}
 .gsec{margin:24px 0 8px;font-size:17px;font-weight:700}
 .chip.on .hint{color:inherit;opacity:.85}
 .dsec{margin:10px 0}
@@ -132,9 +134,9 @@ td.n,th.n{text-align:right}
 @media (max-width:760px){.learn{grid-template-columns:1fr}.learn .toc{position:static;max-height:none}}
 .tmb{display:inline-block;min-width:46px;text-align:center;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700}
 .tmb.pit{background:var(--accent);color:var(--accent-ink)}
-.tmb.opp{background:#c06a1f;color:#fff}
+.tmb.opp{background:var(--goal);color:#fff}
 tr.pen-pit td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
-tr.pen-opp td{background:color-mix(in srgb,#c06a1f 11%,transparent)}
+tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
 .tag2{display:inline-block;font-size:11px;padding:0 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:4px}
 .mug{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;vertical-align:middle;margin-right:7px;background:var(--line);cursor:zoom-in}
 .tag2.ha{font-weight:700;letter-spacing:.04em;margin-left:0;margin-right:4px} .tag2.home{color:var(--accent);border-color:var(--accent)} .tag2.away{color:var(--muted)}
@@ -396,7 +398,7 @@ function render(){
   } else {
     const og = ev.filter(e => e.type === "进球").length, oa = ev.filter(e => e.type === "助攻").length;
     $("nhlSum").innerHTML = `In this date range the official record shows: <b>${og} goals</b> · <b>${oa} assists</b> (${ev.length} total). ${ev.length - missing.length} archived` +
-      (missing.length ? `; <b style="color:var(--goal)">${missing.length} missing</b>` : "; <b>all collected</b>") +
+      (missing.length ? `; <b style="color:var(--bad)">${missing.length} missing</b>` : "; <b>all collected</b>") +
       (fetchable.length ? ` <button class="btn primary" id="nhlGet" style="margin-left:6px">Download the ${fetchable.length} missing official clips</button>` : "");
     $("nhlMiss").innerHTML = missing.map(e => `<div class="miss"><span class="badge ${esc(e.type)}">${esc(tn(e.type))}</span>
       <span>${esc(e.date.slice(5))} ${e.home ? "vs" : "@"} ${esc(e.opp)} · ${esc(en(e.moment))}</span>
@@ -515,7 +517,7 @@ function iceHTML(g){
   const fAll = ice.f.all.slice(0, 9), f5 = look(ice.f["5v5"]), fPp = look(ice.f.pp), fPk = look(ice.f.pk);
   const rk = i => i === 0 ? "r1" : i === 1 ? "r2" : "r3";      // 第 1 名最醒目, 第 2 名次之, 其余变淡
   const topOf = (m, rows) => { let b = null, bv = 0; rows.forEach(([id]) => { if(m.has(id) && m.get(id) > bv){ b = id; bv = m.get(id); } }); return b; };
-  const bar = (v, mx) => `background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent) ${Math.round(v / (mx || 1) * 100)}%,transparent ${Math.round(v / (mx || 1) * 100)}%)`;
+  const bar = (v, mx) => `background-image:linear-gradient(color-mix(in srgb,var(--interview) 50%,transparent),color-mix(in srgb,var(--interview) 50%,transparent));background-size:${Math.round(v / (mx || 1) * 100)}% 2px;background-position:left bottom;background-repeat:no-repeat`;
   const gfa = id => { const f = (ice.gf || {})[id] || 0, a = (ice.ga || {})[id] || 0; return `<td class="${f ? "good" : ""}">${f || "–"}</td><td class="${a ? "bad" : ""}">${a || "–"}</td>`; };    // 一起在冰上时的进球 / 丢球
   const cellT = (m, k, top) => m.has(k) ? (k === top ? `<td class="top">${mmss(m.get(k))}</td>` : `<td>${mmss(m.get(k))}</td>`) : `<td>–</td>`;
   const centerOf = ids => ids.reduce((a, b) => ((dressedMap(g).get(b) || {}).fo || 0) > ((dressedMap(g).get(a) || {}).fo || 0) ? b : a);
@@ -524,22 +526,22 @@ function iceHTML(g){
     ${ice.by_period ? `<div class="row" style="margin:8px 0 2px">${[["all", "All game"], ["period", "By period"]].map(([k, n]) => `<button class="chip ${iceView === k ? "on" : ""}" data-iv="${k}">${n}</button>`).join("")}</div>` : ""}
     ${iceView === "period" && ice.by_period ? iceBuckets(g, ice, "period") : `
     <div class="hint" style="margin-top:8px">Defense partners</div>
-    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for while on the ice together (all goals, incl. power play)">GF</th><th title="Goals against while on the ice together">GA</th></tr>${dAll.map(([id, s], i) => `<tr class="${rk(i)}"><td>${nm(id)}</td><td class="dbar" style="${bar(s, dAll[0][1])}"><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(d5, id, topOf(d5, dAll))}${cellT(dPp, id, topOf(dPp, dAll))}${cellT(dPk, id, topOf(dPk, dAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
+    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for while on the ice together (all goals, incl. power play)">GF</th><th title="Goals against while on the ice together">GA</th></tr>${dAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(d5, id, topOf(d5, dAll))}${cellT(dPp, id, topOf(dPp, dAll))}${cellT(dPk, id, topOf(dPk, dAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
     <div class="hint" style="margin-top:10px">Forwards on ice together</div>
-    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for while on the ice together (all goals, incl. power play)">GF</th><th title="Goals against while on the ice together">GA</th></tr>${fAll.map(([id, s], i) => `<tr class="${rk(i)}"><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td class="dbar" style="${bar(s, fAll[0][1])}"><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(f5, id, topOf(f5, fAll))}${cellT(fPp, id, topOf(fPp, fAll))}${cellT(fPk, id, topOf(fPk, fAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
+    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for while on the ice together (all goals, incl. power play)">GF</th><th title="Goals against while on the ice together">GA</th></tr>${fAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(f5, id, topOf(f5, fAll))}${cellT(fPp, id, topOf(fPp, fAll))}${cellT(fPk, id, topOf(fPk, fAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
     <div class="hint" style="margin-top:10px">Most common forward trios on ice with him at 5v5</div>
-    <table class="gt l"><tr><th>Time</th><th>Line</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s], ti) => { const c = centerOf(ids);
+    <table class="gt l tri"><tr><th>Time</th><th>Line</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s], ti) => { const c = centerOf(ids);
       const F = (lineData[String(g.id)] || {}).F || [], hit = F.map((row, k) => [k, row.filter(x => ids.includes(x)).length]).sort((x, y) => y[1] - x[1])[0], ln = hit && hit[1] >= 2 ? `Line ${hit[0] + 1}${hit[1] < 3 ? "*" : ""}` : "–";
-      return `<tr class="${rk(ti)}"><td class="dbar" style="${bar(s, ice.trios[0][1])}">${mmss(s)}</td><td>${ln}</td><td>${ids.map(i => `<span style="display:inline-block;margin:2px 10px 2px 0">${pChip(g, i)}${i === c ? `<span class="tag2 me">C</span>` : ""}</span>`).join("")}</td></tr>`; }).join("") || `<tr><td colspan="3" class="hint">No data</td></tr>`}</table>
+      return `<tr class="${rk(ti)}" style="${bar(s, T)}"><td>${mmss(s)}</td><td>${ln}</td><td>${ids.map(i => `<span style="display:inline-block;margin:2px 10px 2px 0">${pChip(g, i)}${i === c ? `<span class="tag2 me">C</span>` : ""}</span>`).join("")}</td></tr>`; }).join("") || `<tr><td colspan="3" class="hint">No data</td></tr>`}</table>
     <div class="hint" style="margin-top:4px">GF / GA = goals for / against while he and this player were on the ice together (all goals, power play included; one game is a tiny sample). Darkest row = most time together; the bar in the time cell is relative to the top row, and the best value in each column is colored. Line = from the lineup groups you entered (– if not entered or no match; * = only 2 of the 3 players are in that line).</div>
     `}
     <div class="hint" style="margin-top:8px">Counted second by second from the official shift records: who was on the ice with him (goalies excluded). 5v5, PP and SH are decided by the number of skaters on each side, which can be off when a goalie is pulled. Line-change overlaps (seconds with more than 5 skaters on one side) are removed, and stretches under 5 seconds together are ignored. Time when he is off the ice is not counted; the sample is this one game, so pairings change from game to game.</div></div>`;
 }
 
 // ---------- 阵容分组(手动填写) ----------
-const FL = ["Left wing", "Center", "Right wing"];
+const FL = ["LW", "C", "RW"];
 const dressedMap = g => { const m = new Map(); GRP.forEach(([k]) => ((g.lineup || {})[k] || []).forEach(r => m.set(r.id, r))); return m; };
-const plabel = (g, id) => { const r = id ? dressedMap(g).get(id) : null; return r ? `#${r.num} ${r.name}` : ""; };
+const plabel = (g, id) => { const r = id ? dressedMap(g).get(id) : null; return r ? `${r.num} ${r.name}` : ""; };
 const slotLabel = key => { const t = key[0], i = +key[1], j = +key[2];
   return t === "F" ? `Line ${i + 1} ${FL[j]}` : t === "D" ? `Pair ${i + 1} D${j + 1}` : (i === 0 ? "Starting goalie" : "Backup goalie"); };
 function slotsOf(L){   // key -> 球员 id
@@ -603,7 +605,7 @@ function linesHTML(g){
   const isPrev = !!pg && !!prevG && String(pg.id) === String(prevG.id), baseName = isPrev ? "previous game" : `${pg ? pg.date.slice(5) : ""} game`;
   const chg = (key, id) => !!PL && (PL.get(key) ?? null) !== (id ?? null);
   const wasOf = key => { const o = PL && PL.get(key); return o ? `<span class="was">was ${esc(plabel(pg, o))}</span>` : `<span class="was">was empty</span>`; };
-  const opts = (arr, cur) => `<option value="">(empty)</option>` + arr.map(r => `<option value="${r.id}" ${r.id === cur ? "selected" : ""}>#${esc(r.num ?? "")} ${esc(r.name)}${r.pos ? " (" + esc(r.pos) + ")" : ""}</option>`).join("");
+  const opts = (arr, cur) => `<option value="">(empty)</option>` + arr.map(r => `<option value="${r.id}" ${r.id === cur ? "selected" : ""}>${esc(r.num ?? "")} ${esc(r.name)}${r.pos ? " (" + esc(r.pos) + ")" : ""}</option>`).join("");
   let body;
   if(editing){
     const d = lineDraft, fw = [...g.lineup.forwards].sort((a, b) => a.num - b.num), df = [...g.lineup.defense].sort((a, b) => a.num - b.num), gk = g.lineup.goalies;
@@ -750,7 +752,7 @@ function clipHTML(c){
     ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`;
 }
 // 赛季视图: 每场他最固定的前锋占比 + 他和每个前锋在一起的累计时间、进球、丢球 (按上面选的日期范围)
-const barBg = (v, mx) => `background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent) ${Math.round(v / (mx || 1) * 100)}%,transparent ${Math.round(v / (mx || 1) * 100)}%)`;
+const barBg = (v, mx) => `background-image:linear-gradient(color-mix(in srgb,var(--interview) 50%,transparent),color-mix(in srgb,var(--interview) 50%,transparent));background-size:${Math.round(v / (mx || 1) * 100)}% 2px;background-position:left bottom;background-repeat:no-repeat`;
 function seasonHTML(list){
   const gs = list.filter(g => g.ice && typeof g.ice === "object" && g.ice.total).sort((a, b) => a.date.localeCompare(b.date));
   if(!gs.length) return "";
@@ -772,7 +774,7 @@ function seasonHTML(list){
     <div style="overflow:auto"><table class="gt l" style="margin-top:6px"><tr><th>Date</th><th>Game</th><th>Result</th><th>Most frequent forward (share of his ice time)</th><th title="Of all his 5v5 ice time, the share spent with the one forward trio (three forwards) he was on the ice with the longest">5v5 time with his most common trio</th><th title="Goals for while he was on the ice">GF</th><th title="Goals against while he was on the ice">GA</th><th>GF−GA</th></tr>${rows}</table></div>
     <div class="hint" style="margin:12px 0 4px">Which forwards he spends the most time with, and what happened when they were on the ice together (all games above added up):</div>
     <div style="overflow:auto"><table class="gt"><tr><th>Forward</th><th>Games</th><th>Time together</th><th>Share of his time</th><th title="Goals for while on the ice together">GF</th><th title="Goals against while on the ice together">GA</th><th>GF−GA</th></tr>
-      ${fr.map(e => `<tr><td>${esc(e.name)}</td><td>${e.n}</td><td class="dbar" style="${barBg(e.sec, maxSec)}"><b>${mmss(e.sec)}</b></td><td>${Math.round(e.sec / totSec * 100)}%</td><td class="${e.gf ? "good" : ""}">${e.gf || "–"}</td><td class="${e.ga ? "bad" : ""}">${e.ga || "–"}</td>${net(e.gf - e.ga)}</tr>`).join("")}</table></div>
+      ${fr.map(e => `<tr style="${barBg(e.sec, totSec)}"><td>${esc(e.name)}</td><td>${e.n}</td><td><b>${mmss(e.sec)}</b></td><td>${Math.round(e.sec / totSec * 100)}%</td><td class="${e.gf ? "good" : ""}">${e.gf || "–"}</td><td class="${e.ga ? "bad" : ""}">${e.ga || "–"}</td>${net(e.gf - e.ga)}</tr>`).join("")}</table></div>
     <div class="hint" style="margin-top:6px">With only a few games these numbers move a lot (a forward who happened to be on the ice for one goal looks good). Treat them as a log for now; patterns only mean something after many games.</div></div>`;
 }
 const PASS = 63.5;    // 趋势图的固定及格线(百分位): Karlsson 2026 年 3 月 17 场在"对他自己 2025-26"基准下的平均百分位
@@ -791,11 +793,11 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
   const pdoPts = gs.map((g, i) => g.adv ? [x(i), y(Math.max(0, Math.min(100, (g.adv.pdo - PDO_LO) / (PDO_HI - PDO_LO) * 100))), g] : null).filter(Boolean);
   const pdoLayer = () => !pdoPts.length ? "" : `<line x1="${L}" x2="${W - R}" y1="${y(50).toFixed(1)}" y2="${y(50).toFixed(1)}" stroke="#9b8bb4" stroke-width="1" stroke-dasharray="1 4" opacity=".45"/>` +
     [0.7, 0.85, 1.0, 1.15, 1.3].map(v => `<text x="${W - R + 3}" y="${(y((v - PDO_LO) / (PDO_HI - PDO_LO) * 100) + 3).toFixed(1)}" font-size="9" fill="#9b8bb4">${v.toFixed(2)}</text>`).join("") +
-    `<polyline fill="none" stroke="#9b8bb4" stroke-width="1.5" opacity=".55" points="${pdoPts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
+    `<polyline fill="none" stroke="var(--train)" stroke-width="1.5" opacity=".55" points="${pdoPts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
     pdoPts.map(([px, py, g]) => { const bad = g.adv.pdo <= 0.97, z = bad ? 4.5 : 2.5;       // 运气差的比赛(PDO ≤ 0.97)用深色大点标出来, 其余保持淡色
-      return `<rect x="${(px - z).toFixed(1)}" y="${(py - z).toFixed(1)}" width="${z * 2}" height="${z * 2}" fill="${bad ? "#6a1b9a" : "#9b8bb4"}" ${bad ? 'stroke="#fff" stroke-width="1"' : 'opacity=".7"'} transform="rotate(45 ${px.toFixed(1)} ${py.toFixed(1)})"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: PDO ${g.adv.pdo.toFixed(3)}${bad ? " (unlucky)" : ""} (team shooting ${pct1(g.adv.sh)}, goalie save ${pct1(g.adv.sv)})</title></rect>`; }).join("");
-  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game vs his own 2025-26 season · blue dotted = fixed pass line (63.5 = his best month, March 2026) · red dotted = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:#6a1b9a">dark ◆ = an unlucky game (PDO ≤ 0.97)</b> · coloured bands = the five tiers</span>
-    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="#2f6fd0" stroke-width="1.5" stroke-dasharray="2 3"/><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="2 3"/>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
+      return `<rect x="${(px - z).toFixed(1)}" y="${(py - z).toFixed(1)}" width="${z * 2}" height="${z * 2}" fill="${bad ? "var(--interview)" : "#9b8bb4"}" ${bad ? 'stroke="#fff" stroke-width="1"' : 'opacity=".7"'} transform="rotate(45 ${px.toFixed(1)} ${py.toFixed(1)})"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: PDO ${g.adv.pdo.toFixed(3)}${bad ? " (unlucky)" : ""} (team shooting ${pct1(g.adv.sh)}, goalie save ${pct1(g.adv.sv)})</title></rect>`; }).join("");
+  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game vs his own 2025-26 season · blue dotted = fixed pass line (63.5 = his best month, March 2026) · red dotted = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:var(--interview)">dark ◆ = an unlucky game (PDO ≤ 0.97)</b> · coloured bands = the five tiers</span>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2 3"/><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="2 3"/>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
 }
 // ---------- NHL EDGE: 赛季累计的区域时间和射门位置(球队 + 他本人), 官方追踪数据, 只在本机页面 ----------
 let edgeData = null, edgeMetric = "sog", edgeOpen = new Set(["team", "player"]);
@@ -807,24 +809,24 @@ function edgeZoneBars(rows, who){
   const f = r => r, bar = r => { const o = r.offensiveZonePctg * 100, n = r.neutralZonePctg * 100, d = r.defensiveZonePctg * 100, lg = (r.offensiveZoneLeagueAvg || 0) * 100;
     const extra = r.offensiveZoneRank ? `rank ${r.offensiveZoneRank} of 32` : r.offensiveZonePercentile != null ? `better than ${Math.round(r.offensiveZonePercentile * 100)}% of skaters` : "";
     return `<div style="margin:8px 0"><div class="row" style="justify-content:space-between"><b>${names[r.strengthCode] || r.strengthCode}</b><span class="hint">offensive zone ${o.toFixed(1)}% · league average ${lg.toFixed(1)}%${extra ? " · " + extra : ""}</span></div>
-      <div style="position:relative;display:flex;height:22px;border-radius:5px;overflow:hidden;margin-top:3px"><div style="width:${o}%;background:#2f9e5b" title="Offensive zone ${o.toFixed(1)}%"></div><div style="width:${n}%;background:#c9c2b0" title="Neutral zone ${n.toFixed(1)}%"></div><div style="width:${d}%;background:#c0392b" title="Defensive zone ${d.toFixed(1)}%"></div>
+      <div style="position:relative;display:flex;height:22px;border-radius:5px;overflow:hidden;margin-top:3px"><div style="width:${o}%;background:var(--good)" title="Offensive zone ${o.toFixed(1)}%"></div><div style="width:${n}%;background:#c9c2b0" title="Neutral zone ${n.toFixed(1)}%"></div><div style="width:${d}%;background:var(--bad)" title="Defensive zone ${d.toFixed(1)}%"></div>
         <div style="position:absolute;left:${lg}%;top:0;bottom:0;border-left:2px dashed #fff"></div></div>
-      <div class="row hint" style="justify-content:space-between;margin-top:2px"><span style="color:#2f9e5b">Offensive ${o.toFixed(1)}%</span><span>Neutral ${n.toFixed(1)}%</span><span style="color:#c0392b">Defensive ${d.toFixed(1)}%</span></div></div>`; };
+      <div class="row hint" style="justify-content:space-between;margin-top:2px"><span style="color:var(--good)">Offensive ${o.toFixed(1)}%</span><span>Neutral ${n.toFixed(1)}%</span><span style="color:var(--bad)">Defensive ${d.toFixed(1)}%</span></div></div>`; };
   return ["all", "es", "pp", "pk"].map(k => rows.find(r => r.strengthCode === k)).filter(Boolean).map(bar).join("") + `<div class="hint">White dashed line = league average share of time in the offensive zone. For ${who === "team" ? "the team" : "him"} this is time on ice, not puck possession.</div>`;
 }
 function edgeShotMap(items){      // 颜色和官方 EDGE 一样按联盟百分位: 深蓝 81 以上, 浅蓝 51–80, 斜纹 50 以下
   const M = {sog: ["sogPercentile", "sogRank"], goals: ["goalsPercentile", "goalsRank"], pct: ["shootingPctgPercentile", "shootingPctgRank"]}[edgeMetric], mx = Math.max(1, ...items.map(i => i.sog)),
     pc = i => i[M[0]] != null ? i[M[0]] * 100 : i[M[1]] != null ? (32 - i[M[1]]) / 31 * 100 : null, val = i => edgeMetric === "sog" ? i.sog : edgeMetric === "goals" ? i.goals : (i.shootingPctg == null ? "–" : Math.round(i.shootingPctg * 100) + "%");
-  const ring = i => i.goals > 0 && i.shootingPctg >= 0.15 ? "#2f9e5b" : i.goals > 0 && i.shootingPctg >= 0.08 ? "#d4b43a" : "#c0392b";      // 外圈: 这个区域进球了没有(命中率 15% 以上绿, 8–15% 黄, 没进或 8% 以下红)
-  const tier = i => { const p = pc(i); return p == null ? 0 : p > 80 ? 2 : p > 50 ? 1 : 0; }, fill = i => ["url(#edgeHatch)", "#4a9be0", "#1f4e79"][tier(i)];
+  const ring = i => i.goals > 0 && i.shootingPctg >= 0.15 ? "var(--good)" : i.goals > 0 && i.shootingPctg >= 0.08 ? "var(--warn)" : "var(--bad)";      // 外圈: 这个区域进球了没有(命中率 15% 以上绿, 8–15% 黄, 没进或 8% 以下红)
+  const tier = i => { const p = pc(i); return p == null ? 0 : p > 80 ? 2 : p > 50 ? 1 : 0; }, fill = i => ["url(#edgeHatch)", "var(--accent)", "var(--accent)"][tier(i)];
   const dots = items.filter(i => EDGE_POS[i.area] && i.sog > 0).map(i => { const [x, y, nm] = EDGE_POS[i.area], r = 8 + 19 * Math.sqrt(i.sog / mx), p = pc(i);
-    return `<g><title>${esc(nm)}: ${i.sog} shots on goal, ${i.goals} goal${i.goals === 1 ? "" : "s"}${i.shootingPctg != null ? `, ${(i.shootingPctg * 100).toFixed(1)}% shooting` : ""}${p != null ? ` · ${Math.round(p)}th percentile for this measure` : ""}</title><circle cx="${x}" cy="${y}" r="${(r + 4).toFixed(1)}" fill="none" stroke="${ring(i)}" stroke-width="4"/><circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${fill(i)}" stroke="#1f4e79" stroke-width="1.5"/><text x="${x}" y="${y + 4}" font-size="12" font-weight="700" text-anchor="middle" fill="${tier(i) ? "#fff" : "#1f4e79"}">${val(i)}</text></g>`; }).join("");
+    return `<g><title>${esc(nm)}: ${i.sog} shots on goal, ${i.goals} goal${i.goals === 1 ? "" : "s"}${i.shootingPctg != null ? `, ${(i.shootingPctg * 100).toFixed(1)}% shooting` : ""}${p != null ? ` · ${Math.round(p)}th percentile for this measure` : ""}</title><circle cx="${x}" cy="${y}" r="${(r + 4).toFixed(1)}" fill="none" stroke="${ring(i)}" stroke-width="4"/><circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${fill(i)}" stroke="var(--accent)" stroke-width="1.5"/><text x="${x}" y="${y + 4}" font-size="12" font-weight="700" text-anchor="middle" fill="${tier(i) ? "#fff" : "var(--accent)"}">${val(i)}</text></g>`; }).join("");
   return `<svg viewBox="0 0 400 335" width="100%" style="max-width:460px" role="img" aria-label="Shots on goal by area"><defs><pattern id="edgeHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#f1f5fa"/><line x1="0" y1="0" x2="0" y2="6" stroke="#9fb6d0" stroke-width="2"/></pattern></defs>
-    <rect x="2" y="2" width="396" height="331" rx="30" fill="none" stroke="var(--line, #bbb)"/><line x1="2" y1="30" x2="398" y2="30" stroke="#c0392b" stroke-width="1.5" opacity=".6"/><rect x="178" y="30" width="44" height="22" fill="none" stroke="#c0392b" opacity=".6"/>
-    <circle cx="112" cy="118" r="42" fill="none" stroke="#2f6fd0" opacity=".25"/><circle cx="288" cy="118" r="42" fill="none" stroke="#2f6fd0" opacity=".25"/><line x1="2" y1="262" x2="398" y2="262" stroke="#2f6fd0" stroke-width="2" opacity=".35"/>${dots}</svg>
+    <rect x="2" y="2" width="396" height="331" rx="30" fill="none" stroke="var(--line, #bbb)"/><line x1="2" y1="30" x2="398" y2="30" stroke="var(--bad)" stroke-width="1.5" opacity=".6"/><rect x="178" y="30" width="44" height="22" fill="none" stroke="var(--bad)" opacity=".6"/>
+    <circle cx="112" cy="118" r="42" fill="none" stroke="var(--accent)" opacity=".25"/><circle cx="288" cy="118" r="42" fill="none" stroke="var(--accent)" opacity=".25"/><line x1="2" y1="262" x2="398" y2="262" stroke="var(--accent)" stroke-width="2" opacity=".35"/>${dots}</svg>
   <div class="row hint" style="gap:12px;align-items:center;margin-top:4px"><span>Colour = how this compares with other ${items.some(i => i.sogPercentile != null) ? "players" : "teams"} at that spot, for the measure chosen above (same as NHL EDGE):</span>
-    <span><svg width="14" height="14"><rect width="14" height="14" fill="url(#edgeHatch)" stroke="#1f4e79"/></svg> 50th or lower</span><span><svg width="14" height="14"><rect width="14" height="14" fill="#4a9be0" stroke="#1f4e79"/></svg> 51–80th</span><span><svg width="14" height="14"><rect width="14" height="14" fill="#1f4e79"/></svg> 81st or higher</span></div>
-  <div class="row hint" style="gap:12px;align-items:center;margin-top:2px"><span>Outer ring = did the shots score?</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#2f9e5b" stroke-width="3"/></svg> goes in often (15%+)</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#d4b43a" stroke-width="3"/></svg> 8–15%</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#c0392b" stroke-width="3"/></svg> no goal, or under 8%</span></div>
+    <span><svg width="14" height="14"><rect width="14" height="14" fill="url(#edgeHatch)" stroke="var(--accent)"/></svg> 50th or lower</span><span><svg width="14" height="14"><rect width="14" height="14" fill="var(--accent)" stroke="var(--accent)"/></svg> 51–80th</span><span><svg width="14" height="14"><rect width="14" height="14" fill="var(--accent)"/></svg> 81st or higher</span></div>
+  <div class="row hint" style="gap:12px;align-items:center;margin-top:2px"><span>Outer ring = did the shots score?</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--good)" stroke-width="3"/></svg> goes in often (15%+)</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--warn)" stroke-width="3"/></svg> 8–15%</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--bad)" stroke-width="3"/></svg> no goal, or under 8%</span></div>
   <div class="hint">Circle size is always the number of shots on goal; the number inside is the measure you picked. Spots with no shots are left blank. This is a drawing of NHL’s numbers, not NHL’s own picture: the circle positions are approximate. The net is at the top.</div>`;
 }
 const EDGE_GROUPS = [["Close to the net", "the crease, the slot right in front, beside the net", ["Crease", "Low Slot", "L Net Side", "R Net Side"]],
@@ -832,8 +834,8 @@ const EDGE_GROUPS = [["Close to the net", "the crease, the slot right in front, 
   ["Far away", "the points, along the boards, beyond the blue line", ["L Point", "R Point", "Center Point", "Outside L", "Outside R", "Offensive Neutral Zone", "Beyond Red Line"]]];
 function edgeVerdict(r, who){      // 大白话评价: 球队按联盟排名(32 队), 球员按百分位
   const lab = (t, c) => `<b style="color:${c}">${t}</b>`;
-  if(who === "team" && r.offensiveZoneRank){ const k = r.offensiveZoneRank; return k <= 10 ? lab("better than most teams", "#2f9e5b") : k <= 22 ? lab("about average", "#b08a00") : lab("worse than most teams", "#c0392b"); }
-  if(r.offensiveZonePercentile != null){ const p = r.offensiveZonePercentile; return p >= .67 ? lab("better than most players", "#2f9e5b") : p >= .34 ? lab("about average", "#b08a00") : lab("worse than most players", "#c0392b"); }
+  if(who === "team" && r.offensiveZoneRank){ const k = r.offensiveZoneRank; return k <= 10 ? lab("better than most teams", "var(--good)") : k <= 22 ? lab("about average", "var(--warn)") : lab("worse than most teams", "var(--bad)"); }
+  if(r.offensiveZonePercentile != null){ const p = r.offensiveZonePercentile; return p >= .67 ? lab("better than most players", "var(--good)") : p >= .34 ? lab("about average", "var(--warn)") : lab("worse than most players", "var(--bad)"); }
   return "";
 }
 function edgePlain(zone, shots, who){
@@ -892,7 +894,7 @@ function renderGames(){
         <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
         ${stLine(g, "Regular season: ")}
         <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "No previous game to compare"; })()}</div>
-        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length && !SNAP ? ` · <b style="color:var(--goal)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
+        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length && !SNAP ? ` · <b style="color:var(--bad)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
   document.querySelectorAll("#gameList details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
   loadEdge(false);
@@ -903,7 +905,7 @@ function renderGames(){
 //   self   = Karlsson 自己 2025-26 常规赛 75 场(NHL 官方接口)——默认, 看这场比他去年的水平好还是差
 //   league = 联盟后卫 2025-26 常规赛 14,963 个单场(上冰不少于 12 分钟)——看这场放在联盟里算什么水平
 // 权重 w 是我按重要程度定的(没有做回归); 抢断减失误记分员人工判定、对进攻型后卫噪声大, 所以权重只给 0.2; 平均/标准差/分位数是从数据算出来的, 换赛季时可以重新取数更新。
-const PERF = {tier: ["Very poor", "Poor", "Average", "Good", "Excellent"], color: ["#c0392b", "#e08a3c", "#d4b43a", "#7fb85a", "#2f9e5b"], cap: 3,
+const PERF = {tier: ["Very poor", "Poor", "Average", "Good", "Excellent"], color: ["var(--t0)", "var(--t1)", "var(--t2)", "var(--t3)", "var(--t4)"], cap: 3,
   bands: [10, 30, 70, 90],                      // 百分位分界: 0-10 很差 · 10-30 偏差 · 30-70 一般 · 70-90 不错 · 90-100 很好
   w: {pts: 1.0, gd: 0.6, sog: 0.5, blk: 0.35, net: 0.2, toi: 0.5},
   base: {
@@ -944,10 +946,10 @@ function perfScore(g, which = perfBase){
 const pct1 = x => x == null ? "–" : (x * 100).toFixed(1) + "%";
 function advHTML(g){
   const a = g.adv; if(!a) return "";
-  const pdo = a.pdo, tag = pdo >= 1.03 ? "ran hot" : pdo <= 0.97 ? "ran cold" : "about even", col = pdo >= 1.03 ? "var(--goal, #2f9e5b)" : pdo <= 0.97 ? "#c0392b" : "var(--muted)";
+  const pdo = a.pdo, tag = pdo >= 1.03 ? "ran hot" : pdo <= 0.97 ? "ran cold" : "about even", col = pdo >= 1.03 ? "var(--goal, var(--good))" : pdo <= 0.97 ? "var(--bad)" : "var(--muted)";
   return `<div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between;align-items:baseline;flex-wrap:wrap"><b>Luck check · 5v5 with him on the ice</b>
     <span><b style="font-size:20px;color:${col}">PDO ${pdo.toFixed(3)}</b> <span class="hint">${tag}</span></span></div>
-    <div class="row" style="gap:18px;margin-top:6px;flex-wrap:wrap">${a.team_pdo != null ? `<span class="hint">Whole-team PDO <b>${a.team_pdo.toFixed(3)}</b></span>` : ""}<span class="hint">Team shooting % <b>${pct1(a.sh)}</b></span><span class="hint">Goalie save % behind him <b>${pct1(a.sv)}</b></span><span class="hint">Shot-attempt share (Corsi): him <b>${pct1(a.cf)}</b>${a.team_cf != null ? ` · whole team <b>${pct1(a.team_cf)}</b> · <b style="color:${a.cf >= a.team_cf ? "var(--goal, #2f9e5b)" : "#c0392b"}">${a.cf >= a.team_cf ? "+" : "−"}${Math.abs((a.cf - a.team_cf) * 100).toFixed(1)} pts</b>` : ""}</span><span class="hint">Offensive-zone starts <b>${pct1(a.zs)}</b></span></div>
+    <div class="row" style="gap:18px;margin-top:6px;flex-wrap:wrap">${a.team_pdo != null ? `<span class="hint">Whole-team PDO <b>${a.team_pdo.toFixed(3)}</b></span>` : ""}<span class="hint">Team shooting % <b>${pct1(a.sh)}</b></span><span class="hint">Goalie save % behind him <b>${pct1(a.sv)}</b></span><span class="hint">Shot-attempt share (Corsi): him <b>${pct1(a.cf)}</b>${a.team_cf != null ? ` · whole team <b>${pct1(a.team_cf)}</b> · <b style="color:${a.cf >= a.team_cf ? "var(--goal, var(--good))" : "var(--bad)"}">${a.cf >= a.team_cf ? "+" : "−"}${Math.abs((a.cf - a.team_cf) * 100).toFixed(1)} pts</b>` : ""}</span><span class="hint">Offensive-zone starts <b>${pct1(a.zs)}</b></span></div>
     <div class="hint" style="margin-top:6px">PDO = team shooting % + goalie save % while he is on the ice at 5v5 (from the official NHL stats). 1.000 is neutral; far above it usually means a lucky game, far below an unlucky one. One game is only a handful of shots, so it swings a lot — read the trend, not one number.</div></div>`;
 }
 // "压制度": 他在冰上时的 Corsi(5v5 射门尝试占比) 减去球队全场的 Corsi, 单位是百分点。档位按他自己 2025-26 常规赛 75 场的这个差值分布定(同表盘的 10/30/70/90 百分位)
@@ -977,7 +979,7 @@ function perfGauge(g){
       <svg viewBox="0 0 220 128" width="220" role="img" aria-label="Performance gauge: ${PERF.tier[r.tier]}, better than ${better} percent of ${r.base.short}">${arcs}
         <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="var(--ink)"/>
         <text x="${pt(180, R + 4)[0] - 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="start">worst</text><text x="${pt(0, R + 4)[0] + 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="end">best</text></svg>
-      <div style="font-size:22px;font-weight:700;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Better than ${better}% of ${r.base.short}</div>
+      <div style="font-size:20px;font-weight:600;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Better than ${better}% of ${r.base.short}</div>
       <div class="row" style="justify-content:center;margin:6px 0 0;gap:6px"><button class="chip ${perfBase === "self" ? "on" : ""}" data-pb="self" title="Compare with Karlsson's own 2025-26 regular season (75 games)">vs his 2025-26</button><button class="chip ${perfBase === "league" ? "on" : ""}" data-pb="league" title="Compare with all NHL defenseman games in 2025-26">vs NHL defensemen</button></div></div>
     <div style="flex:1;min-width:260px"><div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row is how far above or below ${esc(r.base.label)} (weighted); hover a row for the average</div>${bars}
       <div class="hint" style="margin-top:6px">Compared with ${esc(r.base.short)} (${r.base.games.toLocaleString("en-US")} games, NHL 2025-26 regular season). The weights are my own judgment, and one game is a small sample — this is not an official rating. Tiers: bottom 10% / 10–30% / middle 40% / 70–90% / top 10%.</div></div></div>`;
@@ -1059,7 +1061,7 @@ function renderGameDetail(){
         <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? (SNAP ? "" : `<span class="hint">Not downloaded</span>`) : (x.ek === true && x.clip && !SNAP ? `<button class="btn" data-dl="${esc(x.clip)}" style="padding:2px 8px;font-size:12px">⬇ Download</button>` : ""))}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
       const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
       return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}, which the NHL does not count toward +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
-    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), missMain.length && !SNAP ? `<div class="box"><b style="color:var(--goal)">${missMain.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${missMain.filter(e => e.clip).length}</button></div>` : "")}
+    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), missMain.length && !SNAP ? `<div class="box"><b style="color:var(--bad)">${missMain.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${missMain.filter(e => e.clip).length}</button></div>` : "")}
     ${sec("PIT goals with EK on ice (no point)", clipsBy(c => c.type === "在场进球"), onIceMiss("在场进球"))}
     ${sec("Goals against (EK on ice)", clipsBy(c => c.type === "失球"), onIceMiss("失球"))}
     ${sec("Pre-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
@@ -1141,14 +1143,14 @@ async function renderNhlcom(){
   const fmtDur = s => s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   const row = x => `<div class="box" style="display:flex;gap:10px;align-items:center;padding:8px 12px;margin:6px 0">
     ${x.thumb ? `<img src="${esc(x.thumb)}" width="120" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
-    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b> ${x.lang === "sv" ? `<span class="badge" style="background:#2f6fd0" title="Only on the Swedish NHL site; often spoken in Swedish">SV</span>` : ""}</div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
+    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b> ${x.lang === "sv" ? `<span class="badge" style="background:var(--accent)" title="Only on the Swedish NHL site; often spoken in Swedish">SV</span>` : ""}</div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
       <div class="hint"><a href="https://www.nhl.com/${x.lang === "sv" ? "sv/" : ""}video/${esc(x.slug)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on NHL.com${x.lang === "sv" ? " (Swedish site)" : ""}</a></div></div>
     <div style="flex:none">${x.in_archive ? `<span class="badge" style="background:var(--other)">In archive</span>` : `<label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-nc="${esc(x.id)}"${nhlcomSel.has(x.id) ? " checked" : ""}> Select</label>`}</div></div>`;
   const todo = shown.filter(x => !x.in_archive);
   const acur = (nhlArt.items || []).reduce((m, x) => x.season > m ? x.season : m, ""), aall = (nhlArt.items || []).filter(x => (nhlcomSv || x.lang !== "sv") && (acur ? x.season === acur || (!x.season && x.date >= (d.cutoff || "")) : x.date >= (d.cutoff || "")));
   const apend = aall.filter(x => x.status === "待确认"), akeep = aall.filter(x => x.status === "保留"), askip = aall.filter(x => x.status === "排除");
   const art = x => `<div class="box" style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;margin:6px 0">${x.thumb ? `<img src="${esc(x.thumb)}" width="96" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
-    <div style="flex:1;min-width:0"><div><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">${esc(x.title)}</a> ${x.lang === "sv" ? `<span class="badge" style="background:#2f6fd0">SV</span>` : ""}</div>
+    <div style="flex:1;min-width:0"><div><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">${esc(x.title)}</a> ${x.lang === "sv" ? `<span class="badge" style="background:var(--accent)">SV</span>` : ""}</div>
       <div class="hint">${esc(x.date)}${x.summary ? " · " + esc(x.summary.slice(0, 200)) : ""}</div></div>
     <div style="flex:none" class="row">${x.status === "待确认" ? `<button class="btn" data-ak="${esc(x.id)}">Keep</button><button class="btn" data-ax="${esc(x.id)}">Not relevant</button>` : `<button class="btn" data-ab="${esc(x.id)}">Move back</button>`}</div></div>`;
   const artHtml = `<div class="gsec" style="font-size:15px;margin-top:18px">Articles on NHL.com ${nhlArt.checked ? `<span class="hint">· ${aall.length} this season${acur ? ` (${esc(acur)})` : ""}, ${apend.length} waiting</span>` : ""}</div>
@@ -1682,8 +1684,8 @@ async function poll(){
   { const ps = $("pubStatus"), pj = js.filter(j => j.url === "Publish").pop();      // 发布状态单独常驻显示, 做完也不消失
     if(ps){ if(!pj) ps.style.display = "none"; else { ps.style.display = "";
       if(!pj.done){ const pc = Math.round((pj.progress || 0) * 100); ps.innerHTML = `<b>Publishing…</b> ${esc(pj.stage.replace("Publishing: ", ""))}<div style="height:6px;background:var(--line,#ddd);border-radius:3px;margin-top:4px;max-width:360px"><div style="height:6px;width:${Math.max(pc, 5)}%;background:var(--accent);border-radius:3px;transition:width .4s"></div></div>`; }
-      else if(pj.error) ps.innerHTML = `<b style="color:#c0392b">Publish failed (${esc(pj.at || "")}).</b> ${esc(pj.error)}`;
-      else ps.innerHTML = `<b style="color:#2e8b57">✓ Published at ${esc(pj.at || "")}.</b> The public site shows the update in a few minutes.`; } } }
+      else if(pj.error) ps.innerHTML = `<b style="color:var(--bad)">Publish failed (${esc(pj.at || "")}).</b> ${esc(pj.error)}`;
+      else ps.innerHTML = `<b style="color:var(--assist)">✓ Published at ${esc(pj.at || "")}.</b> The public site shows the update in a few minutes.`; } } }
   const tb = $("taskBar");
   if(tb){ if(run.length){ tb.style.display = ""; tb.innerHTML = `<b>${run.length} task${run.length > 1 ? "s" : ""} running</b> — ${esc((run[0].url || "").slice(0, 60))}: ${esc(run[0].stage)}${bad.length ? ` · ${bad.length} failed (see the Add page)` : ""}`; } else tb.style.display = "none"; }
   const fresh = js.filter(j => j.done && !seenJobs.has(j.id));
