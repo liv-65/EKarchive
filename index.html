@@ -52,8 +52,8 @@ td.n,th.n{text-align:right}
 .cbody{padding:8px 10px}
 .cbody .t{font-size:14px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meta{font-size:12px;color:var(--muted);margin-top:3px}
-.badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#fff;margin-right:4px}
-.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.训练{background:var(--train)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)} .badge.在场进球{background:var(--event)} .badge.失球{background:var(--bad)} .badge.失误{background:var(--warn)}
+.badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#1b1b1b;font-weight:600;margin-right:4px}
+.badge.进球{background:#f08a52} .badge.助攻{background:#6cb2e0} .badge.采访{background:#b69bdf} .badge.训练{background:#56ccd6} .badge.活动{background:#6fcf97} .badge.其他{background:#9aa0a6} .badge.在场进球{background:#6fcf97} .badge.失球{background:#e07a6e} .badge.失误{background:#e8b350}
 .tl{position:relative;margin:18px 0 0 6px;border-left:2px solid var(--line)}
 .tli{position:relative;padding:0 0 30px 24px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
 .tli::before{content:"";position:absolute;left:-7px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--bg)}
@@ -783,13 +783,14 @@ const FLOOR = 39.3;   // 固定下限: Karlsson 2025-26 表现最差的一个月
 function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 实线 = 对比他自己去年, 虚线 = 对比联盟后卫
   const gs = list.filter(g => g.player).slice().sort((a, b) => a.date < b.date ? -1 : 1);
   if(gs.length < 2) return "";
-  const W = 660, H = 200, L = 34, R = 34, T = 12, B = 30, x = i => L + (gs.length === 1 ? 0 : i * (W - L - R) / (gs.length - 1)), y = p => T + (100 - p) / 100 * (H - T - B);
+  const W = 660, H = 214, L = 34, R = 34, T = 12, B = 44, x = i => L + (gs.length === 1 ? 0 : i * (W - L - R) / (gs.length - 1)), y = p => T + (100 - p) / 100 * (H - T - B);
   const bands = [0, ...PERF.bands, 100].slice(0, 5).map((lo, i) => `<rect x="${L}" y="${y([...PERF.bands, 100][i]).toFixed(1)}" width="${W - L - R}" height="${(y(lo) - y([...PERF.bands, 100][i])).toFixed(1)}" fill="${PERF.color[i]}" opacity=".13"/>`).join("");
   const grid = [0, ...PERF.bands, 100].map(p => `<text x="${L - 4}" y="${(y(p) + 3).toFixed(1)}" font-size="9" text-anchor="end" fill="var(--muted)">${p}</text>`).join("");
   const line = (which, dash) => { const pts = gs.map((g, i) => [x(i), y(perfScore(g, which).pct), g]);
     return `<polyline fill="none" stroke="var(--ink)" stroke-width="2" ${dash ? 'stroke-dasharray="5 4" opacity=".55"' : ""} points="${pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
       pts.map(([px, py, g]) => { const r = perfScore(g, which); return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dash ? 3 : 4.5}" fill="${dash ? "var(--bg, #fff)" : PERF.color[r.tier]}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: ${PERF.tier[r.tier]} (better than ${Math.round(r.pct)}% of ${r.base.short})</title></circle>`; }).join(""); };
-  const labels = gs.map((g, i) => `<text x="${x(i).toFixed(1)}" y="${H - 14}" font-size="9" text-anchor="middle" fill="var(--muted)">${esc(g.date.slice(5))}</text><text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="var(--muted)">${g.home ? "" : "@"}${esc(g.opp)}</text>`).join("");
+  const labels = gs.map((g, i) => { const tx = (dy, t, c = "var(--muted)", w = 400) => `<text x="${x(i).toFixed(1)}" y="${H - dy}" font-size="9" text-anchor="middle" fill="${c}" font-weight="${w}">${t}</text>`, sc = g.our_score != null && g.opp_score != null;
+    return tx(28, esc(g.date.slice(5))) + tx(18, `${g.home ? "" : "@"}${esc(g.opp)}`) + (sc ? tx(7, `${g.our_score}–${g.opp_score}`, g.our_score > g.opp_score ? "var(--good)" : "var(--bad)", 600) : ""); }).join("");
   const pdoPts = gs.map((g, i) => g.adv ? [x(i), y(Math.max(0, Math.min(100, (g.adv.pdo - PDO_LO) / (PDO_HI - PDO_LO) * 100))), g] : null).filter(Boolean);
   const pdoLayer = () => !pdoPts.length ? "" : `<line x1="${L}" x2="${W - R}" y1="${y(50).toFixed(1)}" y2="${y(50).toFixed(1)}" stroke="#9b8bb4" stroke-width="1" stroke-dasharray="1 4" opacity=".45"/>` +
     [0.7, 0.85, 1.0, 1.15, 1.3].map(v => `<text x="${W - R + 3}" y="${(y((v - PDO_LO) / (PDO_HI - PDO_LO) * 100) + 3).toFixed(1)}" font-size="9" fill="#9b8bb4">${v.toFixed(2)}</text>`).join("") +
