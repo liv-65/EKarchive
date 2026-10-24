@@ -162,28 +162,28 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
 <div class="wrap">
   <header>
     <h1 id="title">Clip Archive</h1>
-    <div class="sub"><span id="subline"><a href="clips.csv" download style="color:var(--accent)" id="exportCsv">Export clips.csv</a> · All data stays on this computer</span></div>
+    <div class="sub"><span id="subline"><a href="clips.csv" download style="color:var(--accent)" id="exportCsv">Export clips.csv</a> · All data is on this computer</span></div>
   </header>
   <div id="autoBar" class="hint" style="display:none;margin:6px 0;gap:14px;flex-wrap:wrap;align-items:center"></div>
 
   <div id="viewAdd" style="display:none"><div class="box" id="addBox">
-    <b>Add clips / photos</b> <span class="hint">Paste YouTube or X (Twitter) links, one per line. X posts with photos go to the Photos tab automatically.</span>
-    <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;To take only part of a video, add start-end times after the link, e.g.  https://youtu.be/xxxx 12:30-13:05&#10;For several parts of one video, use one line per part"></textarea>
+    <b>Add clips / photos</b> <span class="hint">Paste YouTube or X (Twitter) links. Put one link on each line. The app moves X posts with photos to the Photos tab.</span>
+    <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;To download only a part of a video, write the start and end times after the link. Example: https://youtu.be/xxxx 12:30-13:05&#10;For more parts of one video, write one line for each part"></textarea>
     <div class="row" style="margin-top:8px">
       <select id="addType"><option value="">Type: auto-detect</option></select>
       <label class="hint">Game date <input type="date" id="addDate"></label>
       <input id="addOpp" placeholder="Opponent (optional)" style="width:130px">
       <button class="btn primary" id="add">Add &amp; download</button>
     </div>
-    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Take only one part of the video (for a single link)</summary>
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Download only one part of the video (one link only)</summary>
       <div class="row" style="margin-top:6px">
-        <input id="addStart" placeholder="Start, e.g. 12:30" style="width:120px">
+        <input id="addStart" placeholder="Start (example: 12:30)" style="width:120px">
         <span class="hint">to</span>
-        <input id="addEnd" placeholder="End, e.g. 13:05" style="width:120px">
+        <input id="addEnd" placeholder="End (example: 13:05)" style="width:120px">
         <input id="addTitle" placeholder="Title for this part (optional)" style="flex:1;min-width:180px">
       </div>
     </details>
-    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">I already have the video file — add it to the archive</summary>
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Add a video file from this computer to the archive</summary>
       <div class="row" style="margin-top:6px;gap:8px;flex-wrap:wrap;align-items:center">
         <input type="file" id="fFile" accept="video/*">
         <select id="fType"></select>
@@ -193,14 +193,14 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
         <input id="fSrc" placeholder="Source link (optional)" style="flex:1;min-width:160px">
         <button class="btn primary" id="fAdd">Add file</button>
       </div>
-      <div class="hint" id="fMsg" style="margin-top:4px">The file is copied into the library and filed under the game on that date; other types and covers work the same as downloaded clips.</div>
+      <div class="hint" id="fMsg" style="margin-top:4px">The app copies the file into the library and puts it with the game on that date. Types and covers work the same as for downloaded clips.</div>
     </details>
     <div id="jobs"></div>
   </div></div>
 
   <div id="pubStatus" class="hint" style="display:none;margin-bottom:8px"></div>
   <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
-  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="history">History</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button><button class="chip" id="publishBtn" title="Rebuild the public read-only site and push it live">Publish</button></div>
+  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="history">History</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button><button class="chip" id="publishBtn" title="Build the public read-only site again and put it on the internet">Publish</button></div>
   <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button><button class="chip" data-sv="x">X</button></div>
   <div id="rangeBar">
   <div class="row" id="ranges"></div>
@@ -216,7 +216,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
   <div id="viewLearn" style="display:none"></div>
   <div id="viewClips">
   <div class="tiles" id="tiles"></div>
-  <div class="hint" style="margin:-4px 0 8px">Goals, assists and points are the official NHL numbers for the games in this date range; interviews and clips count what you have saved.</div>
+  <div class="hint" style="margin:-4px 0 8px">Goals, assists and points are the official NHL numbers for the games in this date range. Interviews and clips show the number that you saved.</div>
 
   <details class="dsec" id="officialDet"><summary>Official data &amp; weekly summary <span class="hint" id="nhlBadge"></span></summary>
   <div class="box" id="nhlBox">
@@ -229,7 +229,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
   </div>
 
   <div class="box" id="weeksBox" style="display:none">
-    <b>Weekly summary</b> <span class="hint">Click a row to see only that week. Goals, assists and points are official; interviews and clips count what you have saved.</span>
+    <b>Weekly summary</b> <span class="hint">Click a row to show only that week. Goals, assists and points are official. Interviews and clips show the number that you saved.</span>
     <div style="overflow:auto;margin-top:6px"><table id="weeks"></table></div>
   </div>
   </details>
@@ -240,7 +240,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
     <select id="opp"><option value="">All opponents</option></select>
     <select id="sort"><option value="new">Date: newest first</option><option value="old">Date: oldest first</option></select>
   </div>
-  <div class="row" style="margin-bottom:8px;justify-content:space-between"><span class="hint" id="count"></span><button class="btn" id="mkAll" title="Generate a cover image (video frame + title + game info) for every clip that has none">Make covers</button></div>
+  <div class="row" style="margin-bottom:8px;justify-content:space-between"><span class="hint" id="count"></span><button class="btn" id="mkAll" title="Make a cover image (video frame, title and game data) for each clip that does not have a cover">Make covers</button></div>
   <div class="grid" id="grid"></div>
   </div>
 
@@ -281,8 +281,8 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
   <div id="viewPhotos" style="display:none">
     <div class="box" id="phUpload" style="border-style:dashed">
       <div class="row" style="justify-content:space-between">
-        <span><b>Upload photos</b> <span class="hint">Photos you saved yourself (Instagram stories, X, your phone). They go straight to “Selected”, filed by date. Drag files here or click the button.</span></span>
-        <span class="row"><label class="hint">Date <input type="date" id="upDate" title="Leave empty to use the date stored in the photo, then the file date"></label>
+        <span><b>Upload photos</b> <span class="hint">Photos that you saved (Instagram stories, X, your phone). The app puts them directly in “Selected” by date. Drag the files here or click the button.</span></span>
+        <span class="row"><label class="hint">Date <input type="date" id="upDate" title="If you do not write a date, the app uses the date in the photo. If the photo has no date, the app uses the file date."></label>
           <input id="upNote" placeholder="Note / source (optional)" style="width:190px"><button class="btn primary" id="upBtn">Upload photos…</button></span>
       </div>
       <input type="file" id="upFile" accept="image/*" multiple style="display:none">
@@ -312,7 +312,7 @@ const INBOX = ["youtube", "tiktok", "photos", "news", "nhlcom", "x"];
 const savedView = (() => { try { return localStorage.getItem("ekView"); } catch(e){ return null; } })();
 let iceView = "all", lineBaseFor = {}, tiktok = {items: [], checked: ""}, youtube = {items: [], checked: ""}, ytStatus = "待确认", ytEditing = new Set(), ytClipOpen = new Set(), ttStatus = "选入", ttEditing = new Set(), photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = (["today", "games", "clips", "history", "youtube", "tiktok", "photos", "news", "nhlcom", "x", "learn", "add"].includes(savedView) && !(SNAP && (INBOX.includes(savedView) || savedView === "add" || savedView === "notes" || (savedView === "learn" && !(SNAP.guides && SNAP.guides.profile))))) ? savedView : "today", lastInbox = INBOX.includes(savedView) ? savedView : "youtube", pstatus = "待确认", START = "";
 // Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
-const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
+const TN = {"进球": "Goal", "助攻": "Assist", "在场进球": "On-ice goal", "失球": "Goal against", "采访": "Interview", "活动": "Event", "训练": "Training", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "加时胜": "OTW", "点球胜": "SOW", "负": "L", "加时负": "OTL", "点球负": "SOL"};
 let coverVer = Date.now(), lineView = "this", TEAM = "PIT";
 const cv = c => c.cover ? encodeURI(c.cover) + "?v=" + coverVer : (c.thumb ? encodeURI(c.thumb) : "");
 const pChip = (g, id) => { const r = dressedMap(g).get(id); return `<span class="pc">${r ? mug(g, r) : ""}<span>${esc(plabel(g, id))}</span></span>`; };   // 头像 + 号码 + 名字
@@ -393,7 +393,7 @@ function render(){
   const upd = Object.values(nhl.seasons || {}).map(s => s.updated).sort().slice(-1)[0];
   $("nhlUpd").textContent = upd ? "Last synced: " + upd.replace("T", " ").slice(0, 16) : "";
   if(!(nhl.events || []).length && !upd){
-    $("nhlSum").innerHTML = `<span class="hint">Not synced yet. Click “Sync official data” on the right to read every goal and assist in the selected season (who scored, who assisted, period and time) and find the official video clips.</span>`;
+    $("nhlSum").innerHTML = `<span class="hint">There is no official data yet. Click “Sync official data” on the right. The app reads each goal and assist in the selected season (scorer, assists, period and time). Then it finds the official video clips.</span>`;
     $("nhlMiss").innerHTML = "";
   } else {
     const og = ev.filter(e => e.type === "进球").length, oa = ev.filter(e => e.type === "助攻").length;
@@ -426,7 +426,7 @@ function render(){
   $("opp").innerHTML = `<option value="">All opponents</option>` + opps.map(o => `<option ${o===cur?"selected":""}>${esc(o)}</option>`).join("");
 
   const v = visible();
-  $("count").textContent = clips.length ? `${v.length} clips` : "No clips yet. Paste your first link above to start.";
+  $("count").textContent = clips.length ? `${v.length} clips` : "There are no clips. To start, paste your first link above.";
   $("grid").innerHTML = v.map(c => `<div class="clip" data-id="${esc(c.id)}">
     <div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${c.seg_start !== "" && c.seg_start != null ? "Cut " : ""}${dur(c.duration)}</span></div>
     <div class="cbody"><div class="t">${esc(c.title)}</div>
@@ -461,12 +461,12 @@ function copyFromPrev(g){
   const fix = (id, key) => {
     if(!id) return null;
     const r = cur.get(id);
-    if(!r){ blanks.push(`${slotLabel(key)}：${plabel(p, id)} — did not play this game`); return null; }
-    if(!grpOK(key, r)){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — listed as ${r.pos} this game, not in this position group`); return null; }
+    if(!r){ blanks.push(`${slotLabel(key)}：${plabel(p, id)} — did not play in this game`); return null; }
+    if(!grpOK(key, r)){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — position in this game is ${r.pos}. This position is not in this position group`); return null; }
     if(key[0] === "F" && centers){
       const slotIsC = key[2] === "1", isC = centers.has(id);
-      if(slotIsC && !isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — played center last game but took only ${r.fo} faceoffs this game, so probably not at center`); return null; }
-      if(!slotIsC && isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — played wing last game but took ${r.fo} faceoffs this game, so probably at center now`); return null; }
+      if(slotIsC && !isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — was center in the last game, but took only ${r.fo} faceoffs in this game. It is possible that the player is not at center now`); return null; }
+      if(!slotIsC && isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — was wing in the last game, but took ${r.fo} faceoffs in this game. It is possible that the player is at center now`); return null; }
     }
     kept++; return id; };
   const pad = (rows, n, m) => Array.from({length: n}, (_, i) => Array.from({length: m}, (_, j) => (rows || [])[i]?.[j] ?? null));
@@ -478,15 +478,15 @@ function copyFromPrev(g){
 function noticeHTML(){
   if(!lineNotice) return "";
   const n = lineNotice;
-  if(n.df) return `<div class="box" style="background:var(--bg);margin:0 0 10px">Filled in from the line combinations on Daily Faceoff${n.updated ? `, last updated ${esc(new Date(n.updated).toLocaleString("en-US", {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}))}` : ""} (matched to this game’s players by jersey number). Please check every slot before saving.
-    <div class="hint">Daily Faceoff only shows the <b>latest</b> lines it has, which are for the team’s next game. If this game is already over, they may not be the lines used in it. Left and right defense follow its LD / RD.${n.source ? ` Source: <a href="${esc(n.source)}" target="_blank" rel="noopener">${esc(n.source)}</a>` : ""}</div>
-    ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">Not matched to anyone who played this game (left blank): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
-  if(n.ocr) return `<div class="box" style="background:var(--bg);margin:0 0 10px">Filled in from the lineup image by reading its text on this computer (matched by jersey number). Please check it against the image before saving.
-    ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">Not matched to anyone who played this game (left blank): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
-  return `<div class="box" style="background:var(--bg);margin:0 0 10px">Copied the lineup groups from the previous game (${esc(n.p.date.slice(5))} vs ${esc(n.p.opp)}): kept <b>${n.kept}</b> slots, left <b>${n.blanks.length}</b> blank.
+  if(n.df) return `<div class="box" style="background:var(--bg);margin:0 0 10px">The lines come from Daily Faceoff${n.updated ? `, last update ${esc(new Date(n.updated).toLocaleString("en-US", {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}))}` : ""} (the app found the players of this game by jersey number). Before you save, examine each slot.
+    <div class="hint">Daily Faceoff shows only its <b>latest</b> lines. These lines are for the next game of the team. If this game is complete, the lines can be different from the lines in this game. Left and right defense use its LD / RD.${n.source ? ` Source: <a href="${esc(n.source)}" target="_blank" rel="noopener">${esc(n.source)}</a>` : ""}</div>
+    ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">No match to a player in this game (the slot is empty): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
+  if(n.ocr) return `<div class="box" style="background:var(--bg);margin:0 0 10px">The app read the text in the lineup image on this computer and found the players by jersey number. Before you save, compare each slot with the image.
+    ${n.unmatched.length ? `<div class="hint" style="color:var(--bad)">No match to a player in this game (the slot is empty): ${n.unmatched.map(esc).join(", ")}</div>` : ""}</div>`;
+  return `<div class="box" style="background:var(--bg);margin:0 0 10px">The app copied the lineup groups from the previous game (${esc(n.p.date.slice(5))} vs ${esc(n.p.opp)}). <b>${n.kept}</b> slots are the same. <b>${n.blanks.length}</b> slots are empty.
     ${n.blanks.length ? `<ul class="tight">${n.blanks.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
-    <div class="hint">Blank slots, and players new to this game, need to be filled in by you. “Is he a center” is judged by faceoff counts this game (the 4 forwards with the most faceoffs, at least 3); left and right wing cannot be told apart from the data, so last game’s sides are kept.</div>
-    ${n.noFo ? `<div class="hint" style="color:var(--bad)">No faceoff data for this game yet, so I could not tell whether anyone moved to center; I only checked who played. Click “Sync official data” to fill it in.</div>` : ""}</div>`;
+    <div class="hint">You must complete the empty slots and add the players who are new in this game. The app uses the faceoff counts in this game to find the centers (the 4 forwards with the most faceoffs, minimum 3). The data does not show left wing and right wing. Thus, the app keeps the sides from the last game.</div>
+    ${n.noFo ? `<div class="hint" style="color:var(--bad)">There is no faceoff data for this game. Thus, the app cannot find a player who moved to center. It examined only which players played. Click “Sync official data” to read the data.</div>` : ""}</div>`;
 }
 
 
@@ -505,12 +505,12 @@ function iceBuckets(g, ice, kind){
         return s ? `<td class="${s === best[k] ? "top" : ""}" title="${Math.round(sh * 100)}% of this period’s ice time" style="background:color-mix(in srgb,var(--accent) ${Math.round(Math.min(sh, .9) * 60)}%,transparent)">${mmss(s)}</td>` : `<td>–</td>`; }).join("")}</tr>`).join("") + `</table>`; };
   return `<div class="hint" style="margin-top:8px">Defense partners</div>${mk("d", 5)}
     <div class="hint" style="margin-top:10px">Forwards on ice together</div>${mk("f", 12)}
-    <div class="hint" style="margin-top:4px">Each column is a period; the small time under the heading is how long he was on the ice in it. Darker cell = bigger share of that column; the bold value is the most in that column.</div>`;
+    <div class="hint" style="margin-top:4px">Each column is a period. The small time below the heading is his ice time in that period. A darker cell shows a larger part of that column. The bold value is the highest value in that column.</div>`;
 }
 function iceHTML(g){
   const who = g.player ? g.player.name : "Player", ice = g.ice, title = `<div class="gsec">Who ${esc(who)} played with</div>`;
-  if(ice === undefined) return title + `<div class="box hint">No on-ice combination data for this game yet. Click “Sync official data” to read it (uses the official shift records; the game must be over).</div>`;
-  if(ice === null || !g.player) return title + `<div class="box hint">Did not play this game.</div>`;
+  if(ice === undefined) return title + `<div class="box hint">There is no on-ice combination data for this game. Click “Sync official data” to read the data. The app uses the official shift records, thus the game must be complete.</div>`;
+  if(ice === null || !g.player) return title + `<div class="box hint">Did not play in this game.</div>`;
   const T = ice.total || 1, pct = s => Math.round(s / T * 100) + "%", nm = id => pChip(g, id), pos = id => (dressedMap(g).get(id) || {}).pos || "";
   const look = a => new Map(a || []);
   const dAll = ice.d.all.slice(0, 5), d5 = look(ice.d["5v5"]), dPk = look(ice.d.pk), dPp = look(ice.d.pp);
@@ -526,16 +526,16 @@ function iceHTML(g){
     ${ice.by_period ? `<div class="row" style="margin:8px 0 2px">${[["all", "All game"], ["period", "By period"]].map(([k, n]) => `<button class="chip ${iceView === k ? "on" : ""}" data-iv="${k}">${n}</button>`).join("")}</div>` : ""}
     ${iceView === "period" && ice.by_period ? iceBuckets(g, ice, "period") : `
     <div class="hint" style="margin-top:8px">Defense partners</div>
-    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for while on the ice together (all goals, incl. power play)">GF</th><th title="Goals against while on the ice together">GA</th></tr>${dAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(d5, id, topOf(d5, dAll))}${cellT(dPp, id, topOf(dPp, dAll))}${cellT(dPk, id, topOf(dPk, dAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
+    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for when they were on the ice together (all goals, power play included)">GF</th><th title="Goals against when they were on the ice together">GA</th></tr>${dAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(d5, id, topOf(d5, dAll))}${cellT(dPp, id, topOf(dPp, dAll))}${cellT(dPk, id, topOf(dPk, dAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
     <div class="hint" style="margin-top:10px">Forwards on ice together</div>
-    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for while on the ice together (all goals, incl. power play)">GF</th><th title="Goals against while on the ice together">GA</th></tr>${fAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(f5, id, topOf(f5, fAll))}${cellT(fPp, id, topOf(fPp, fAll))}${cellT(fPk, id, topOf(fPk, fAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
-    <div class="hint" style="margin-top:10px">Most common forward trios on ice with him at 5v5</div>
+    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for when they were on the ice together (all goals, power play included)">GF</th><th title="Goals against when they were on the ice together">GA</th></tr>${fAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(f5, id, topOf(f5, fAll))}${cellT(fPp, id, topOf(fPp, fAll))}${cellT(fPk, id, topOf(fPk, fAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">Most frequent forward trios on the ice with him at 5v5</div>
     <table class="gt l tri"><tr><th>Time</th><th>Line</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s], ti) => { const c = centerOf(ids);
       const F = (lineData[String(g.id)] || {}).F || [], hit = F.map((row, k) => [k, row.filter(x => ids.includes(x)).length]).sort((x, y) => y[1] - x[1])[0], ln = hit && hit[1] >= 2 ? `Line ${hit[0] + 1}${hit[1] < 3 ? "*" : ""}` : "–";
       return `<tr class="${rk(ti)}" style="${bar(s, T)}"><td>${mmss(s)}</td><td>${ln}</td><td>${ids.map(i => `<span style="display:inline-block;margin:2px 10px 2px 0">${pChip(g, i)}${i === c ? `<span class="tag2 me">C</span>` : ""}</span>`).join("")}</td></tr>`; }).join("") || `<tr><td colspan="3" class="hint">No data</td></tr>`}</table>
-    <div class="hint" style="margin-top:4px">GF / GA = goals for / against while he and this player were on the ice together (all goals, power play included; one game is a tiny sample). Darkest row = most time together; the bar in the time cell is relative to the top row, and the best value in each column is colored. Line = from the lineup groups you entered (– if not entered or no match; * = only 2 of the 3 players are in that line).</div>
+    <div class="hint" style="margin-top:4px">GF / GA = goals for / against when he and this player were on the ice together (all goals, power play included). One game is a very small sample. The darkest row shows the most time together. The bar in the time cell is relative to the top row. The best value in each column has a color. Line = the line from the lineup groups that you entered (– if you did not enter them or there is no match; * = only 2 of the 3 players are in that line).</div>
     `}
-    <div class="hint" style="margin-top:8px">Counted second by second from the official shift records: who was on the ice with him (goalies excluded). 5v5, PP and SH are decided by the number of skaters on each side, which can be off when a goalie is pulled. Line-change overlaps (seconds with more than 5 skaters on one side) are removed, and stretches under 5 seconds together are ignored. Time when he is off the ice is not counted; the sample is this one game, so pairings change from game to game.</div></div>`;
+    <div class="hint" style="margin-top:8px">The app counts each second in the official shift records. The table shows who was on the ice with him (goalies not included). The number of skaters on each side sets 5v5, PP and SH. This can be incorrect when a team pulls its goalie. The app removes line-change overlaps (seconds with more than 5 skaters on one side). It also ignores time together of less than 5 seconds. The app does not count time when he is not on the ice. The sample is only this game, thus the pairings change from game to game.</div></div>`;
 }
 
 // ---------- 阵容分组(手动填写) ----------
@@ -592,12 +592,12 @@ function playerModeHTML(g, d){
           return `<option value="${key}" ${key === cur ? "selected" : ""}>${lab}${occ && key !== cur ? " (currently " + esc(plabel(g, occ)) + ", will swap)" : ""}</option>`; }).join("")}</select></td></tr>`; }).join(""); }).join("");
   const left = [...dressedMap(g).keys()].filter(id => !slotKeyOf(d, id)).length;
   return `<table class="gt l"><tr><th>Player (NHL roster)</th><th>Pos</th><th>TOI</th><th>This game</th><th>Line</th></tr>${rows}</table>
-    <div class="hint" style="margin-top:6px">${left ? `${left} player(s) still unassigned.` : "All players who dressed are assigned."} Choosing a slot that is already taken swaps the two players.</div>`;
+    <div class="hint" style="margin-top:6px">${left ? `${left} player(s) do not have a slot.` : "All players who dressed have a slot."} If you select a slot that has a player, the two players change places.</div>`;
 }
 
 function linesHTML(g){
   const gid = String(g.id), L = lineData[gid], editing = lineEdit === gid, pics = photos.filter(p => String(p.game_id) === gid && p.kind === "阵容" && p.status !== "排除");
-  const thumbs = pics.length ? `<div class="pthumbs" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${pics.map(p => `<div class="pth"><img src="${encodeURI(p.file)}" data-pid="${esc(p.id)}" alt=""></div>`).join("")}</div><div class="hint">Lineup images for this game are above; click to enlarge and fill in from them.</div>` : "";
+  const thumbs = pics.length ? `<div class="pthumbs" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${pics.map(p => `<div class="pth"><img src="${encodeURI(p.file)}" data-pid="${esc(p.id)}" alt=""></div>`).join("")}</div><div class="hint">The lineup images for this game are above. Click an image to make it larger. Use it to complete the lineup.</div>` : "";
   // 对照的那一场: 默认是上一场, 也可以在下拉框里换成别的任意一场(有阵容分组的)
   const prevG = prevOf(g), cand = games.filter(x => String(x.id) !== String(g.id) && lineData[String(x.id)]).sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
   const pick = cand.find(x => String(x.id) === String(lineBaseFor[String(g.id)]));
@@ -613,8 +613,8 @@ function linesHTML(g){
       <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${d.D.map((row, i) => `<tr><td>Pair ${i + 1}</td>${row.map((id, j) => `<td class="${chg(`D${i}${j}`, id) ? "chg" : ""}"><select data-slot="D.${i}.${j}">${opts(df, id)}</select>${chg(`D${i}${j}`, id) ? wasOf(`D${i}${j}`) : ""}</td>`).join("")}</tr>`).join("")}</table>
       <table class="gt l" style="margin-top:8px"><tr><th>Goalie</th><th>Starter</th><th>Backup</th></tr><tr><td></td>${d.G.map((id, j) => `<td class="${chg(`G${j}0`, id) ? "chg" : ""}"><select data-slot="G.${j}">${opts(gk, id)}</select>${chg(`G${j}0`, id) ? wasOf(`G${j}0`) : ""}</td>`).join("")}</tr></table>`;
     const prevHas = (() => { const p = prevOf(g); return p && lineData[String(p.id)]; })();
-    body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">By player (pick a line for each player)</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">By slot (pick a player for each slot)</button>
-      ${prevHas ? `<button class="btn" id="lCopy">Copy previous lineup</button>` : ""}<button class="btn" id="lGuess">Prefill from position and TOI (a guess)</button><button class="btn" id="lDF" title="Fills the lines from the latest line combinations on dailyfaceoff.com; you check them before saving">Fill from Daily Faceoff</button><button class="btn" id="lOcr">Read from a lineup image…</button><input type="file" id="lOcrFile" accept="image/*" style="display:none">${pics.map((p, i) => `<button class="btn" data-ocr="${esc(p.id)}">Read lineup image ${i + 1}</button>`).join("")}</div><div class="hint" style="margin-bottom:8px">The list comes from official NHL data (who actually played). Prefill is only a starting point; check it against the lineup image.</div>
+    body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">By player (select a line for each player)</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">By slot (select a player for each slot)</button>
+      ${prevHas ? `<button class="btn" id="lCopy">Copy previous lineup</button>` : ""}<button class="btn" id="lGuess">Prefill from position and TOI (an estimate)</button><button class="btn" id="lDF" title="Uses the latest line combinations on dailyfaceoff.com. Examine them before you save.">Fill from Daily Faceoff</button><button class="btn" id="lOcr">Read from a lineup image…</button><input type="file" id="lOcrFile" accept="image/*" style="display:none">${pics.map((p, i) => `<button class="btn" data-ocr="${esc(p.id)}">Read lineup image ${i + 1}</button>`).join("")}</div><div class="hint" style="margin-bottom:8px">The list comes from official NHL data (the players who played). Prefill is only a start. Compare it with the lineup image.</div>
       ${lineMode === "player" ? playerModeHTML(g, d) : slotUI}
       <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">Save</button><button class="btn" id="lCancel">Cancel</button><span class="hint" id="lMsg"></span></div>`;
   } else if(L){
@@ -636,17 +636,17 @@ function linesHTML(g){
     const tabs = PL ? `<div class="row" style="margin-bottom:8px">${[["this", `This game (${esc(g.date.slice(5))} ${g.home ? "vs" : "@"} ${esc(g.opp)})`], ["prev", `${isPrev ? "Previous" : "Other game"} (${esc(pg.date.slice(5))} ${pg.home ? "vs" : "@"} ${esc(pg.opp)})`], ["cmp", "Compare"]]
       .map(([k, n]) => `<button class="chip ${mode === k ? "on" : ""}" data-lv="${k}">${n}</button>`).join("")}
       ${cand.length > 1 ? `<label class="hint" style="margin-left:6px">Compare with <select data-lvbase>${cand.map(x => `<option value="${esc(x.id)}" ${String(x.id) === String(pg.id) ? "selected" : ""}>${esc(x.date.slice(5))} ${x.home ? "vs" : "@"} ${esc(x.opp)}${prevG && String(x.id) === String(prevG.id) ? " (previous)" : ""}</option>`).join("")}</select></label>` : ""}</div>` : "";
-    const chips = `<span class="chgi new" style="padding:0 6px">New</span> not on the ${baseName}’s roster · <span class="chgi mv" style="padding:0 6px">Moved</span> played last game, different slot${mode === "prev" ? ` · <span class="chgi out" style="padding:0 6px">Out</span> did not play this game` : ""}`;
-    const legend = !PL ? "" : mode === "prev" ? `Showing the <b>${baseName}’s</b> lineup groups; the small text shows who is in that slot now. ${chips}`
-      : mode === "cmp" ? `Each slot shows this game’s player; when it changed, the ${baseName}’s player is struck through above it (${nChanged} slot${nChanged === 1 ? "" : "s"} changed). ${chips}`
-      : `Compared with the ${baseName} (${esc(pg.date.slice(5))} vs ${esc(pg.opp)}); the small text shows who was in the slot. ${chips}`;
+    const chips = `<span class="chgi new" style="padding:0 6px">New</span> was not on the roster of the ${baseName} · <span class="chgi mv" style="padding:0 6px">Moved</span> played in the last game, in a different slot${mode === "prev" ? ` · <span class="chgi out" style="padding:0 6px">Out</span> did not play in this game` : ""}`;
+    const legend = !PL ? "" : mode === "prev" ? `This shows the lineup groups of the <b>${baseName}</b>. The small text shows who is in that slot now. ${chips}`
+      : mode === "cmp" ? `Each slot shows the player in this game. If the player changed, the player from the ${baseName} is above it, with a line through the name (${nChanged} slot${nChanged === 1 ? "" : "s"} changed). ${chips}`
+      : `Compared with the ${baseName} (${esc(pg.date.slice(5))} vs ${esc(pg.opp)}). The small text shows who was in the slot. ${chips}`;
     body = `${tabs}<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${[0, 1, 2, 3].map(i => `<tr><td>Line ${i + 1}</td>${[0, 1, 2].map(j => td(`F${i}${j}`)).join("")}</tr>`).join("")}</table>
       <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${[0, 1, 2].map(i => `<tr><td>Pair ${i + 1}</td>${[0, 1].map(j => td(`D${i}${j}`)).join("")}</tr>`).join("")}</table>
       <div style="margin-top:8px">Goalies: starter ${gl("G00")} · backup ${gl("G10")}</div>
       ${legend ? `<div class="hint" style="margin-top:6px">${legend}</div>` : ""}
       <div class="row" style="margin-top:8px"><button class="btn" id="lEdit">Edit</button><button class="btn danger" id="lClear">Clear</button><span class="hint">Entered manually at ${esc((L.updated || "").replace("T", " ").slice(0, 16))}</span></div>`;
   } else {
-    body = `<div class="hint">Official data only says who played, not which line they were on, so you fill it in by hand (the team posts a lineup image each game that you can copy from).</div>
+    body = `<div class="hint">Official data shows only who played. It does not show the line of each player. Thus, you must enter the lines manually. For each game, the team shows a lineup image that you can copy.</div>
       <div style="margin-top:8px"><button class="btn primary" id="lEdit">Set lineup groups</button></div>`;
   }
   return `<div class="gsec">Lineup groups (lines)<span class="tag2">Manual</span></div><div class="box" style="overflow:auto">${thumbs}${body}</div>`;
@@ -662,11 +662,11 @@ function wireLines(g){
   const can = q("lCancel"); if(can) can.onclick = () => { lineEdit = null; lineDraft = null; lineNotice = null; renderGameDetail(); };
   const gs = q("lGuess"); if(gs) gs.onclick = () => { lineDraft = guessLines(g); lineNotice = null; renderGameDetail(); };
   const ocr = async payload => {
-    lineNotice = null; const m = q("lMsg"); if(m) m.textContent = "Reading the image… (the first time takes about half a minute)";
+    lineNotice = null; const m = q("lMsg"); if(m) m.textContent = "The app reads the image… (the first time, this takes approximately 30 seconds)";
     const r = await post("/api/lines/ocr", {game_id: gid, ...payload});
     if(r.error){ if(m) m.textContent = r.error; return; }
     lineDraft = {F: r.F, D: r.D, G: r.G}; lineNotice = {ocr: true, unmatched: r.unmatched}; renderGameDetail(); };
-  const dfb = q("lDF"); if(dfb) dfb.onclick = async () => { const m = q("lMsg"); if(m) m.textContent = "Reading Daily Faceoff…";
+  const dfb = q("lDF"); if(dfb) dfb.onclick = async () => { const m = q("lMsg"); if(m) m.textContent = "The app reads Daily Faceoff…";
     const r = await post("/api/lines/dailyfaceoff", {game_id: gid}); if(r.error){ if(m) m.textContent = r.error; return; }
     lineDraft = {F: r.F, D: r.D, G: r.G}; lineNotice = {df: true, unmatched: r.unmatched, updated: r.updated, source: r.source}; renderGameDetail(); };
   const ob = q("lOcr"), of = q("lOcrFile"); if(ob && of){ ob.onclick = () => of.click();
@@ -676,7 +676,7 @@ function wireLines(g){
   document.querySelectorAll("#gameDetail [data-pb]").forEach(b => b.onclick = () => { perfBase = b.dataset.pb; try { localStorage.setItem("perfBase", perfBase); } catch(e){} renderGameDetail(); });
   document.querySelectorAll("#gameDetail [data-lvbase]").forEach(sel => sel.onchange = () => { lineBaseFor[String(g.id)] = sel.value; renderGameDetail(); });
   document.querySelectorAll("#gameDetail [data-lv]").forEach(b => b.onclick = () => { lineView = b.dataset.lv; renderGameDetail(); });
-  const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("Overwrite what you have entered with the previous game’s lineup groups?")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
+  const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("Replace the data that you entered with the lineup groups from the previous game?")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
   document.querySelectorAll("#gameDetail select[data-slot]").forEach(sel => sel.onchange = () => {
     const [t, i, j] = sel.dataset.slot.split("."), v = sel.value ? +sel.value : null, d = lineDraft;
     if(v){ // 同一个人只能在一个位置: 从别处移走
@@ -700,8 +700,8 @@ function rosterDiff(g){
   const p = prevOf(g); if(!p) return null;
   const mk = x => { const m = new Map(); GRP.forEach(([k, n]) => ((x.lineup || {})[k] || []).forEach(r => m.set(r.id, {...r, grp: k, grpName: n}))); return m; };
   const cur = mk(g), prev = mk(p), scrNow = new Set(g.scratches || []), scrPrev = new Set(p.scratches || []);
-  const ins = [...cur.values()].filter(r => !prev.has(r.id)).map(r => ({...r, why: scrPrev.has(r.name) ? "Scratched last game" : "Not on last game’s roster"}));
-  const outs = [...prev.values()].filter(r => !cur.has(r.id)).map(r => ({...r, why: scrNow.has(r.name) ? "Scratched this game" : "Not on this game’s roster (official data gives no reason: injury, demotion or trade)"}));
+  const ins = [...cur.values()].filter(r => !prev.has(r.id)).map(r => ({...r, why: scrPrev.has(r.name) ? "Scratched in the last game" : "Not on the roster of the last game"}));
+  const outs = [...prev.values()].filter(r => !cur.has(r.id)).map(r => ({...r, why: scrNow.has(r.name) ? "Scratched in this game" : "Not on the roster of this game (official data does not give the reason: injury, demotion or trade)"}));
   // 对位: 同一组(前锋/后卫/门将)里先配同位置的, 再配剩下的。只是“位置上的对应”, 不代表真的上了同一条线
   const pairs = [], used = new Set();
   [true, false].forEach(strict => ins.forEach(i => { if(i.paired) return;
@@ -715,21 +715,21 @@ function rosterDiff(g){
 const pl = (r, g) => `<span class="pc">${g ? mug(g, r) : ""}<span>#${esc(r.num ?? "")} ${esc(r.name)} (${esc(r.pos || r.grpName)})</span></span>`;
 function rosterHTML(g){
   const d = rosterDiff(g);
-  if(!d) return `<div class="gsec">Lineup changes</div><div class="box hint">The archive has no earlier game (the previous game is before the start date and was not collected), so there is nothing to compare.</div>`;
+  if(!d) return `<div class="gsec">Lineup changes</div><div class="box hint">The archive has no earlier game. The previous game is before the start date, thus the app did not collect it. There is no game to compare.</div>`;
   const row = (title, arr, f) => arr.length ? `<div style="margin-top:8px"><b>${title}（${arr.length}）</b><ul class="tight">${arr.map(f).join("")}</ul></div>` : "";
   return `<div class="gsec">Changes vs. previous game <span class="hint" style="font-weight:400">(previous: ${esc(d.p.date.slice(5))} vs ${esc(d.p.opp)})</span></div>
-    <div class="box">${d.same ? `<b>The roster is identical to the previous game.</b>` : ""}
+    <div class="box">${d.same ? `<b>The roster is the same as in the previous game.</b>` : ""}
       ${row("New in lineup", d.ins, r => `<li>${pl(r, g)} <span class="tag2 g">${esc(r.why)}</span></li>`)}
       ${row("Out of lineup", d.outs, r => `<li>${pl(r, g)} <span class="tag2">${esc(r.why)}</span></li>`)}
-      ${d.goalies.length > 1 ? `<div style="margin-top:8px"><b>Both goalies played</b> (probably a mid-game change; official data gives each one’s TOI but not the order): ${d.goalies.map(r => `${esc(r.name)} ${esc(r.toi)}`).join(", ")}</div>` : ""}
+      ${d.goalies.length > 1 ? `<div style="margin-top:8px"><b>Both goalies played</b> (possibly a change during the game. Official data gives the TOI of each goalie, but not the order): ${d.goalies.map(r => `${esc(r.name)} ${esc(r.toi)}`).join(", ")}</div>` : ""}
       ${(d.goalies[0] && d.gPrev[0] && d.goalies[0].id !== d.gPrev[0].id) ? `<div style="margin-top:8px"><b>Starting goalie changed</b>: previous ${esc(d.gPrev[0].name)}, this game ${esc(d.goalies[0].name)}</div>` : ""}
-      ${d.short.length ? `<div style="margin-top:8px"><b>Very short TOI (under 5 minutes)</b> <span class="hint">For reference only: could be an early exit, penalty or tactics; official data gives no reason</span><ul class="tight">${d.short.map(r => `<li>${pl(r, g)} · ${esc(r.toi)}</li>`).join("")}</ul></div>` : ""}
+      ${d.short.length ? `<div style="margin-top:8px"><b>Very short TOI (under 5 minutes)</b> <span class="hint">For reference only. Possible causes: early exit, penalty or tactics. Official data does not give the reason</span><ul class="tight">${d.short.map(r => `<li>${pl(r, g)} · ${esc(r.toi)}</li>`).join("")}</ul></div>` : ""}
       ${(g.scratches || []).length ? `<div style="margin-top:8px" class="hint">Scratches this game: ${g.scratches.map(esc).join(", ")}</div>` : ""}
     </div>`;
 }
 
 // ---------- 比赛 ----------
-const OUTC = {"胜": "var(--event)", "负": "var(--bad)", "加时负": "var(--goal)", "点球负": "var(--goal)"};
+const OUTC = {"胜": "var(--event)", "加时胜": "var(--event)", "点球胜": "var(--event)", "负": "var(--bad)", "加时负": "var(--goal)", "点球负": "var(--goal)"};
 const SCAT = [["sog", "Shots"], ["hits", "Hits"], ["blockedShots", "Blocks"], ["giveaways", "Giveaways"], ["takeaways", "Takeaways"], ["pim", "PIM (minutes)"],
   ["powerPlay", "Power play (goals/chances)"], ["faceoffWinningPctg", "Faceoff win %"]];
 const fv = (k, v) => k === "faceoffWinningPctg" ? (Math.round(v * 1000) / 10) + "%" : v;
@@ -738,7 +738,7 @@ const stLine = (g, pre) => { const st = g.standing; if(!st) return ""; const f =
   return `<div class="hint">${pre}${f(st.our)} · ${f(st.opp)}</div>`; };
 // 对手强弱: 对手赛后积分/战绩 + 这场双方射门数(只一行, 不加表格)
 const oppLine = g => { const st = g.standing, sg = (g.team_stats || {}).sog; if(!st && !sg) return "";
-  const cmp = st ? (st.opp.pts > st.our.pts ? `<span style="color:var(--bad)">${esc(g.opp)} had a stronger record than PIT</span>` : st.opp.pts < st.our.pts ? `${esc(g.opp)} had a weaker record than PIT` : `${esc(g.opp)} and PIT had the same points`) + ` (${st.opp.pts} vs ${st.our.pts} pts)` : "";
+  const cmp = st ? (st.opp.pts > st.our.pts ? `<span style="color:var(--bad)">${esc(g.opp)} had a better record than PIT</span>` : st.opp.pts < st.our.pts ? `${esc(g.opp)} had a worse record than PIT` : `${esc(g.opp)} and PIT had the same points`) + ` (${st.opp.pts} vs ${st.our.pts} pts)` : "";
   return `<div class="hint">Opponent: ${[cmp, sg ? `shots on goal PIT ${esc(sg.our)} – ${esc(g.opp)} ${esc(sg.opp)}` : ""].filter(Boolean).join(" · ")}</div>`; };
 const gLabel = g => `${g.date.slice(5)} ${g.home ? "home" : "away"} vs ${g.opp}`;
 function gameItems(g){
@@ -770,12 +770,12 @@ function seasonHTML(list){
   const totSec = gs.reduce((t, g) => t + g.ice.total, 0), fr = [...agg.values()].sort((a, b) => b.sec - a.sec).slice(0, 12);
   const maxSec = fr[0] ? fr[0].sec : 1;
   return `<div class="box"><b>Karlsson’s forward pairings</b> <span class="hint">${gs.length} game${gs.length === 1 ? "" : "s"} in this date range</span>
-    <div class="hint" style="margin-top:6px">Per game: how much of his ice time went to his most frequent forward, and how stable his 5v5 trio was, next to how the team did while he was on the ice (all goals; GF−GA). A higher “5v5 time with his most common trio” means he stayed with the same three forwards more of the time.</div>
-    <div style="overflow:auto"><table class="gt l" style="margin-top:6px"><tr><th>Date</th><th>Game</th><th>Result</th><th>Most frequent forward (share of his ice time)</th><th title="Of all his 5v5 ice time, the share spent with the one forward trio (three forwards) he was on the ice with the longest">5v5 time with his most common trio</th><th title="Goals for while he was on the ice">GF</th><th title="Goals against while he was on the ice">GA</th><th>GF−GA</th></tr>${rows}</table></div>
-    <div class="hint" style="margin:12px 0 4px">Which forwards he spends the most time with, and what happened when they were on the ice together (all games above added up):</div>
-    <div style="overflow:auto"><table class="gt"><tr><th>Forward</th><th>Games</th><th>Time together</th><th>Share of his time</th><th title="Goals for while on the ice together">GF</th><th title="Goals against while on the ice together">GA</th><th>GF−GA</th></tr>
+    <div class="hint" style="margin-top:6px">For each game, the table shows how much of his ice time was with his most frequent forward. It also shows how stable his 5v5 trio was, and the team result when he was on the ice (all goals; GF−GA). A higher “5v5 time with his most frequent trio” value shows that he played with the same three forwards for more time.</div>
+    <div style="overflow:auto"><table class="gt l" style="margin-top:6px"><tr><th>Date</th><th>Game</th><th>Result</th><th>Most frequent forward (share of his ice time)</th><th title="The part of his 5v5 ice time with the forward trio (three forwards) that was on the ice with him for the longest time">5v5 time with his most frequent trio</th><th title="Goals for when he was on the ice">GF</th><th title="Goals against when he was on the ice">GA</th><th>GF−GA</th></tr>${rows}</table></div>
+    <div class="hint" style="margin:12px 0 4px">The forwards that played with him for the most time, and the results when they were on the ice together (total of all the games above):</div>
+    <div style="overflow:auto"><table class="gt"><tr><th>Forward</th><th>Games</th><th>Time together</th><th>Share of his time</th><th title="Goals for when they were on the ice together">GF</th><th title="Goals against when they were on the ice together">GA</th><th>GF−GA</th></tr>
       ${fr.map(e => `<tr style="${barBg(e.sec, totSec)}"><td>${esc(e.name)}</td><td>${e.n}</td><td><b>${mmss(e.sec)}</b></td><td>${Math.round(e.sec / totSec * 100)}%</td><td class="${e.gf ? "good" : ""}">${e.gf || "–"}</td><td class="${e.ga ? "bad" : ""}">${e.ga || "–"}</td>${net(e.gf - e.ga)}</tr>`).join("")}</table></div>
-    <div class="hint" style="margin-top:6px">With only a few games these numbers move a lot (a forward who happened to be on the ice for one goal looks good). Treat them as a log for now; patterns only mean something after many games.</div></div>`;
+    <div class="hint" style="margin-top:6px">With only a small number of games, these numbers change much. For example, a forward who was on the ice for one goal looks good. Use these numbers only as a record now. Patterns are important only after many games.</div></div>`;
 }
 const PASS = 63.5;    // 趋势图的固定及格线(百分位): Karlsson 2026 年 3 月 17 场在"对他自己 2025-26"基准下的平均百分位
 const PDO_LO = 0.70, PDO_HI = 1.30;   // 趋势图右侧轴: PDO 0.70–1.30 对应图的 0–100 高度, 1.000 正好在中间(50)
@@ -790,14 +790,14 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
     return `<polyline fill="none" stroke="var(--ink)" stroke-width="2" ${dash ? 'stroke-dasharray="5 4" opacity=".55"' : ""} points="${pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
       pts.map(([px, py, g]) => { const r = perfScore(g, which); return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dash ? 3 : 4.5}" fill="${dash ? "var(--bg, #fff)" : PERF.color[r.tier]}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: ${PERF.tier[r.tier]} (better than ${Math.round(r.pct)}% of ${r.base.short})</title></circle>`; }).join(""); };
   const labels = gs.map((g, i) => { const tx = (dy, t, c = "var(--muted)", w = 400) => `<text x="${x(i).toFixed(1)}" y="${H - dy}" font-size="9" text-anchor="middle" fill="${c}" font-weight="${w}">${t}</text>`, sc = g.our_score != null && g.opp_score != null;
-    return tx(28, esc(g.date.slice(5))) + tx(18, `${g.home ? "" : "@"}${esc(g.opp)}`) + (sc ? tx(7, `${g.our_score}–${g.opp_score}`, g.our_score > g.opp_score ? "var(--good)" : "var(--bad)", 600) : ""); }).join("");
+    return tx(28, esc(g.date.slice(5))) + tx(18, `${g.home ? "" : "@"}${esc(g.opp)}`) + (sc ? tx(7, `${g.our_score}–${g.opp_score}${/加时/.test(g.outcome) ? " OT" : /点球/.test(g.outcome) ? " SO" : ""}`, g.our_score > g.opp_score ? "var(--good)" : "var(--bad)", 600) : ""); }).join("");
   const pdoPts = gs.map((g, i) => g.adv ? [x(i), y(Math.max(0, Math.min(100, (g.adv.pdo - PDO_LO) / (PDO_HI - PDO_LO) * 100))), g] : null).filter(Boolean);
   const pdoLayer = () => !pdoPts.length ? "" : `<line x1="${L}" x2="${W - R}" y1="${y(50).toFixed(1)}" y2="${y(50).toFixed(1)}" stroke="#9b8bb4" stroke-width="1" stroke-dasharray="1 4" opacity=".45"/>` +
     [0.7, 0.85, 1.0, 1.15, 1.3].map(v => `<text x="${W - R + 3}" y="${(y((v - PDO_LO) / (PDO_HI - PDO_LO) * 100) + 3).toFixed(1)}" font-size="9" fill="#9b8bb4">${v.toFixed(2)}</text>`).join("") +
     `<polyline fill="none" stroke="var(--train)" stroke-width="1.5" opacity=".55" points="${pdoPts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
     pdoPts.map(([px, py, g]) => { const bad = g.adv.pdo <= 0.97, z = bad ? 4.5 : 2.5;       // 运气差的比赛(PDO ≤ 0.97)用深色大点标出来, 其余保持淡色
       return `<rect x="${(px - z).toFixed(1)}" y="${(py - z).toFixed(1)}" width="${z * 2}" height="${z * 2}" fill="${bad ? "var(--interview)" : "#9b8bb4"}" ${bad ? 'stroke="#fff" stroke-width="1"' : 'opacity=".7"'} transform="rotate(45 ${px.toFixed(1)} ${py.toFixed(1)})"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: PDO ${g.adv.pdo.toFixed(3)}${bad ? " (unlucky)" : ""} (team shooting ${pct1(g.adv.sh)}, goalie save ${pct1(g.adv.sv)})</title></rect>`; }).join("");
-  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game vs his own 2025-26 season · blue dotted = fixed pass line (63.5 = his best month, March 2026) · red dotted = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:var(--interview)">dark ◆ = an unlucky game (PDO ≤ 0.97)</b> · coloured bands = the five tiers</span>
+  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game compared with his 2025-26 season · blue dotted line = fixed pass line (63.5 = his best month, March 2026) · red dotted line = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:var(--interview)">dark ◆ = a game with bad luck (PDO ≤ 0.97)</b> · color bands = the five tiers</span>
     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2 3"/><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="2 3"/>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
 }
 // ---------- NHL EDGE: 赛季累计的区域时间和射门位置(球队 + 他本人), 官方追踪数据, 只在本机页面 ----------
@@ -813,7 +813,7 @@ function edgeZoneBars(rows, who){
       <div style="position:relative;display:flex;height:22px;border-radius:5px;overflow:hidden;margin-top:3px"><div style="width:${o}%;background:var(--good)" title="Offensive zone ${o.toFixed(1)}%"></div><div style="width:${n}%;background:#c9c2b0" title="Neutral zone ${n.toFixed(1)}%"></div><div style="width:${d}%;background:var(--bad)" title="Defensive zone ${d.toFixed(1)}%"></div>
         <div style="position:absolute;left:${lg}%;top:0;bottom:0;border-left:2px dashed #fff"></div></div>
       <div class="row hint" style="justify-content:space-between;margin-top:2px"><span style="color:var(--good)">Offensive ${o.toFixed(1)}%</span><span>Neutral ${n.toFixed(1)}%</span><span style="color:var(--bad)">Defensive ${d.toFixed(1)}%</span></div></div>`; };
-  return ["all", "es", "pp", "pk"].map(k => rows.find(r => r.strengthCode === k)).filter(Boolean).map(bar).join("") + `<div class="hint">White dashed line = league average share of time in the offensive zone. For ${who === "team" ? "the team" : "him"} this is time on ice, not puck possession.</div>`;
+  return ["all", "es", "pp", "pk"].map(k => rows.find(r => r.strengthCode === k)).filter(Boolean).map(bar).join("") + `<div class="hint">White dashed line = league average part of time in the offensive zone. For ${who === "team" ? "the team" : "him"}, this is time on ice. It is not puck possession.</div>`;
 }
 function edgeShotMap(items){      // 颜色和官方 EDGE 一样按联盟百分位: 深蓝 81 以上, 浅蓝 51–80, 斜纹 50 以下
   const M = {sog: ["sogPercentile", "sogRank"], goals: ["goalsPercentile", "goalsRank"], pct: ["shootingPctgPercentile", "shootingPctgRank"]}[edgeMetric], mx = Math.max(1, ...items.map(i => i.sog)),
@@ -825,14 +825,14 @@ function edgeShotMap(items){      // 颜色和官方 EDGE 一样按联盟百分�
   return `<svg viewBox="0 0 400 335" width="100%" style="max-width:460px" role="img" aria-label="Shots on goal by area"><defs><pattern id="edgeHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#f1f5fa"/><line x1="0" y1="0" x2="0" y2="6" stroke="#9fb6d0" stroke-width="2"/></pattern></defs>
     <rect x="2" y="2" width="396" height="331" rx="30" fill="none" stroke="var(--line, #bbb)"/><line x1="2" y1="30" x2="398" y2="30" stroke="var(--bad)" stroke-width="1.5" opacity=".6"/><rect x="178" y="30" width="44" height="22" fill="none" stroke="var(--bad)" opacity=".6"/>
     <circle cx="112" cy="118" r="42" fill="none" stroke="var(--accent)" opacity=".25"/><circle cx="288" cy="118" r="42" fill="none" stroke="var(--accent)" opacity=".25"/><line x1="2" y1="262" x2="398" y2="262" stroke="var(--accent)" stroke-width="2" opacity=".35"/>${dots}</svg>
-  <div class="row hint" style="gap:12px;align-items:center;margin-top:4px"><span>Colour = how this compares with other ${items.some(i => i.sogPercentile != null) ? "players" : "teams"} at that spot, for the measure chosen above (same as NHL EDGE):</span>
+  <div class="row hint" style="gap:12px;align-items:center;margin-top:4px"><span>Color = the result compared with other ${items.some(i => i.sogPercentile != null) ? "players" : "teams"} at that spot, for the measure that you selected above (the same as NHL EDGE):</span>
     <span><svg width="14" height="14"><rect width="14" height="14" fill="url(#edgeHatch)" stroke="var(--accent)"/></svg> 50th or lower</span><span><svg width="14" height="14"><rect width="14" height="14" fill="var(--accent)" stroke="var(--accent)"/></svg> 51–80th</span><span><svg width="14" height="14"><rect width="14" height="14" fill="var(--accent)"/></svg> 81st or higher</span></div>
-  <div class="row hint" style="gap:12px;align-items:center;margin-top:2px"><span>Outer ring = did the shots score?</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--good)" stroke-width="3"/></svg> goes in often (15%+)</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--warn)" stroke-width="3"/></svg> 8–15%</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--bad)" stroke-width="3"/></svg> no goal, or under 8%</span></div>
-  <div class="hint">Circle size is always the number of shots on goal; the number inside is the measure you picked. Spots with no shots are left blank. This is a drawing of NHL’s numbers, not NHL’s own picture: the circle positions are approximate. The net is at the top.</div>`;
+  <div class="row hint" style="gap:12px;align-items:center;margin-top:2px"><span>Outer ring = goals from the shots</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--good)" stroke-width="3"/></svg> frequent goals (15%+)</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--warn)" stroke-width="3"/></svg> 8–15%</span><span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--bad)" stroke-width="3"/></svg> no goal, or less than 8%</span></div>
+  <div class="hint">The circle size always shows the number of shots on goal. The number in the circle is the measure that you selected. Spots with no shots are empty. This drawing uses the NHL numbers, but it is not the NHL picture. The circle positions are approximate. The net is at the top.</div>`;
 }
-const EDGE_GROUPS = [["Close to the net", "the crease, the slot right in front, beside the net", ["Crease", "Low Slot", "L Net Side", "R Net Side"]],
-  ["Middle distance", "the faceoff circles, the top of the slot, corners, behind the net", ["High Slot", "L Circle", "R Circle", "Behind the Net", "L Corner", "R Corner"]],
-  ["Far away", "the points, along the boards, beyond the blue line", ["L Point", "R Point", "Center Point", "Outside L", "Outside R", "Offensive Neutral Zone", "Beyond Red Line"]]];
+const EDGE_GROUPS = [["Close to the net", "the crease, the slot directly in front of the net, the sides of the net", ["Crease", "Low Slot", "L Net Side", "R Net Side"]],
+  ["Middle distance", "the faceoff circles, the top of the slot, the corners, behind the net", ["High Slot", "L Circle", "R Circle", "Behind the Net", "L Corner", "R Corner"]],
+  ["Far away", "the points, along the boards, farther than the blue line", ["L Point", "R Point", "Center Point", "Outside L", "Outside R", "Offensive Neutral Zone", "Beyond Red Line"]]];
 function edgeVerdict(r, who){      // 大白话评价: 球队按联盟排名(32 队), 球员按百分位
   const lab = (t, c) => `<b style="color:${c}">${t}</b>`;
   if(who === "team" && r.offensiveZoneRank){ const k = r.offensiveZoneRank; return k <= 10 ? lab("better than most teams", "var(--good)") : k <= 22 ? lab("about average", "var(--warn)") : lab("worse than most teams", "var(--bad)"); }
@@ -842,10 +842,10 @@ function edgeVerdict(r, who){      // 大白话评价: 球队按联盟排名(32 
 function edgePlain(zone, shots, who){
   const all = zone.find(r => r.strengthCode === "all"), es = zone.find(r => r.strengthCode === "es"), subj = who === "team" ? "the team" : "his team", pct = x => (x * 100).toFixed(1) + "%";
   const lines = [];
-  if(es) lines.push(`<li><b>Where the play happens (even strength, 5v5):</b> ${who === "team" ? "The team" : "While he is on the ice, his team"} spends <b>${pct(es.offensiveZonePctg)}</b> of the time in the opponent’s end and <b>${pct(es.defensiveZonePctg)}</b> in its own end. The league average for the opponent’s end is ${pct(es.offensiveZoneLeagueAvg)}. That is ${edgeVerdict(es, who)}${es.offensiveZoneRank ? ` (${es.offensiveZoneRank}${["st", "nd", "rd"][es.offensiveZoneRank - 1] || "th"} of 32 teams)` : es.offensiveZonePercentile != null ? ` (higher than ${Math.round(es.offensiveZonePercentile * 100)}% of players)` : ""}.</li>`);
+  if(es) lines.push(`<li><b>Where the play happens (even strength, 5v5):</b> ${who === "team" ? "The team" : "When he is on the ice, his team"} is in the zone of the opponent for <b>${pct(es.offensiveZonePctg)}</b> of the time and in its own zone for <b>${pct(es.defensiveZonePctg)}</b>. The league average for the zone of the opponent is ${pct(es.offensiveZoneLeagueAvg)}. That is ${edgeVerdict(es, who)}${es.offensiveZoneRank ? ` (${es.offensiveZoneRank}${["st", "nd", "rd"][es.offensiveZoneRank - 1] || "th"} of 32 teams)` : es.offensiveZonePercentile != null ? ` (higher than ${Math.round(es.offensiveZonePercentile * 100)}% of players)` : ""}.</li>`);
   const det = shots.shotLocationDetails || [], total = det.reduce((s, i) => s + i.sog, 0);
   if(total){ const g = EDGE_GROUPS.map(([nm, , areas]) => { const it = det.filter(i => areas.includes(i.area)), sog = it.reduce((s, i) => s + i.sog, 0), goals = it.reduce((s, i) => s + i.goals, 0); return {nm, sog, goals}; });
-    const c = g[0]; lines.push(`<li><b>Where the shots come from:</b> <b>${Math.round(c.sog / total * 100)}%</b> of ${who === "team" ? "the team’s" : "his"} ${total} shots on goal come from close to the net, and ${c.sog ? `<b>${Math.round(c.goals / c.sog * 100)}%</b> of those go in` : "none were taken there yet"}. Close shots go in more often than long ones, so more of them is better.</li>`); }
+    const c = g[0]; lines.push(`<li><b>Where the shots come from:</b> <b>${Math.round(c.sog / total * 100)}%</b> of ${who === "team" ? "the team’s" : "his"} ${total} shots on goal come from near the net. ${c.sog ? `<b>${Math.round(c.goals / c.sog * 100)}%</b> of these shots are goals` : "There are no shots from there yet"}. Near shots become goals more frequently than far shots. Thus, more near shots are better.</li>`); }
   return `<ul style="margin:6px 0 10px 18px;line-height:1.55">${lines.join("")}</ul>`;
 }
 function edgeGroups(shots){
@@ -861,40 +861,40 @@ function edgeSection(key, title, zone, shots, who){
     <div class="gsec" style="font-size:14px;margin:0 0 4px">Where the shots on goal come from</div>
     <div class="row" style="gap:6px;margin:4px 0">${[["sog", "Shots on goal"], ["goals", "Goals"], ["pct", "Shooting %"]].map(([k, n]) => `<button class="chip ${edgeMetric === k ? "on" : ""}" data-em="${k}">${n}</button>`).join("")}</div>${edgeShotMap(shots.shotLocationDetails || [])}
     <div class="gsec" style="font-size:14px;margin:14px 0 4px">Time in each zone</div>${edgeZoneBars(zone, who)}
-    <div class="hint" style="margin-top:4px">Power-play and penalty-kill rows: I would not read the league averages there; the official numbers look odd to me.</div>
+    <div class="hint" style="margin-top:4px">Power-play and penalty-kill rows: do not use the league averages in these rows. The official numbers in these rows are possibly incorrect.</div>
     <div class="gsec" style="font-size:14px;margin:14px 0 0">In plain words</div>${edgePlain(zone, shots, who)}
     ${edgeGroups(shots)}
-    <div class="hint" style="margin-top:6px"><a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">See NHL’s own chart for this on NHL EDGE ↗</a></div></div></details>`;
+    <div class="hint" style="margin-top:6px"><a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">Open the NHL chart for this on NHL EDGE ↗</a></div></div></details>`;
 }
 async function loadEdge(force){
   const el = document.getElementById("edgeBox"); if(!el) return;
   if(!edgeData || force) edgeData = await api("/api/edge");
   const stale = !SNAP && (!edgeData.checked || (Date.now() - new Date(edgeData.checked).getTime()) > 6 * 3600 * 1000);
-  if((stale || force) && !edgeData._tried){ el.innerHTML = `<div class="box hint">Reading NHL EDGE…</div>`; const r = await post("/api/edge/refresh", {}); if(r && !r.error){ edgeData = r; } else { edgeData._tried = true; } if(!edgeData.checked){ el.innerHTML = `<div class="box hint">${esc((r && r.error) || "Could not read NHL EDGE")}</div>`; return; } }
+  if((stale || force) && !edgeData._tried){ el.innerHTML = `<div class="box hint">The app reads NHL EDGE…</div>`; const r = await post("/api/edge/refresh", {}); if(r && !r.error){ edgeData = r; } else { edgeData._tried = true; } if(!edgeData.checked){ el.innerHTML = `<div class="box hint">${esc((r && r.error) || "Could not read NHL EDGE")}</div>`; return; } }
   const d = edgeData; if(!d.team_zone) { el.innerHTML = ""; return; }
   const open = edgeOpen.has("edge");
-  el.innerHTML = `<details class="dsec" data-edge="edge"${open ? " open" : ""} style="margin-bottom:10px"><summary>Season zone time and shot locations <span class="hint">· NHL EDGE tracking data, ${esc(String(d.season).replace(/^(\d{4})(\d{4})$/, "$1-$2"))} regular season so far · checked ${esc(d.checked.replace("T", " "))}</span></summary>
-    <div class="row" style="margin:6px 0;gap:8px;align-items:center">${SNAP ? "" : `<button class="btn" id="edgeRef">Refresh</button>`}<span class="hint">Season totals, not one game. Click a heading to hide or show it.</span></div>
+  el.innerHTML = `<details class="dsec" data-edge="edge"${open ? " open" : ""} style="margin-bottom:10px"><summary>Season zone time and shot locations <span class="hint">· NHL EDGE tracking data, ${esc(String(d.season).replace(/^(\d{4})(\d{4})$/, "$1-$2"))} regular season to this date · checked ${esc(d.checked.replace("T", " "))}</span></summary>
+    <div class="row" style="margin:6px 0;gap:8px;align-items:center">${SNAP ? "" : `<button class="btn" id="edgeRef">Refresh</button>`}<span class="hint">Season totals, not one game. Click a heading to hide or show the section.</span></div>
     ${edgeSection("team", "Team (whole squad)", d.team_zone, d.team_shots, "team")}${edgeSection("player", "Karlsson", d.player_zone, d.player_shots, "player")}</details>`;
   el.querySelectorAll("details[data-edge]").forEach(x => x.ontoggle = () => { x.open ? edgeOpen.add(x.dataset.edge) : edgeOpen.delete(x.dataset.edge); });
   el.querySelectorAll("[data-em]").forEach(b => b.onclick = e => { e.preventDefault(); edgeMetric = b.dataset.em; loadEdge(false); });
-  const rb = document.getElementById("edgeRef"); if(rb) rb.onclick = async () => { rb.disabled = true; rb.textContent = "Reading…"; const r = await post("/api/edge/refresh", {}); if(r && !r.error) edgeData = r; else alert((r && r.error) || "Could not read NHL EDGE"); loadEdge(false); };
+  const rb = document.getElementById("edgeRef"); if(rb) rb.onclick = async () => { rb.disabled = true; rb.textContent = "Wait…"; const r = await post("/api/edge/refresh", {}); if(r && !r.error) edgeData = r; else alert((r && r.error) || "Could not read NHL EDGE"); loadEdge(false); };
 }
 function renderGames(){
   if(view !== "games") return;
   if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
   openGame = null; $("gameDetail").style.display = "none"; $("gameList").style.display = "";
   const list = games.filter(g => inRangeD(g.date));
-  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
+  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (in the date range above). Click a game to show its details.` : ""}</span>
     <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
-    ? `<div class="box hint">No game data yet. Click “Sync official data” at the top right to read this season’s finished games: scores, team stats, rosters and the scoring timeline, and to file your existing clips, interviews and photos under the matching game by date.</div>` : "") +
+    ? `<div class="box hint">There is no game data. Click “Sync official data” at the top right. The app reads the completed games of this season: scores, team stats, rosters and the scoring timeline. It also puts your clips, interviews and photos with the correct game by date.</div>` : "") +
     trendHTML(list) + (SNAP && !(SNAP.edge && SNAP.edge.team_zone) ? "" : `<div id="edgeBox"></div>`) + list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
       return `<div class="box gcard" data-g="${esc(g.id)}" style="position:relative"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
         <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
         <div class="gmini" style="position:absolute;right:50px;top:30px;width:160px;display:flex;flex-direction:column;align-items:center">${perfMini(g)}${pressChip(g, false)}</div>
         <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
         ${stLine(g, "Regular season: ")}
-        <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "No previous game to compare"; })()}</div>
+        <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "There is no previous game to compare"; })()}</div>
         <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length && !SNAP ? ` · <b style="color:var(--bad)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
   document.querySelectorAll("#gameList details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
@@ -932,7 +932,7 @@ function perfScore(g, which = perfBase){
   const sc = g.scoring || [];
   if(sc.some(x => x.ek === true || x.ek === false)){       // 在冰上的 5v5 进失球, 多打少进球不算(和官方 +/- 同口径)
     const on = sc.filter(x => x.ek === true && x.strength !== "pp"), gd = on.filter(x => x.team === "PIT").length - on.filter(x => x.team !== "PIT").length;
-    add("gd", "On-ice goal difference", gd, `${gd > 0 ? "+" : ""}${gd}`, "Power-play goals are not counted, same as the official +/-");
+    add("gd", "On-ice goal difference", gd, `${gd > 0 ? "+" : ""}${gd}`, "Power-play goals are not counted, the same as the official +/-");
   }
   if(m.sog != null) add("sog", "Shots", m.sog, `${m.sog} on goal`);
   if(m.blk != null) add("blk", "Blocked shots", m.blk, `${m.blk}`);
@@ -951,7 +951,7 @@ function advHTML(g){
   return `<div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between;align-items:baseline;flex-wrap:wrap"><b>Luck check · 5v5 with him on the ice</b>
     <span><b style="font-size:20px;color:${col}">PDO ${pdo.toFixed(3)}</b> <span class="hint">${tag}</span></span></div>
     <div class="row" style="gap:18px;margin-top:6px;flex-wrap:wrap">${a.team_pdo != null ? `<span class="hint">Whole-team PDO <b>${a.team_pdo.toFixed(3)}</b></span>` : ""}<span class="hint">Team shooting % <b>${pct1(a.sh)}</b></span><span class="hint">Goalie save % behind him <b>${pct1(a.sv)}</b></span><span class="hint">Shot-attempt share (Corsi): him <b>${pct1(a.cf)}</b>${a.team_cf != null ? ` · whole team <b>${pct1(a.team_cf)}</b> · <b style="color:${a.cf >= a.team_cf ? "var(--goal, var(--good))" : "var(--bad)"}">${a.cf >= a.team_cf ? "+" : "−"}${Math.abs((a.cf - a.team_cf) * 100).toFixed(1)} pts</b>` : ""}</span><span class="hint">Offensive-zone starts <b>${pct1(a.zs)}</b></span></div>
-    <div class="hint" style="margin-top:6px">PDO = team shooting % + goalie save % while he is on the ice at 5v5 (from the official NHL stats). 1.000 is neutral; far above it usually means a lucky game, far below an unlucky one. One game is only a handful of shots, so it swings a lot — read the trend, not one number.</div></div>`;
+    <div class="hint" style="margin-top:6px">PDO = team shooting % + goalie save % when he is on the ice at 5v5 (from the official NHL stats). 1.000 is neutral. A value much higher than 1.000 usually shows good luck. A value much lower shows bad luck. One game has only a small number of shots, thus the value changes much. Use the trend, not one number.</div></div>`;
 }
 // "压制度": 他在冰上时的 Corsi(5v5 射门尝试占比) 减去球队全场的 Corsi, 单位是百分点。档位按他自己 2025-26 常规赛 75 场的这个差值分布定(同表盘的 10/30/70/90 百分位)
 const PRESS = {cuts: [-6.9, -1.0, 6.3, 14.2], tier: ["Very low", "Low", "Normal", "High", "Very high"]};
@@ -982,8 +982,8 @@ function perfGauge(g){
         <text x="${pt(180, R + 4)[0] - 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="start">worst</text><text x="${pt(0, R + 4)[0] + 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="end">best</text></svg>
       <div style="font-size:20px;font-weight:600;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Better than ${better}% of ${r.base.short}</div>
       <div class="row" style="justify-content:center;margin:6px 0 0;gap:6px"><button class="chip ${perfBase === "self" ? "on" : ""}" data-pb="self" title="Compare with Karlsson's own 2025-26 regular season (75 games)">vs his 2025-26</button><button class="chip ${perfBase === "league" ? "on" : ""}" data-pb="league" title="Compare with all NHL defenseman games in 2025-26">vs NHL defensemen</button></div></div>
-    <div style="flex:1;min-width:260px"><div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row is how far above or below ${esc(r.base.label)} (weighted); hover a row for the average</div>${bars}
-      <div class="hint" style="margin-top:6px">Compared with ${esc(r.base.short)} (${r.base.games.toLocaleString("en-US")} games, NHL 2025-26 regular season). The weights are my own judgment, and one game is a small sample — this is not an official rating. Tiers: bottom 10% / 10–30% / middle 40% / 70–90% / top 10%.</div></div></div>`;
+    <div style="flex:1;min-width:260px"><div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row shows the difference from ${esc(r.base.label)} (weighted). Put the pointer on a row to see the average</div>${bars}
+      <div class="hint" style="margin-top:6px">Compared with ${esc(r.base.short)} (${r.base.games.toLocaleString("en-US")} games, NHL 2025-26 regular season). The weights are an estimate, and one game is a small sample. This is not an official rating. Tiers: bottom 10% / 10–30% / middle 40% / 70–90% / top 10%.</div></div></div>`;
 }
 function perfMini(g){
   const r = perfScore(g); if(!r) return "";
@@ -1011,20 +1011,20 @@ function specialHTML(g){
   const {roleOf, pTag} = roleTools(g);
   const tbl = (k, name) => { const us = S.units[k]; if(!us.length) return "";
     return `<div class="hint" style="margin:8px 0 2px"><b>${k === "pp" ? "Power play (PIT has more skaters)" : "Penalty kill (PIT has fewer skaters)"}</b></div>
-      <table class="gt l"><tr><th>Unit</th><th>Skaters (top 5; position and line from your Lineup groups)</th><th>Time</th><th title="How many separate times this unit went on the ice">Stints</th>${k === "pp" ? `<th title="Goals For: PIT goals while this unit was on the ice">GF</th>` : `<th title="Goals Against: goals PIT allowed while this unit was on the ice">GA</th><th title="Short-Handed Goals: PIT goals scored while shorthanded with this unit on the ice">SHG</th>`}</tr>${us.map(u => `<tr class="${u.players.some(p => p[0] === me) ? "me" : ""}"><td><b>${name}${u.u}</b></td>
-        <td>${[...u.players.slice(0, 5)].sort((a, b) => roleOf(a[0]).o - roleOf(b[0]).o || b[1] - a[1]).map(pTag).join(" &nbsp; ")}${u.players.length > 5 ? ` <span class="hint" title="Also on ice for part of this unit's time">· also ${u.players.slice(5).map(([id, n]) => `#${esc((dressedMap(g).get(id) || {}).num ?? "?")} ${roleOf(id).t} ${n}s`).join(", ")}</span>` : ""}</td><td>${mm(u.secs)}</td><td>${u.stints}</td>${k === "pp" ? `<td>${u.gf ? `<b class="good">${u.gf}</b>` : 0}</td>` : `<td>${u.ga ? `<b class="bad">${u.ga}</b>` : 0}</td><td>${u.gf || 0}</td>`}</tr>`).join("")}</table>`; };
+      <table class="gt l"><tr><th>Unit</th><th>Skaters (top 5; position and line from your Lineup groups)</th><th>Time</th><th title="The number of times that this unit went on the ice">Stints</th>${k === "pp" ? `<th title="Goals For: PIT goals when this unit was on the ice">GF</th>` : `<th title="Goals Against: goals against PIT when this unit was on the ice">GA</th><th title="Short-Handed Goals: PIT goals when PIT was shorthanded and this unit was on the ice">SHG</th>`}</tr>${us.map(u => `<tr class="${u.players.some(p => p[0] === me) ? "me" : ""}"><td><b>${name}${u.u}</b></td>
+        <td>${[...u.players.slice(0, 5)].sort((a, b) => roleOf(a[0]).o - roleOf(b[0]).o || b[1] - a[1]).map(pTag).join(" &nbsp; ")}${u.players.length > 5 ? ` <span class="hint" title="Also on the ice for a part of the time of this unit">· also ${u.players.slice(5).map(([id, n]) => `#${esc((dressedMap(g).get(id) || {}).num ?? "?")} ${roleOf(id).t} ${n}s`).join(", ")}</span>` : ""}</td><td>${mm(u.secs)}</td><td>${u.stints}</td>${k === "pp" ? `<td>${u.gf ? `<b class="good">${u.gf}</b>` : 0}</td>` : `<td>${u.ga ? `<b class="bad">${u.ga}</b>` : 0}</td><td>${u.gf || 0}</td>`}</tr>`).join("")}</table>`; };
   const rows = S.stretches.map(st => { const nm = st.kind === "pp" ? "PP" : "PK";
     return `<tr><td>${esc(en(st.period + " " + st.start))}</td><td><span class="tag2" style="margin-left:0">${nm}</span></td><td>${mm(st.dur)}</td><td>${(() => { const p = st.pen != null && (g.penalties || [])[st.pen]; if(!p) return `<span class="hint">–</span>`; const mine = p.team === "PIT", r = mine ? roleOf(p.pid) : null;
         return `${esc(p.player)}${mine ? ` <span class="tag2" style="margin-left:2px">${r.t}${r.ln ? " " + r.ln : ""}</span>` : ""} <span class="hint">${esc(p.rule)}</span>${(st.start_on || []).length ? `<div class="hint">On ice at the whistle: ${[...st.start_on].sort((a, b) => roleOf(a).o - roleOf(b).o).map(id => pTag([id, 0]).replace(/ <span class="hint">0s<\/span>/, "")).join(" &nbsp; ")}</div>` : ""}`; })()}</td><td>${st.segs.map(sg => `<b>${nm}${sg.u}</b> <span class="hint">${mm(sg.dur)}</span>`).join(" → ")}</td><td>${st.goals.map(x => x.gf ? `<span class="tag2 plus" style="margin-left:0">PIT goal</span>` : `<span class="tag2 minus" style="margin-left:0">PIT goal against</span>`).join(" ") || `<span class="hint">–</span>`}</td></tr>`; }).join("");
-  return `<div class="gsec">Special teams units <span class="hint" style="font-weight:400">(rebuilt per second from shift data; PP1/PK1 = the unit with the most time; start times are the on-screen clock; hover a number for the name; “also” = played only part of it)</span></div>
+  return `<div class="gsec">Special teams units <span class="hint" style="font-weight:400">(made again for each second from shift data. PP1/PK1 = the unit with the most time. Start times use the clock on the screen. Put the pointer on a number to see the name. “also” = played only a part of the time)</span></div>
     <div class="box" style="overflow:auto">${tbl("pp", "PP")}${tbl("pk", "PK")}
-      ${rows ? `<div class="hint" style="margin:10px 0 2px"><b>Each opportunity</b> — a PK is not a fixed unit: it starts from whoever was on the ice with the penalized player when the whistle blew, and the team may change skaters afterwards. A power play is likewise just whoever the coach sends out.</div><table class="gt l"><tr><th>Start</th><th></th><th>Length</th><th>Penalty</th><th>Units in order</th><th>Goals</th></tr>${rows}</table>` : `<span class="hint">No special-teams time.</span>`}</div>`;
+      ${rows ? `<div class="hint" style="margin:10px 0 2px"><b>Each opportunity</b> — a PK is not a fixed unit. It starts with the players who were on the ice with the penalized player at the whistle. Then the team can change skaters. A power play also uses the players that the coach sends on the ice.</div><table class="gt l"><tr><th>Start</th><th></th><th>Length</th><th>Penalty</th><th>Units in order</th><th>Goals</th></tr>${rows}</table>` : `<span class="hint">No special-teams time.</span>`}</div>`;
 }
 function penHTML(g){
   const P = g.penalties; if(!P) return "";
   const meHi = Number(openPid());
   const mine = P.filter(x => x.team === "PIT"), opp = P.filter(x => x.team !== "PIT"), mins = a => a.reduce((n, x) => n + (+x.min || 0), 0);
-  return `<div class="gsec">Penalties <span class="hint" style="font-weight:400">(PIT ${mine.length} · ${mins(mine)} min — ${esc(g.opp)} ${opp.length} · ${mins(opp)} min; times are the on-screen game clock)</span></div>
+  return `<div class="gsec">Penalties <span class="hint" style="font-weight:400">(PIT ${mine.length} · ${mins(mine)} min — ${esc(g.opp)} ${opp.length} · ${mins(opp)} min; times use the game clock on the screen)</span></div>
     <div class="box" style="overflow:auto">${P.length ? `<table class="gt l"><tr><th>Time</th><th>Team</th><th>Player</th><th>Penalty</th><th>Min</th><th>Drawn by</th><th>EK on ice</th></tr>${P.map(x => `<tr class="${x.team === "PIT" ? "pen-pit" : "pen-opp"}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td><span class="tmb ${x.team === "PIT" ? "pit" : "opp"}">${esc(x.team === "PIT" ? "PIT" : g.opp)}</span></td><td>${x.pid === meHi ? `<b style="color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:inset 0 0 0 1px var(--accent);border-radius:6px;padding:0 5px">${esc(x.player)}</b>` : esc(x.player)}</td><td>${esc(x.rule)}${x.type && x.type !== "MIN" ? `<span class="tag2">${esc(x.type)}</span>` : ""}</td><td>${x.min ?? ""}</td><td>${x.drawn && x.drawn === ((dressedMap(g).get(meHi) || {}).name || "") ? `<b style="color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:inset 0 0 0 1px var(--accent);border-radius:6px;padding:0 5px">${esc(x.drawn)}</b>` : esc(x.drawn)}</td><td>${x.ek === true ? `<b style="color:var(--accent)">On</b>` : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td></tr>`).join("")}</table>` : `<span class="hint">No penalties.</span>`}</div>`;
 }
 function renderGameDetail(){
@@ -1035,7 +1035,7 @@ function renderGameDetail(){
   const dsec = (key, title, html) => `<details class="dsec" data-sec="${key}"${openSecs.has(key) ? " open" : ""}><summary>${title}</summary>${html}</details>`;
   const missMain = it.miss.filter(e => !["在场进球", "失球"].includes(e.type));       // 批量下载只管他自己的进球/助攻
   const onIceMiss = type => { const m = it.miss.filter(e => e.type === type); if(!m.length || SNAP) return "";      // 冰上进球/丢球: 需要哪个才下载哪个
-    return `<div class="box"><div class="hint" style="margin-bottom:6px">Not downloaded — pick the ones you need:</div>${m.map(e => `<div class="row" style="align-items:center;gap:8px;margin:4px 0"><span>${esc(en(e.moment))}</span><span class="hint">${esc(e.scorer)}${e.assists.length ? " (" + esc(e.assists.join(", ")) + ")" : ""}${e.strength ? " · " + esc(en(e.strength)) : ""} · ${esc(e.score)}</span>
+    return `<div class="box"><div class="hint" style="margin-bottom:6px">Not downloaded. Select the clips that are necessary:</div>${m.map(e => `<div class="row" style="align-items:center;gap:8px;margin:4px 0"><span>${esc(en(e.moment))}</span><span class="hint">${esc(e.scorer)}${e.assists.length ? " (" + esc(e.assists.join(", ")) + ")" : ""}${e.strength ? " · " + esc(en(e.strength)) : ""} · ${esc(e.score)}</span>
       ${e.clip ? `<button class="btn" data-dl="${esc(e.id)}">⬇ Download</button>` : `<span class="hint">(no official video yet)</span>`}</div>`).join("")}</div>`; };
   const sec = (title, arr, extra = "") => arr.length || extra ? `<div class="gsec">${title}</div>${arr.length ? `<div class="grid">${arr.map(clipHTML).join("")}</div>` : ""}${extra}` : "";
   // 数值着色: 好的数据用绿色, 差的用红色, 0 不着色。进球/助攻/得分/抢断/射门/封堵越多越好, 冲撞是中性的不着色, 正负值看正负, 失误越多越差
@@ -1054,14 +1054,14 @@ function renderGameDetail(){
     ${pressTier(g) ? `<div class="box" style="margin-top:8px;text-align:center"><div style="font-size:15px"><span class="hint">Pressure (his shot-attempt share minus the team’s, 5v5)</span> ${pressChip(g, true).replace(/<\/?div[^>]*>/g, "")}</div><div class="hint" style="margin-top:4px">${esc(pressRange())}</div></div>` : ""}
     ${advHTML(g)}
     <div class="gsec">Karlsson this game</div>
-    <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
-    <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times are the on-screen game clock, counting down)</span></div>
-    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th title="PIT skaters on the ice at that second, whoever scored (goalie not counted)">PIT skaters on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
+    <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play in this game.</span>`}</div>
+    <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times use the game clock on the screen, which counts down)</span></div>
+    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th title="PIT skaters on the ice at that second, for all goals (goalie not counted)">PIT skaters on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
       return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
         <td>${pitOn(x)}</td>
         <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? (SNAP ? "" : `<span class="hint">Not downloaded</span>`) : (x.ek === true && x.clip && !SNAP ? `<button class="btn" data-dl="${esc(x.clip)}" style="padding:2px 8px;font-size:12px">⬇ Download</button>` : ""))}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
       const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
-      return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}, which the NHL does not count toward +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
+      return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on the ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}. The NHL does not count these goals for +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
     ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), missMain.length && !SNAP ? `<div class="box"><b style="color:var(--bad)">${missMain.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${missMain.filter(e => e.clip).length}</button></div>` : "")}
     ${sec("PIT goals with EK on ice (no point)", clipsBy(c => c.type === "在场进球"), onIceMiss("在场进球"))}
     ${sec("Goals against (EK on ice)", clipsBy(c => c.type === "失球"), onIceMiss("失球"))}
@@ -1080,7 +1080,7 @@ function renderGameDetail(){
       <div class="hint" style="margin-top:8px">Goalies</div><table class="gt"><tr><th>Player</th><th>Shots against</th><th>Saves</th><th>GA</th><th>Sv%</th><th>Result</th><th>TOI</th></tr>${(L.goalies || []).map(r => `<tr><td>${mug(g, r)}${esc(r.num ?? "")} ${esc(r.name)}</td><td>${r.sa ?? ""}</td><td>${r.sv ?? ""}</td><td>${r.ga ?? ""}</td><td class="${r.svp != null && r.sa ? (r.svp >= 0.92 ? "good" : r.svp < 0.88 ? "bad" : "") : ""}">${r.svp != null ? (Math.round(r.svp * 1000) / 1000).toFixed(3) : ""}</td><td class="${r.dec === "W" ? "good" : r.dec ? "bad" : ""}">${esc(r.dec || "")}</td><td>${esc(r.toi || "")}</td></tr>`).join("")}</table>
       ${(g.scratches || []).length ? `<div class="hint" style="margin-top:8px">Scratches: ${g.scratches.map(esc).join(", ")}</div>` : ""}</div>
 `)}
-    <div class="hint" style="margin-top:10px"><span style="color:var(--event);font-weight:600">Green</span> = good, <span style="color:var(--bad);font-weight:600">red</span> = bad (zeros are not colored): more goals, assists, shots, blocks and takeaways are good (hits are neutral and not colored), a positive +/- is good and a negative one is bad, giveaways are always bad; for goalies Sv% ≥ .920 is good and under .880 is bad. GV = giveaways, TK = takeaways. Data comes from the official public NHL API. To save a table as an image, use a macOS screenshot (Shift+Command+4).</div>`;
+    <div class="hint" style="margin-top:10px"><span style="color:var(--event);font-weight:600">Green</span> = good, <span style="color:var(--bad);font-weight:600">red</span> = bad (zeros have no color). More goals, assists, shots, blocks and takeaways are good. Hits are neutral and have no color. A positive +/- is good and a negative +/- is bad. Giveaways are always bad. For goalies, Sv% ≥ .920 is good and less than .880 is bad. GV = giveaways, TK = takeaways. The data comes from the official public NHL API. To save a table as an image, use a macOS screenshot (Shift+Command+4).</div>`;
   $("gBack").onclick = () => { openGame = null; lineEdit = null; lineDraft = null; lineNotice = null; renderGames(); };
   wireLines(g);
   document.querySelectorAll("#gameDetail details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
@@ -1089,15 +1089,15 @@ function renderGameDetail(){
   document.querySelectorAll("#gameDetail [data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
   document.querySelectorAll("#gameDetail [data-oc]").forEach(a => a.onclick = e => { e.preventDefault(); openClip(a.dataset.oc); });
   const gg = $("gGet"); if(gg) gg.onclick = async () => { gg.disabled = true; await post("/api/nhl/fetch", {ids: missMain.filter(e => e.clip).map(e => e.id)}); poll(); };
-  document.querySelectorAll("#gameDetail [data-dl]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Downloading…"; await post("/api/nhl/fetch", {ids: [b.dataset.dl]}); poll(); });
+  document.querySelectorAll("#gameDetail [data-dl]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Download started…"; await post("/api/nhl/fetch", {ids: [b.dataset.dl]}); poll(); });
 }
 let _pid = 0; const openPid = () => _pid;
 
 // ---------- 照片 ----------
 const PST = ["待确认", "选入", "排除"];
 let newsData = null, newsOpen = new Set(["skip"]);
-const TIER_INFO = {top: ["Top stories", "Karlsson is the subject and it is big news (contract, trade, injury) or a long feature."], relevant: ["Relevant", "Karlsson is named in the headline."],
-  background: ["Background", "Team news or game coverage that mentions the Penguins but not him in the headline."], skip: ["Not relevant", "Fantasy / betting / broadcast listings, or not about him or the team."]};
+const TIER_INFO = {top: ["Top stories", "The story is about Karlsson and it is important news (contract, trade, injury) or a long feature."], relevant: ["Relevant", "Karlsson is named in the headline."],
+  background: ["Background", "Team news or game reports about the Penguins. His name is not in the headline."], skip: ["Not relevant", "Fantasy / betting / broadcast lists, or not about him or the team."]};
 let xData = null, xOpen = null;
 const xQ = (h, q) => "https://x.com/search?q=" + encodeURIComponent((h ? `from:${h} ` : "") + q) + "&f=live";
 async function renderX(){
@@ -1107,15 +1107,15 @@ async function renderX(){
   const acc = a => `<div class="box" style="padding:8px 12px;margin:6px 0"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><span><b>${esc(a.name)}</b> ${a.handle ? `<span class="hint">@${esc(a.handle)}</span>` : `<span class="hint">(no handle yet)</span>`}</span>
       <span class="row" style="gap:6px;flex-wrap:wrap">${a.handle ? `<a class="btn" target="_blank" rel="noopener" href="${esc(xQ(a.handle, "Karlsson"))}">Search “Karlsson” ↗</a><a class="btn" target="_blank" rel="noopener" href="${esc(xQ(a.handle, "(intermission OR interview OR \"between periods\")"))}">Search intermission ↗</a><a class="btn" target="_blank" rel="noopener" href="https://x.com/${esc(a.handle)}">Profile ↗</a>`
         : `<a class="btn" target="_blank" rel="noopener" href="https://x.com/search?q=${encodeURIComponent(a.name)}&f=user">Find the account on X ↗</a>`}<button class="btn" data-xdel="${esc(a.id)}">Remove</button></span></div>
-    <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center"><input data-xh="${esc(a.id)}" placeholder="handle, e.g. penguins" value="${esc(a.handle)}" style="width:150px"><input data-xn="${esc(a.id)}" placeholder="Note: what did you find? e.g. no intermission interviews since Oct 12" value="${esc(a.note)}" style="flex:1;min-width:200px"><button class="btn" data-xs="${esc(a.id)}">Save</button><button class="btn" data-xc="${esc(a.id)}">I checked it now</button></div>
+    <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center"><input data-xh="${esc(a.id)}" placeholder="handle (example: penguins)" value="${esc(a.handle)}" style="width:150px"><input data-xn="${esc(a.id)}" placeholder="Note: what did you find? Example: no intermission interviews after Oct 12" value="${esc(a.note)}" style="flex:1;min-width:200px"><button class="btn" data-xs="${esc(a.id)}">Save</button><button class="btn" data-xc="${esc(a.id)}">Checked now</button></div>
     <div class="hint" style="margin-top:2px">${a.checked ? "Last checked " + esc(a.checked.replace("T", " ")) : "Not checked yet"}</div></div>`;
   const item = x => `<div class="box" style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;margin:6px 0">${x.thumb ? `<img src="${esc(x.thumb)}" width="120" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
     <div style="flex:1;min-width:0"><div class="hint">@${esc(x.handle)} · ${esc(x.date || "date unknown")}${x.has_video === true ? ` · video${x.duration ? " " + Math.floor(x.duration / 60) + ":" + String(x.duration % 60).padStart(2, "0") : ""}` : x.has_video === false ? " · no video" : ""}</div>
       <div style="margin:2px 0">${esc((x.text || "").slice(0, 280))}</div><div class="hint"><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on X ↗</a></div>
-      ${x.status === "待确认" ? `<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap"><select data-xt="${esc(x.id)}">${TYPES.map(t => `<option value="${t}"${t === "采访" ? " selected" : ""}>${tn(t)}</option>`).join("")}</select><input data-xd="${esc(x.id)}" type="date" value="${esc(x.date)}"><button class="btn primary" data-xin="${esc(x.id)}">Download</button><button class="btn" data-xout="${esc(x.id)}">Not needed</button></div>` : `<div class="row" style="margin-top:4px"><span class="badge" style="background:var(--other)">${x.status === "选入" ? "Downloaded (check Clips)" : "Not needed"}</span><button class="btn" data-xback="${esc(x.id)}">Move back to pending</button></div>`}</div></div>`;
-  $("viewX").innerHTML = `<div class="box"><b>X (Twitter)</b> <span class="hint">I cannot read X on my own, so you search it yourself with the buttons below, then paste any post you want here. Videos in posts are downloaded like other links.</span></div>
+      ${x.status === "待确认" ? `<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap"><select data-xt="${esc(x.id)}">${TYPES.map(t => `<option value="${t}"${t === "采访" ? " selected" : ""}>${tn(t)}</option>`).join("")}</select><input data-xd="${esc(x.id)}" type="date" value="${esc(x.date)}"><button class="btn primary" data-xin="${esc(x.id)}">Download</button><button class="btn" data-xout="${esc(x.id)}">Not needed</button></div>` : `<div class="row" style="margin-top:4px"><span class="badge" style="background:var(--other)">${x.status === "选入" ? "Downloaded (refer to Clips)" : "Not needed"}</span><button class="btn" data-xback="${esc(x.id)}">Move back to pending</button></div>`}</div></div>`;
+  $("viewX").innerHTML = `<div class="box"><b>X (Twitter)</b> <span class="hint">The app cannot read X. Use the buttons below to search X. Then paste the posts here. The app downloads videos in posts the same as other links.</span></div>
     <div class="gsec" style="font-size:15px">Accounts to search</div>${d.accounts.map(acc).join("")}
-    <div class="box" style="padding:8px 12px"><div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><b class="hint">Add an account</b><input id="xaName" placeholder="Name, e.g. DK Pittsburgh Sports" style="width:220px"><input id="xaHandle" placeholder="handle (optional)" style="width:150px"><button class="btn" id="xaAdd">Add</button>
+    <div class="box" style="padding:8px 12px"><div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><b class="hint">Add an account</b><input id="xaName" placeholder="Name (example: DK Pittsburgh Sports)" style="width:220px"><input id="xaHandle" placeholder="handle (optional)" style="width:150px"><button class="btn" id="xaAdd">Add</button>
       <a class="btn" target="_blank" rel="noopener" href="${esc(xQ("", "Karlsson (intermission OR interview) Penguins"))}">Search all of X for Karlsson interviews ↗</a></div></div>
     <div class="gsec" style="font-size:15px">Paste post links</div>
     <div class="box"><textarea id="xLinks" rows="3" style="width:100%;box-sizing:border-box" placeholder="https://x.com/name/status/1234567890123456789&#10;(one link per line)"></textarea><div class="row" style="margin-top:6px;gap:8px;align-items:center"><button class="btn primary" id="xAddLinks">Add to the list</button><span class="hint" id="xMsg"></span></div></div>
@@ -1128,7 +1128,7 @@ async function renderX(){
   document.querySelectorAll("#viewX [data-xs]").forEach(b => b.onclick = () => acct({op: "update", id: b.dataset.xs, handle: document.querySelector(`[data-xh="${b.dataset.xs}"]`).value, note: document.querySelector(`[data-xn="${b.dataset.xs}"]`).value}));
   document.querySelectorAll("#viewX [data-xc]").forEach(b => b.onclick = () => acct({op: "update", id: b.dataset.xc, handle: document.querySelector(`[data-xh="${b.dataset.xc}"]`).value, note: document.querySelector(`[data-xn="${b.dataset.xc}"]`).value, checked_now: true}));
   $("xAddLinks").onclick = async () => { $("xAddLinks").disabled = true; const r = await post("/api/x/links", {urls: $("xLinks").value}); $("xAddLinks").disabled = false; if(r.error){ alert(r.error); return; }
-    if(!r.found){ $("xMsg").textContent = "No X post links found. A link looks like https://x.com/name/status/123…"; return; } $("xLinks").value = ""; await reload(); $("xMsg").textContent = `Added ${r.added}${r.skipped ? `, ${r.skipped} already in the list` : ""}.`; };
+    if(!r.found){ $("xMsg").textContent = "There are no X post links. Example of a link: https://x.com/name/status/123…"; return; } $("xLinks").value = ""; await reload(); $("xMsg").textContent = `Added ${r.added}${r.skipped ? `, ${r.skipped} already in the list` : ""}.`; };
   const mark = async (id, status, extra) => { const r = await post("/api/x/mark", {id, status, ...extra}); if(r.error){ alert(r.error); return; } if(status === "选入") poll(); await reload(); };
   document.querySelectorAll("#viewX [data-xin]").forEach(b => b.onclick = () => { const id = b.dataset.xin; mark(id, "选入", {type: document.querySelector(`[data-xt="${id}"]`).value, date: document.querySelector(`[data-xd="${id}"]`).value}); });
   document.querySelectorAll("#viewX [data-xout]").forEach(b => b.onclick = () => mark(b.dataset.xout, "排除", {}));
@@ -1144,7 +1144,7 @@ async function renderNhlcom(){
   const fmtDur = s => s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   const row = x => `<div class="box" style="display:flex;gap:10px;align-items:center;padding:8px 12px;margin:6px 0">
     ${x.thumb ? `<img src="${esc(x.thumb)}" width="120" style="border-radius:6px;flex:none" loading="lazy" alt="">` : ""}
-    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b> ${x.lang === "sv" ? `<span class="badge" style="background:var(--accent)" title="Only on the Swedish NHL site; often spoken in Swedish">SV</span>` : ""}</div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
+    <div style="flex:1;min-width:0"><div><b>${esc(x.title)}</b> ${x.lang === "sv" ? `<span class="badge" style="background:var(--accent)" title="Only on the Swedish NHL site. Frequently in Swedish">SV</span>` : ""}</div><div class="hint">${esc(x.date)} · ${fmtDur(x.duration)}${x.desc ? " · " + esc(x.desc.slice(0, 140)) : ""}</div>
       <div class="hint"><a href="https://www.nhl.com/${x.lang === "sv" ? "sv/" : ""}video/${esc(x.slug)}" target="_blank" rel="noopener" style="color:var(--accent)">Open on NHL.com${x.lang === "sv" ? " (Swedish site)" : ""}</a></div></div>
     <div style="flex:none">${x.in_archive ? `<span class="badge" style="background:var(--other)">In archive</span>` : `<label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-nc="${esc(x.id)}"${nhlcomSel.has(x.id) ? " checked" : ""}> Select</label>`}</div></div>`;
   const todo = shown.filter(x => !x.in_archive);
@@ -1155,15 +1155,15 @@ async function renderNhlcom(){
       <div class="hint">${esc(x.date)}${x.summary ? " · " + esc(x.summary.slice(0, 200)) : ""}</div></div>
     <div style="flex:none" class="row">${x.status === "待确认" ? `<button class="btn" data-ak="${esc(x.id)}">Keep</button><button class="btn" data-ax="${esc(x.id)}">Not relevant</button>` : `<button class="btn" data-ab="${esc(x.id)}">Move back</button>`}</div></div>`;
   const artHtml = `<div class="gsec" style="font-size:15px;margin-top:18px">Articles on NHL.com ${nhlArt.checked ? `<span class="hint">· ${aall.length} this season${acur ? ` (${esc(acur)})` : ""}, ${apend.length} waiting</span>` : ""}</div>
-    <div class="hint" style="margin-bottom:6px">Text stories that mention Karlsson. Only the headline, date, summary and link are kept, not the article text. Open the ones that look useful, then Keep or mark Not relevant. “Check NHL.com” above refreshes this too.</div>
-    ${apend.length ? apend.map(art).join("") : `<div class="box hint">${nhlArt.checked ? "Nothing waiting." : "Click “Check NHL.com” to load the articles."}</div>`}
+    <div class="hint" style="margin-bottom:6px">Text stories about Karlsson. The app keeps only the headline, date, summary and link. It does not keep the article text. Open the stories that are useful, then click Keep or Not relevant. “Check NHL.com” above also updates this list.</div>
+    ${apend.length ? apend.map(art).join("") : `<div class="box hint">${nhlArt.checked ? "No items." : "Click “Check NHL.com” to show the articles."}</div>`}
     ${akeep.length ? `<details style="margin-top:8px"${nhlArtShow.has("k") ? " open" : ""} data-ad="k"><summary class="hint" style="cursor:pointer">Kept (${akeep.length})</summary>${akeep.map(art).join("")}</details>` : ""}
     ${askip.length ? `<details style="margin-top:8px"${nhlArtShow.has("s") ? " open" : ""} data-ad="s"><summary class="hint" style="cursor:pointer">Not relevant (${askip.length})</summary>${askip.map(art).join("")}</details>` : ""}`;
   $("viewNhlcom").innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap"><span class="hint">${d.checked ? `Checked ${esc(d.checked.replace("T", " "))} · ${shown.length} interviews this season${cur ? ` (${esc(cur)})` : ""}, ${todo.length} not in the archive yet` : "Not checked yet."}</span>
-    <span class="row" style="gap:6px"><label class="hint" style="display:flex;gap:4px;align-items:center" title="Show interviews from earlier seasons too; they go to the History tab"><input type="checkbox" id="ncHist"${nhlcomHist ? " checked" : ""}> Include earlier seasons</label><label class="hint" style="display:flex;gap:4px;align-items:center" title="Videos that only appear on nhl.com/sv, many in Swedish"><input type="checkbox" id="ncSv"${nhlcomSv ? " checked" : ""}> Include the Swedish site</label><button class="btn" id="ncGo">Check NHL.com</button><button class="btn primary" id="ncAdd"${nhlcomSel.size ? "" : " disabled"}>Download selected (${nhlcomSel.size})</button></span></div>
-    <div class="hint" id="ncMsg" style="margin-bottom:6px">Karlsson’s interviews published on NHL.com (post-game, game day, training camp, locker-room, etc.). Downloaded ones go to Clips as “Interview” and are filed under the game by date.</div>
+    <span class="row" style="gap:6px"><label class="hint" style="display:flex;gap:4px;align-items:center" title="Also show interviews from earlier seasons. The app puts them in the History tab."><input type="checkbox" id="ncHist"${nhlcomHist ? " checked" : ""}> Include earlier seasons</label><label class="hint" style="display:flex;gap:4px;align-items:center" title="Videos that are only on nhl.com/sv. Many are in Swedish."><input type="checkbox" id="ncSv"${nhlcomSv ? " checked" : ""}> Include the Swedish site</label><button class="btn" id="ncGo">Check NHL.com</button><button class="btn primary" id="ncAdd"${nhlcomSel.size ? "" : " disabled"}>Download selected (${nhlcomSel.size})</button></span></div>
+    <div class="hint" id="ncMsg" style="margin-bottom:6px">Karlsson interviews on NHL.com (post-game, game day, training camp, locker room and more). The app puts downloaded interviews in Clips as “Interview”, with the game on that date.</div>
     ${shown.length ? shown.map(row).join("") : `<div class="box hint">Nothing here yet. Click “Check NHL.com”.</div>`}${artHtml}`;
-  $("ncGo").onclick = async () => { $("ncGo").disabled = true; $("ncMsg").textContent = "Reading NHL.com…"; const r = await post("/api/nhlcom/refresh", {}); const ra = await post("/api/nhlart/refresh", {}); if(!ra.error) nhlArt = ra; if(r.error){ $("ncMsg").textContent = r.error; $("ncGo").disabled = false; } else { nhlcomData = r; renderNhlcom(); } };
+  $("ncGo").onclick = async () => { $("ncGo").disabled = true; $("ncMsg").textContent = "The app reads NHL.com…"; const r = await post("/api/nhlcom/refresh", {}); const ra = await post("/api/nhlart/refresh", {}); if(!ra.error) nhlArt = ra; if(r.error){ $("ncMsg").textContent = r.error; $("ncGo").disabled = false; } else { nhlcomData = r; renderNhlcom(); } };
   const amark = async (id, st) => { const r = await post("/api/nhlart/mark", {id, status: st}); if(r.error){ alert(r.error); return; } const it = nhlArt.items.find(x => x.id === id); if(it) it.status = st; renderNhlcom(); };
   document.querySelectorAll("#viewNhlcom [data-ak]").forEach(b => b.onclick = () => amark(b.dataset.ak, "保留"));
   document.querySelectorAll("#viewNhlcom [data-ax]").forEach(b => b.onclick = () => amark(b.dataset.ax, "排除"));
@@ -1172,7 +1172,7 @@ async function renderNhlcom(){
   $("ncHist").onchange = () => { nhlcomHist = $("ncHist").checked; renderNhlcom(); };
   $("ncSv").onchange = () => { nhlcomSv = $("ncSv").checked; try { localStorage.setItem("nhlcomSv", nhlcomSv ? "1" : "0"); } catch(e){} renderNhlcom(); };
   document.querySelectorAll("#viewNhlcom [data-nc]").forEach(c => c.onchange = () => { c.checked ? nhlcomSel.add(c.dataset.nc) : nhlcomSel.delete(c.dataset.nc); $("ncAdd").disabled = !nhlcomSel.size; $("ncAdd").textContent = `Download selected (${nhlcomSel.size})`; });
-  $("ncAdd").onclick = async () => { const ids = [...nhlcomSel]; $("ncAdd").disabled = true; const r = await post("/api/nhlcom/add", {ids}); if(r.error){ alert(r.error); return; } nhlcomSel.clear(); $("ncMsg").textContent = `Started ${r.n} download${r.n === 1 ? "" : "s"}; progress shows at the top.`; poll(); setTimeout(async () => { nhlcomData = await api("/api/nhlcom"); renderNhlcom(); }, 4000); };
+  $("ncAdd").onclick = async () => { const ids = [...nhlcomSel]; $("ncAdd").disabled = true; const r = await post("/api/nhlcom/add", {ids}); if(r.error){ alert(r.error); return; } nhlcomSel.clear(); $("ncMsg").textContent = `Started ${r.n} download${r.n === 1 ? "" : "s"}. The progress is at the top.`; poll(); setTimeout(async () => { nhlcomData = await api("/api/nhlcom"); renderNhlcom(); }, 4000); };
 }
 let histQ = "", histMode = "timeline", timeline = null;
 function renderTimeline(all){
@@ -1187,7 +1187,7 @@ function renderTimeline(all){
     return `<div class="tli${vs.length ? "" : " nov"}"><div class="tx"><div class="d">${esc(e.label || e.date)}</div><h3>${esc(e.title)}</h3><p>${esc(e.text || "")}</p></div>${vs.length ? `<div class="vids">${vs.map(card).join("")}</div>` : ""}</div>`;
   }).join("");
   const rest = all.filter(c => !used.has(c.id)).length;
-  return `<div class="tl">${html || `<div class="box hint">No timeline yet. Add events to timeline.json.</div>`}</div>${rest ? `<div class="hint" style="margin-top:6px">${rest} more past interview${rest > 1 ? "s" : ""} not placed on the timeline yet; see “All interviews”.</div>` : ""}`;
+  return `<div class="tl">${html || `<div class="box hint">There is no timeline. Add events to timeline.json.</div>`}</div>${rest ? `<div class="hint" style="margin-top:6px">${rest} more past interview${rest > 1 ? "s" : ""} not on the timeline. Refer to “All interviews”.</div>` : ""}`;
 }
 async function renderHistory(){
   if(view !== "history") return;
@@ -1201,12 +1201,12 @@ async function renderHistory(){
   const all = clips.filter(isHist), q = histQ.trim().toLowerCase();
   const list = all.filter(c => !q || (c.title + " " + c.caption + " " + c.tags + " " + (c.summary || "")).toLowerCase().includes(q)).sort((a, b) => b.game_date.localeCompare(a.game_date));
   const by = {}; list.forEach(c => { const m = +c.game_date.slice(5, 7), y = +c.game_date.slice(0, 4), s = m >= 7 ? y : y - 1; (by[s] ||= []).push(c); });
-  $("viewHistory").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="chip" data-hm="timeline">Timeline</button><button class="chip on" data-hm="list">All interviews</button></div><div class="hint" style="margin-bottom:8px">Past interviews from before ${esc(START)}. Only interviews are kept here; game clips start on ${esc(START)}. Add one from the Add tab (type Interview, set the date) or from NHL.com → “Include earlier seasons”.</div>
+  $("viewHistory").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="chip" data-hm="timeline">Timeline</button><button class="chip on" data-hm="list">All interviews</button></div><div class="hint" style="margin-bottom:8px">Past interviews from before ${esc(START)}. This tab keeps only interviews. Game clips start on ${esc(START)}. To add an interview, use the Add tab (type Interview, set the date) or NHL.com → “Include earlier seasons”.</div>
     <div class="row" style="margin-bottom:8px"><input id="histQ" placeholder="Search title, caption, tags" value="${esc(histQ)}" style="flex:1;min-width:160px"><span class="hint">${list.length} of ${all.length} interviews</span></div>
     ${Object.keys(by).sort((a, b) => b - a).map(s => `<div class="gsec" style="font-size:15px;margin-top:14px">${s}-${String(+s + 1).slice(2)} season <span class="hint">· ${by[s].length}</span></div><div class="grid">${by[s].map(c => `<div class="clip" data-hid="${esc(c.id)}">
       <div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
       <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(c.game_date)}</div>
-      ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("")}</div>`).join("") || `<div class="box hint">${all.length ? "No match." : "No past interviews yet."}</div>`}`;
+      ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("")}</div>`).join("") || `<div class="box hint">${all.length ? "No match." : "There are no past interviews."}</div>`}`;
   $("histQ").oninput = () => { histQ = $("histQ").value; const p = $("histQ").selectionStart; renderHistory(); $("histQ").focus(); $("histQ").setSelectionRange(p, p); };
   document.querySelectorAll("[data-hm]").forEach(b => b.onclick = () => { histMode = b.dataset.hm; renderHistory(); });
   document.querySelectorAll("[data-hid]").forEach(el => el.onclick = () => openClip(el.dataset.hid));
@@ -1220,22 +1220,22 @@ async function renderNews(){
     ${a.also && a.also.length ? `<details style="margin-top:4px"><summary class="hint" style="cursor:pointer">Also reported by ${a.also.length} more source${a.also.length > 1 ? "s" : ""} (duplicates)</summary>${a.also.map(x => `<div class="hint" style="margin:3px 0 0 12px"><a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.title)}</a> — ${esc(x.source)}, ${fmt(x.ts)}</div>`).join("")}</details>` : ""}</div>`;
   const ago = ts => { const h = (Date.now() / 1000 - ts) / 3600; return h < 1 ? "just now" : h < 24 ? Math.round(h) + " h ago" : Math.round(h / 24) + " d ago"; };
   const fresh = d.items.filter(a => a.tier !== "skip" && Date.now() / 1000 - a.ts < 48 * 3600).sort((a, b) => b.ts - a.ts);
-  const latest = `<div class="box" style="padding:8px 12px;border-color:var(--accent)"><b>Latest — last 48 hours</b> <span class="hint">(${fresh.length}; newest first, not counting “Not relevant”)</span>${fresh.map(a => `<div style="margin:5px 0"><b style="color:var(--accent)">${ago(a.ts)}</b> · <a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.title)}</a> <span class="hint">${esc(a.source)} · ${esc(TIER_INFO[a.tier][0])}</span></div>`).join("") || `<div class="hint">Nothing in the last 48 hours.</div>`}</div>`;
-  $("viewNews").innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="hint">${d.updated ? `Updated ${esc(d.updated.replace("T", " "))} · ${d.items.length} stories after merging duplicates` : "No news loaded yet."} Source: Google News search (the same coverage as an alert), ranked by headline and source rules — hover a score to see why.</span>
+  const latest = `<div class="box" style="padding:8px 12px;border-color:var(--accent)"><b>Latest — last 48 hours</b> <span class="hint">(${fresh.length}; newest first, “Not relevant” not included)</span>${fresh.map(a => `<div style="margin:5px 0"><b style="color:var(--accent)">${ago(a.ts)}</b> · <a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.title)}</a> <span class="hint">${esc(a.source)} · ${esc(TIER_INFO[a.tier][0])}</span></div>`).join("") || `<div class="hint">Nothing in the last 48 hours.</div>`}</div>`;
+  $("viewNews").innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="hint">${d.updated ? `Updated ${esc(d.updated.replace("T", " "))} · ${d.items.length} stories after the app merged duplicates` : "There is no news."} Source: Google News search (the same coverage as an alert). The app sorts the stories by headline and source rules. Put the pointer on a score to see the reason.</span>
     <button class="btn" id="newsGo">Refresh news</button></div><div class="hint" id="newsMsg"></div>` + latest +
     ["top", "relevant", "background", "skip"].map(t => { const arr = d.items.filter(a => a.tier === t), open = newsOpen.has(t) ? false : true;
       return `<details class="box" ${newsOpen.has(t) ? "" : "open"} data-nt="${t}" style="padding:8px 12px"><summary style="cursor:pointer"><b>${TIER_INFO[t][0]}</b> <span class="hint">(${arr.length}) — ${TIER_INFO[t][1]}</span></summary>${arr.map(item).join("") || `<div class="hint">Nothing here.</div>`}</details>`; }).join("");
   document.querySelectorAll("[data-nt]").forEach(el => el.ontoggle = () => { el.open ? newsOpen.delete(el.dataset.nt) : newsOpen.add(el.dataset.nt); });
-  $("newsGo").onclick = async () => { $("newsGo").disabled = true; $("newsMsg").textContent = "Reading Google News…"; const r = await post("/api/news/refresh", {}); newsData = r.error ? newsData : r; if(r.error){ renderNews(); $("newsMsg").textContent = r.error; } else renderNews(); };
+  $("newsGo").onclick = async () => { $("newsGo").disabled = true; $("newsMsg").textContent = "The app reads Google News…"; const r = await post("/api/news/refresh", {}); newsData = r.error ? newsData : r; if(r.error){ renderNews(); $("newsMsg").textContent = r.error; } else renderNews(); };
 }
 function renderTikTok(){
   if(view !== "tiktok") return;
   const items = tiktok.items || [], cnt = s => items.filter(x => x.status === s).length;
   $("ttStatus").innerHTML = ["选入", "待确认", "排除"].map(s => `<button class="chip ${ttStatus === s ? "on" : ""}" data-ts="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
   document.querySelectorAll("[data-ts]").forEach(b => b.onclick = () => { ttStatus = b.dataset.ts; renderTikTok(); });
-  $("ttInfo").textContent = tiktok.checked ? `Last checked ${tiktok.checked.replace("T", " ").slice(0, 16)}. Each check only adds videos you have not seen before, posted on or after ${START || "the start date"}.`
-    : `Not checked yet. Click “Check TikTok” to look for new videos on the Penguins account and Karlsson posts from 93.7 The Fan (posted on or after ${START || "the start date"}).`;
-  if(ttStatus === "排除") $("ttInfo").textContent = "Excluded videos are deleted automatically 3 days after you exclude them (until then you can still move them back to Pending).";
+  $("ttInfo").textContent = tiktok.checked ? `Last checked ${tiktok.checked.replace("T", " ").slice(0, 16)}. Each check adds only new videos from ${START || "the start date"} or later.`
+    : `Not checked yet. Click “Check TikTok” to find new videos from the Penguins account and Karlsson posts from 93.7 The Fan (from ${START || "the start date"} or later).`;
+  if(ttStatus === "排除") $("ttInfo").textContent = "The app deletes excluded videos 3 days after you exclude them. Before then, you can move them back to Pending.";
   const list = items.filter(x => x.status === ttStatus).sort((a, b) => b.date.localeCompare(a.date));
   $("ttGrid").innerHTML = list.map(x => `<div class="clip" style="cursor:default"><div class="thumb" style="${x.cover ? `background-image:url('${encodeURI(x.cover)}');background-position:top` : ""}"><span class="dur">${dur(x.duration)}</span></div>
     <div class="cbody"><div class="t">${esc(x.title.replace(/#\w+/g, "").replace(/\s+/g, " ").trim() || "TikTok video")}</div><div class="meta">${esc(x.date.slice(5))} · @${esc(x.account || (x.url.match(/@([^/]+)/) || [, ""])[1])} · ${(+x.views || 0).toLocaleString()} views</div>
@@ -1253,36 +1253,36 @@ function renderYouTube(){
   const items = youtube.items || [], cnt = s => items.filter(x => x.status === s).length;
   $("ytStatus").innerHTML = ["待确认", "选入", "排除"].map(s => `<button class="chip ${ytStatus === s ? "on" : ""}" data-ys="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
   document.querySelectorAll("[data-ys]").forEach(b => b.onclick = () => { ytStatus = b.dataset.ys; renderYouTube(); });
-  $("ytInfo").textContent = youtube.checked ? `Last checked ${youtube.checked.replace("T", " ").slice(0, 16)}. Each check only adds videos you have not seen before, posted on or after ${youtube.since || "yesterday"}, from 6 channels: SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN, Pittsburgh Hockey Now and the NHL (highlights that mention the Penguins or Karlsson).`
-    : "Not checked yet. “Check YouTube” looks at SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN, Pittsburgh Hockey Now and the NHL (only videos that mention the Penguins or Karlsson), starting from yesterday.";
-  if(ytStatus === "排除") $("ytInfo").textContent = "Excluded videos are deleted automatically 3 days after you exclude them (until then you can still move them back to Pending).";
-  if(ytStatus === "选入") $("ytInfo").textContent = "Selected videos are downloaded into Clips. Moving one back does not delete the downloaded clip; delete it from Clips if you want it gone.";
+  $("ytInfo").textContent = youtube.checked ? `Last checked ${youtube.checked.replace("T", " ").slice(0, 16)}. Each check adds only new videos from ${youtube.since || "yesterday"} or later. It uses 6 channels: SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN, Pittsburgh Hockey Now and the NHL (only highlights about the Penguins or Karlsson).`
+    : "Not checked yet. “Check YouTube” finds videos from SportsNet Pittsburgh, the Penguins, DK Pittsburgh Sports, DSEN, Pittsburgh Hockey Now and the NHL (only videos about the Penguins or Karlsson). It starts from yesterday.";
+  if(ytStatus === "排除") $("ytInfo").textContent = "The app deletes excluded videos 3 days after you exclude them. Before then, you can move them back to Pending.";
+  if(ytStatus === "选入") $("ytInfo").textContent = "The app downloads selected videos into Clips. If you move a video back, the app does not delete the downloaded clip. To remove the clip, delete it in Clips.";
   const list = items.filter(x => x.status === ytStatus).sort((a, b) => (+b.mentions - +a.mentions) || b.date.localeCompare(a.date));
   $("ytGrid").innerHTML = list.map(x => `<div class="clip" style="cursor:default"><div class="thumb" style="${x.thumb ? `background-image:url('${encodeURI(x.thumb)}')` : ""}"><span class="dur">${dur(x.duration)}</span></div>
     <div class="cbody"><div class="t">${esc(x.title)}</div><div class="meta">${esc(x.channel)} · ${esc(x.date.slice(5))} · ${(+x.views || 0).toLocaleString()} views${x.mentions ? ` · <b style="color:var(--event)">Mentions Karlsson</b>` : ""}</div>
       <div class="row" style="margin-top:6px"><a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener" style="text-decoration:none">Open on YouTube ↗</a>
         ${x.status === "选入" ? (() => { const mine = clips.filter(c => String(c.id).split(/_\d/)[0] === x.id);
           return mine.length ? mine.map(c => `<button class="btn primary" data-yo="${esc(c.id)}">▶ ${c.seg_start !== "" && c.seg_start != null ? "Clip " + mmss(Math.round(+c.seg_start)) + "–" + mmss(Math.round(+c.seg_end)) : "Downloaded — open clip"}</button>`).join(" ")
-            : `<button class="btn primary" data-yr="${esc(x.id)}">⬇ Download now</button> <span class="hint">not in Clips yet (still downloading, or it failed)</span>`; })() : ""}
+            : `<button class="btn primary" data-yr="${esc(x.id)}">⬇ Download now</button> <span class="hint">not in Clips (the download is in progress, or it failed)</span>`; })() : ""}
         <button class="btn" data-yc="${esc(x.id)}" title="Download only a part of this video">✂ Clip a part</button>
         ${x.status === "选入" && !ytEditing.has(x.id)
           ? `<button class="btn" data-ye="${esc(x.id)}">Edit</button>`
           : (x.status === "选入" ? `<button class="btn" data-ye="${esc(x.id)}">Done</button>` : "") + PST.filter(s => s !== x.status).map(s => `<button class="btn ${s === "选入" ? "primary" : ""}" data-ym="${esc(x.id)}|${s}">${s === "选入" ? "✓ Download" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}
       </div>${ytClipOpen.has(x.id) ? `<div class="row" style="margin-top:6px;align-items:center;gap:6px;flex-wrap:wrap"><span class="hint">From</span><input type="text" id="ycs_${esc(x.id)}" placeholder="0:00" style="width:70px"><span class="hint">to</span><input type="text" id="yce_${esc(x.id)}" placeholder="${mmss(x.duration || 0)}" style="width:70px">
-        <button class="btn primary" data-ycd="${esc(x.id)}">Download this part</button></div><div class="hint">Times like 1:23 or 0:01:23 (video length ${mmss(x.duration || 0)}). Open the video first to find the moment; the video stays in Selected and you can clip more parts.</div>` : ""}</div></div>`).join("") || `<div class="hint">${items.length ? "Nothing here." : "No videos yet."}</div>`;
+        <button class="btn primary" data-ycd="${esc(x.id)}">Download this part</button></div><div class="hint">Use times such as 1:23 or 0:01:23 (video length ${mmss(x.duration || 0)}). First, open the video to find the moment. The video stays in Selected, and you can download more parts.</div>` : ""}</div></div>`).join("") || `<div class="hint">${items.length ? "Nothing here." : "No videos yet."}</div>`;
   document.querySelectorAll("[data-yc]").forEach(b => b.onclick = () => { const id = b.dataset.yc; ytClipOpen.has(id) ? ytClipOpen.delete(id) : ytClipOpen.add(id); renderYouTube(); });
   document.querySelectorAll("[data-ycd]").forEach(b => b.onclick = async () => { const id = b.dataset.ycd, st = $("ycs_" + id).value.trim() || "0", en = $("yce_" + id).value.trim();
     if(!en){ alert("Enter an end time."); return; }
     b.disabled = true; b.textContent = "Starting…"; const r = await post("/api/youtube/clip", {id, start: st, end: en});
     if(r.error){ alert(r.error); b.disabled = false; b.textContent = "Download this part"; return; }
-    ytClipOpen.delete(id); await load(); ytStatus = "选入"; renderYouTube(); $("ytInfo").textContent = "Clip download started — it appears here and in Clips when it finishes."; setTimeout(load, 8000); });
+    ytClipOpen.delete(id); await load(); ytStatus = "选入"; renderYouTube(); $("ytInfo").textContent = "The clip download started. When it is complete, the clip shows here and in Clips."; setTimeout(load, 8000); });
   document.querySelectorAll("[data-yo]").forEach(b => b.onclick = () => { const c = clips.find(c => c.id === b.dataset.yo); if(c){ view = "clips"; render(); openClip(c.id); } });
   document.querySelectorAll("[data-yr]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Starting…"; const r = await post("/api/youtube/mark", {id: b.dataset.yr, status: "选入", retry: true}); if(r.error) alert(r.error);
-    $("ytInfo").textContent = "Download started — it appears in Clips when it finishes (see the progress at the top of the page)."; setTimeout(load, 4000); });
+    $("ytInfo").textContent = "The download started. When it is complete, the clip shows in Clips (the progress is at the top of the page)."; setTimeout(load, 4000); });
   document.querySelectorAll("[data-ye]").forEach(b => b.onclick = () => { const id = b.dataset.ye; ytEditing.has(id) ? ytEditing.delete(id) : ytEditing.add(id); renderYouTube(); });
   document.querySelectorAll("[data-ym]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.ym.split("|"); b.disabled = true;
     const r = await post("/api/youtube/mark", {id, status: st}); if(r.error) alert(r.error); ytEditing.delete(id); await load();
-    if(st === "选入"){ ytStatus = "选入"; renderYouTube(); $("ytInfo").textContent = "Download started — find it in the Selected tab; it turns into “Downloaded — open clip” when it finishes."; setTimeout(load, 8000); } });
+    if(st === "选入"){ ytStatus = "选入"; renderYouTube(); $("ytInfo").textContent = "The download started. The video is in the Selected tab. When the download is complete, the video shows “Downloaded — open clip”."; setTimeout(load, 8000); } });
 }
 async function checkYouTube(){
   const btn = $("ytCheck"); btn.disabled = true; $("ytProg").style.display = ""; $("ytBar").style.width = "2%"; $("ytStage").textContent = "Starting…";
@@ -1410,9 +1410,9 @@ async function renderToday(){
       phP && {n: phP, label: `photo${phP > 1 ? "s" : ""} to review`, go: "photos"},
       missing.length && {n: missing.length, label: "official goal / assist clips not downloaded", act: "dlmissing"},
       noSum && {n: noSum, label: `interview${noSum > 1 ? "s" : ""} without a summary`, go: "clips"}].filter(Boolean);
-    todo = `<div class="box"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:17px">To do</b><button class="btn" id="tdSync" title="Read the latest finished games from the NHL">Sync official data</button></div>` +
+    todo = `<div class="box"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:17px">To do</b><button class="btn" id="tdSync" title="Read the latest completed games from the NHL">Sync official data</button></div>` +
       (rows.length ? rows.map(r => `<div class="row todo"><span class="n ${r.hot ? "hot" : ""}">${r.n}</span><span>${r.label}</span><span style="margin-left:auto">${r.act ? `<button class="btn primary" id="tdMissing">Download</button>` : `<button class="btn ${r.hot ? "primary" : ""}" data-go="${r.go}">Open</button>`}</span></div>`).join("")
-        : `<div class="hint" style="margin:8px 0">All caught up — nothing is waiting for you.</div>`) + `<div id="tdNews"></div></div>`;
+        : `<div class="hint" style="margin:8px 0">All tasks are complete.</div>`) + `<div id="tdNews"></div></div>`;
     window._tdMissing = missing.map(e => e.id);
   }
   const gs = [...games].sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
@@ -1427,9 +1427,9 @@ async function renderToday(){
         <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
         <div class="row" style="margin-top:8px"><button class="btn primary" id="tdOpen">Open game details</button></div></div>
       ${perfGauge(g)}
-      ${key.length ? `<div class="gsec" style="font-size:15px">Key clips from this game</div><div class="grid">${key.map(clipHTML).join("")}</div>` : `<div class="hint" style="margin:8px 0">No clips from this game yet.</div>`}`;
+      ${key.length ? `<div class="gsec" style="font-size:15px">Key clips from this game</div><div class="grid">${key.map(clipHTML).join("")}</div>` : `<div class="hint" style="margin:8px 0">There are no clips from this game.</div>`}`;
   } else {
-    hero = `<div class="box hint" style="margin-top:14px">No game data yet. ${SNAP ? "" : "Click “Sync official data” above to read the finished games."}</div>`;
+    hero = `<div class="box hint" style="margin-top:14px">There is no game data. ${SNAP ? "" : "Click “Sync official data” above to read the completed games."}</div>`;
   }
   const recent = [...clips].sort((a, b) => (b.added || "").localeCompare(a.added || "")).slice(0, 6);
   const rec = recent.length ? `<div class="gsec">Recently added clips</div><div class="grid">${recent.map(clipHTML).join("")}</div>` : "";
@@ -1494,15 +1494,15 @@ function renderPhotos(){
   const groups = {};
   list.forEach(p => (groups[p.tweet_id] ||= []).push(p));
   const ids = Object.keys(groups).sort((a, b) => groups[b][0].date.localeCompare(groups[a][0].date) || (a < b ? 1 : -1));
-  $("pinfo").textContent = !photos.length ? "No photos yet. Paste an X (Twitter) post link above; if the post has photos, the whole set is downloaded and you pick the ones with him here."
-    : `${list.length} photos from ${ids.length} posts. ${pstatus === "待确认" ? "Click “Select” or “Exclude” under each photo; selected ones are filed by season and date, excluded ones go to “_已排除”, and you can change your mind any time." : ""}`;
-  if(pstatus === "排除") $("pinfo").textContent = "Excluded photos are deleted automatically (files included) 3 days after you exclude them; until then you can still select them again.";
+  $("pinfo").textContent = !photos.length ? "There are no photos. Paste an X (Twitter) post link above. If the post has photos, the app downloads all of them. Then select the photos that show him here."
+    : `${list.length} photos from ${ids.length} posts. ${pstatus === "待确认" ? "Click “Select” or “Exclude” below each photo. The app puts selected photos in folders by season and date. It moves excluded photos to “_已排除”. You can change your selection at any time." : ""}`;
+  if(pstatus === "排除") $("pinfo").textContent = "The app deletes excluded photos (and their files) 3 days after you exclude them. Before then, you can select them again.";
   $("pgroups").innerHTML = ids.map(t => { const g = groups[t].sort((a, b) => a.idx - b.idx), f = g[0];
     return `<div class="box"><div class="row" style="justify-content:space-between"><span><b>${esc(f.date.slice(5))}</b> · ${f.author === "upload" ? "" : `@${esc(f.author)} · `}
       ${f.source_url ? `<a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a>` : `<span class="hint">Uploaded${f.note ? ` · ${esc(f.note)}` : ""}</span>`} <span class="hint">(${f.count} photos)</span></span>
       ${pstatus === "待确认" ? `<span class="row"><button class="btn" data-all="${t}|选入">Select all on page</button><button class="btn" data-all="${t}|排除">Exclude all on page</button></span>` : ""}</div>
       <div class="ptext">${esc(f.text)}</div>
-      ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">Hint: ${esc(g.find(p => p.hint).hint)} (just a text clue; you decide which photos show him)</div>` : ""}
+      ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">Hint: ${esc(g.find(p => p.hint).hint)} (only a text clue. You must find the photos that show him)</div>` : ""}
       <div class="pthumbs">${g.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt="">
         <div class="pb">${PST.filter(s => s !== p.status).map(s => `<button class="btn" data-mk="${esc(p.id)}|${s}">${s === "选入" ? "✓ Select" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}</div>
         ${p.alt ? `<div class="ph" title="${esc(p.alt)}">Has alt text</div>` : ""}</div>`).join("")}</div></div>`; }).join("");
@@ -1526,7 +1526,7 @@ function openPhoto(id){
   $("close").onclick = closeModal;
   $("psave").onclick = async () => { const r = await post("/api/photo/update", {id, fields: {date: $("p_date").value, note: $("p_note").value, game_id: $("p_game").value, kind: $("p_kind").value}});
     if(r.error){ $("msg").textContent = r.error; return; } await load(); openPhoto(id); $("msg").textContent = "Saved"; };
-  $("pdel").onclick = async () => { if(!confirm("Delete this photo? The file will be moved to the library/.trash folder.")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
+  $("pdel").onclick = async () => { if(!confirm("Delete this photo? The app moves the file to the library/.trash folder.")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
 }
 document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.dataset.v === "inbox" ? lastInbox : b.dataset.v; renderPhotos(); window.scrollTo(0, 0); });
 document.querySelectorAll("[data-sv]").forEach(b => b.onclick = () => { view = b.dataset.sv; renderPhotos(); });
@@ -1535,24 +1535,24 @@ $("pq").oninput = renderPhotos;
 // ---------- 弹窗 ----------
 async function openCoverPicker(c){
   const box = $("coverPick"); if(box.style.display !== "none"){ box.style.display = "none"; return; }
-  box.style.display = ""; box.innerHTML = `<div class="box hint">Reading frames from the video…</div>`;
+  box.style.display = ""; box.innerHTML = `<div class="box hint">The app reads frames from the video…</div>`;
   const d = await api("/api/cover/frames?id=" + encodeURIComponent(c.id));
   if(d.error){ box.innerHTML = `<div class="box hint">${esc(d.error)}</div>`; return; }
   let t = d.t === "" ? null : +d.t, layout = d.layout || "", fx = d.x === "" ? 50 : Math.round(+d.x * 100);
-  const draw = () => { box.innerHTML = `<div class="box"><div class="hint" style="margin-bottom:6px"><b>Choose the cover frame</b> (the 4:3 download uses the same frame). Click a frame below, or pause the video above at the moment you want and press “Use the video position”. Without a choice the app picks a clear frame automatically.</div>
+  const draw = () => { box.innerHTML = `<div class="box"><div class="hint" style="margin-bottom:6px"><b>Select the cover frame</b> (the 4:3 download uses the same frame). Click a frame below. Or, stop the video above at the correct moment and click “Use the video position”. If you do not select a frame, the app selects a clear frame.</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px">${d.frames.map(f => `<img src="${f.img}" data-ft="${f.t}" style="width:100%;border-radius:6px;cursor:pointer;border:3px solid ${t !== null && Math.abs(t - f.t) < 0.01 ? "var(--accent)" : "transparent"}" title="${mmss(Math.round(f.t))}">`).join("")}</div>
     <div class="row" style="margin-top:8px;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn" id="cpHere">Use the video position</button><span class="hint">${t === null ? "Frame: automatic" : "Frame at " + mmss(Math.round(t)) + (t % 1 ? " (" + t.toFixed(1) + " s)" : "")}</span></div>
     <div class="row" style="margin-top:8px;align-items:center;gap:12px;flex-wrap:wrap"><span class="hint">Layout</span>
-      ${[["", "Automatic (interviews: text column)"], ["column", "Text column (face stays clear)"], ["classic", "Title over the picture"]].map(([v, l]) => `<label style="font-size:13px"><input type="radio" name="cpLay" value="${v}" ${layout === v ? "checked" : ""}> ${l}</label>`).join("")}</div>
-    <div class="row" style="margin-top:8px;align-items:center;gap:10px"><span class="hint">Picture position (text column layout): shift the crop left / right</span><input type="range" id="cpX" min="0" max="100" value="${fx}" style="flex:1;max-width:260px"><span class="hint" id="cpXv">${fx}%</span></div>
+      ${[["", "Automatic (interviews: text column)"], ["column", "Text column (the face is not covered)"], ["classic", "Title over the picture"]].map(([v, l]) => `<label style="font-size:13px"><input type="radio" name="cpLay" value="${v}" ${layout === v ? "checked" : ""}> ${l}</label>`).join("")}</div>
+    <div class="row" style="margin-top:8px;align-items:center;gap:10px"><span class="hint">Picture position (text column layout): move the crop left / right</span><input type="range" id="cpX" min="0" max="100" value="${fx}" style="flex:1;max-width:260px"><span class="hint" id="cpXv">${fx}%</span></div>
     <div class="row" style="margin-top:10px;gap:8px"><button class="btn primary" id="cpGo">Make cover</button><button class="btn" id="cpReset">Back to automatic</button><span class="hint" id="cpMsg"></span></div>
     <div id="cpPrev" style="margin-top:8px"></div></div>`;
     box.querySelectorAll("[data-ft]").forEach(im => im.onclick = () => { t = +im.dataset.ft; draw(); });
     $("cpHere").onclick = () => { const v = document.querySelector("#mbox video"); if(v){ t = Math.round(v.currentTime * 100) / 100; draw(); } };
     box.querySelectorAll("[name=cpLay]").forEach(r => r.onchange = () => { layout = r.value; });
     $("cpX").oninput = () => { fx = +$("cpX").value; $("cpXv").textContent = fx + "%"; };
-    const go = async body => { $("cpMsg").textContent = "Making the cover…"; const r = await post("/api/cover", {id: c.id, ...body});
-      if(r.error){ $("cpMsg").textContent = r.error; return; } coverVer = Date.now(); $("cpMsg").textContent = "Done."; $("cpPrev").innerHTML = `<img src="${encodeURI(r.cover)}?v=${coverVer}" style="width:100%;max-width:520px;border-radius:8px"><div class="hint" style="margin-top:4px">This is the 16:9 cover. “Download 4:3 cover” (next to Save cover) uses the same frame.</div>`; load(); };
+    const go = async body => { $("cpMsg").textContent = "The app makes the cover…"; const r = await post("/api/cover", {id: c.id, ...body});
+      if(r.error){ $("cpMsg").textContent = r.error; return; } coverVer = Date.now(); $("cpMsg").textContent = "Done."; $("cpPrev").innerHTML = `<img src="${encodeURI(r.cover)}?v=${coverVer}" style="width:100%;max-width:520px;border-radius:8px"><div class="hint" style="margin-top:4px">This is the 16:9 cover. “Download 4:3 cover” (adjacent to Save cover) uses the same frame.</div>`; load(); };
     $("cpGo").onclick = () => go({t: t === null ? "" : t, layout, x: fx / 100});
     $("cpReset").onclick = () => { t = null; layout = ""; fx = 50; go({t: "", layout: "", x: ""}).then(draw); };
   };
@@ -1562,11 +1562,11 @@ function openClip(id, edit = false){
   const c = clips.find(x => x.id === id); if(!c) return; openId = id; editing = edit;
   const gen_ok = ["采访", "训练", "活动", "其他"].includes(c.type);
   const g = games.find(x => String(x.id) === String(c.game_id));
-  const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">Cut from the full video at ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? " (to change the start/end, delete and add it again)" : ""}</div>` : "";
-  const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">View English transcript (to check the summary)</summary><div class="cap" id="trtext">Loading…</div></details>` : "";
+  const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">Cut from the full video at ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? " (to change the start or end, delete the clip and add it again)" : ""}</div>` : "";
+  const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">Show the English transcript (to examine the summary)</summary><div class="cap" id="trtext">Wait…</div></details>` : "";
   const srcLine = `<div class="hint" style="margin-top:8px">Source: <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a>${SNAP || !c.video ? "" : ` · File: ${esc(c.video)}`}</div>`;
   const head = (SNAP || !c.video || c.video_off) ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener">${cv(c) ? `<img src="${cv(c)}" alt="" style="width:100%;border-radius:8px">` : ""}</a>
-    <div class="hint" style="margin-top:6px">${SNAP ? "The video is not included in this read-only copy." : c.video_off ? "Video is not on this computer." : "This is a link-only entry (the video was not downloaded)."} <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Watch it at the original source ↗</a></div>`
+    <div class="hint" style="margin-top:6px">${SNAP ? "The video is not included in this read-only copy." : c.video_off ? "The video is not on this computer." : "This entry has only a link (the app did not download the video)."} <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Open it at the original source ↗</a></div>`
     : `<video controls preload="metadata" src="${encodeURI(c.video)}" ${cv(c) ? `poster="${cv(c)}"` : ""}></video>
     <div class="hint" id="vinfo" style="margin-top:6px">Quality: reading…</div>`;
   if(!edit){
@@ -1578,15 +1578,15 @@ function openClip(id, edit = false){
     <div class="hint">${meta}</div>
     ${c.tags ? `<div class="hint" style="margin-top:4px">Tags: ${esc(c.tags)}</div>` : ""}
     <div style="margin:12px 0 4px"><b style="font-size:13px">Summary</b><span class="src" id="sumSrc">${esc(sn(c.summary_src || "未生成"))}</span></div>
-    <div class="cap" id="sumView" style="max-height:none">${sum ? esc(sum) : (SNAP ? "(No summary.)" : "(No summary yet. Click “Edit” to write one, or generate it below.)")}</div>
+    <div class="cap" id="sumView" style="max-height:none">${sum ? esc(sum) : (SNAP ? "(No summary.)" : "(No summary. Click “Edit” to write a summary, or make one below.)")}</div>
     <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "Regenerate summary" : "Generate summary"}</button>` : ""}${trBlock}</div>
     ${c.notes ? `<div class="hint" style="margin:10px 0 4px">My notes</div><div class="cap">${esc(c.notes)}</div>` : ""}
     ${segInfo}
-    <div class="hint" style="margin:10px 0 4px">Original caption under the video</div>
+    <div class="hint" style="margin:10px 0 4px">Original caption below the video</div>
     <div class="cap">${esc(c.caption) || "(no caption)"}</div>
     ${srcLine}
     <div class="row" style="margin-top:12px;justify-content:space-between">
-      <span class="row"><button class="btn primary" id="edit">Edit</button><button class="btn" id="mkCover">${c.cover ? "Regenerate cover" : "Make cover"}</button>${c.video ? `<button class="btn" id="pickCover">Choose cover…</button>` : ""}${c.cover ? `<a class="btn" href="${cv(c)}" download="${esc(c.id)}_cover.jpg" style="text-decoration:none">Save cover</a>` : ""}${(c.video || c.thumb) ? `<a class="btn" id="dl43" href="/api/cover43?id=${encodeURIComponent(c.id)}" download style="text-decoration:none" title="1280×960, made when you click; the whole picture and the whole title are kept">Download 4:3 cover</a>` : ""}<button class="btn" id="close">Close</button></span>
+      <span class="row"><button class="btn primary" id="edit">Edit</button><button class="btn" id="mkCover">${c.cover ? "Regenerate cover" : "Make cover"}</button>${c.video ? `<button class="btn" id="pickCover">Select cover…</button>` : ""}${c.cover ? `<a class="btn" href="${cv(c)}" download="${esc(c.id)}_cover.jpg" style="text-decoration:none">Save cover</a>` : ""}${(c.video || c.thumb) ? `<a class="btn" id="dl43" href="/api/cover43?id=${encodeURIComponent(c.id)}" download style="text-decoration:none" title="1280×960. The app makes it when you click. It keeps all of the picture and all of the title.">Download 4:3 cover</a>` : ""}<button class="btn" id="close">Close</button></span>
       <button class="btn danger" id="del">Delete</button></div>
     <div id="coverPick" style="display:none"></div>
     <div class="hint" id="msg"></div>`;
@@ -1599,18 +1599,18 @@ function openClip(id, edit = false){
       <div><label>Goals</label><input type="number" min="0" id="f_goals" value="${c.goals}"></div>
       <div><label>Assists</label><input type="number" min="0" id="f_assists" value="${c.assists}"></div>
       <div><label>Opponent</label><input id="f_opponent" value="${esc(c.opponent)}"></div>
-      <div><label>Moment (stored as elapsed time, e.g. 第2节 15:32 = 4:28 on the screen clock)</label><input id="f_moment" value="${esc(c.moment)}"></div>
+      <div><label>Moment (stored as elapsed time. Example: 第2节 15:32 = 4:28 on the screen clock)</label><input id="f_moment" value="${esc(c.moment)}"></div>
       <div style="grid-column:span 2"><label>Game</label><select id="f_game_id"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(c.game_id)?"selected":""}>${esc(g.date)} ${g.home?"Home vs":"Away @"} ${esc(g.opp)}  ${g.our_score}–${g.opp_score}</option>`).join("")}</select></div>
       <div><label>Interview phase</label><select id="f_phase">${["", "赛前", "赛后"].map(x => `<option value="${x}" ${x===(c.phase||"")?"selected":""}>${x ? tn(x) : "(n/a)"}</option>`).join("")}</select></div>
       <div style="grid-column:1/-1"><label>Tags (comma-separated)</label><input id="f_tags" value="${esc(c.tags)}"></div>
       <div style="grid-column:1/-1"><label>My notes</label><input id="f_notes" value="${esc(c.notes)}"></div>
     </div>
     <div style="margin:10px 0 4px"><b style="font-size:13px">Summary</b><span class="src" id="sumSrc">${esc(sn(c.summary_src || "未生成"))}</span></div>
-    <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "No summary yet. Click “Generate summary” below: it first transcribes to an English transcript on this computer, then summarizes with a cloud model." : "No summary yet. You can write a few lines yourself."}">${esc(c.summary || "")}</textarea>
+    <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "No summary. Click “Generate summary” below. First, the app makes an English transcript on this computer. Then a cloud model writes the summary." : "No summary. You can write some lines."}">${esc(c.summary || "")}</textarea>
     <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "Regenerate summary" : "Generate summary"}</button>` : ""}${trBlock}</div>
-    <div class="hint">${gen_ok ? "The AI summary is written in Chinese by a cloud model from the English transcript (the video itself is not uploaded). It may miss points or get things wrong, so check it against the transcript; anything you edit is marked “Manual”." : "Goal/assist summaries are generated directly from official data."}</div>
+    <div class="hint">${gen_ok ? "A cloud model writes the AI summary in Chinese from the English transcript. The app does not upload the video. The summary can have missing or incorrect points. Compare it with the transcript. The app marks your changes as “Manual”." : "The app makes goal/assist summaries directly from official data."}</div>
     ${segInfo}
-    <div class="hint" style="margin-bottom:4px">Original caption under the video</div>
+    <div class="hint" style="margin-bottom:4px">Original caption below the video</div>
     <div class="cap">${esc(c.caption) || "(no caption)"}</div>
     ${srcLine}
     <div class="row" style="margin-top:12px;justify-content:space-between">
@@ -1635,18 +1635,18 @@ function openClip(id, edit = false){
     $("close").onclick = closeModal;
     $("edit").onclick = () => openClip(id, true);
     const pc = $("pickCover"); if(pc) pc.onclick = () => openCoverPicker(c);
-    $("mkCover").onclick = async () => { const b = $("mkCover"); b.disabled = true; b.textContent = "Making cover…";
+    $("mkCover").onclick = async () => { const b = $("mkCover"); b.disabled = true; b.textContent = "Wait…";
       const r = await post("/api/cover", {id}); if(r.error){ $("msg").textContent = r.error; b.disabled = false; b.textContent = "Make cover"; return; }
       coverVer = Date.now(); await load(); openClip(id); };
   }
   const gen = $("gen"); if(gen) gen.onclick = async () => {
-    if(c.summary && !confirm("Regenerating will overwrite the current summary (including anything you wrote). Continue?")) return;
-    gen.disabled = true; gen.textContent = "Started; see the task list at the top of the page";
+    if(c.summary && !confirm("This replaces the current summary (and the text that you wrote). Continue?")) return;
+    gen.disabled = true; gen.textContent = "Started. Refer to the task list at the top of the page";
     const r = await post("/api/summarize", {id}); if(r.error) alert(r.error); poll(); };
   const trd = $("trd"); if(trd) trd.ontoggle = async () => { if(trd.open && !trd.dataset.done){ trd.dataset.done = 1;
     try { $("trtext").textContent = await (await fetch(encodeURI(c.transcript))).text(); } catch(e){ $("trtext").textContent = "Failed to load"; } } };
   $("del").onclick = async () => {
-    if(!confirm("Delete this clip? The file will be moved to the library/.trash folder, not erased immediately.")) return;
+    if(!confirm("Delete this clip? The app moves the file to the library/.trash folder. It does not erase the file immediately.")) return;
     await post("/api/delete", {id}); closeModal(); load();
   };
 }
@@ -1661,17 +1661,17 @@ $("add").onclick = async () => {
   const r = await post("/api/add", {urls: $("urls").value, type: $("addType").value, date: $("addDate").value, opponent: $("addOpp").value.trim(),
     start: $("addStart").value, end: $("addEnd").value, title: $("addTitle").value});
   if(r.error){ alert(r.error); return; }
-  if(r.warn) alert("Some lines were not recognized and were skipped: " + r.warn);
+  if(r.warn) alert("The app did not recognize some lines and ignored them: " + r.warn);
   $("urls").value = ""; $("addStart").value = $("addEnd").value = $("addTitle").value = ""; poll();
 };
 $("fAdd").onclick = async () => {
   const f = $("fFile").files[0], msg = $("fMsg");
-  if(!f){ msg.textContent = "Choose a video file first."; return; }
-  if(!$("fDate").value){ msg.textContent = "Pick the game date first."; return; }
+  if(!f){ msg.textContent = "First, select a video file."; return; }
+  if(!$("fDate").value){ msg.textContent = "First, select the game date."; return; }
   const qs = new URLSearchParams({filename: f.name, type: $("fType").value, date: $("fDate").value, opponent: $("fOpp").value.trim(), title: $("fTitle").value.trim(), source: $("fSrc").value.trim()});
-  msg.textContent = "Uploading and processing…"; $("fAdd").disabled = true;
+  msg.textContent = "The app uploads and processes the file…"; $("fAdd").disabled = true;
   try { const r = await fetch("/api/add_file?" + qs, {method: "POST", body: f}).then(x => x.json());
-    if(r.error) msg.textContent = r.error; else { msg.textContent = "Added. It is in Clips" + (r.game_id ? " and under that game." : " (no game found for that date)."); $("fFile").value = ""; $("fTitle").value = ""; $("fSrc").value = ""; await load(); } }
+    if(r.error) msg.textContent = r.error; else { msg.textContent = "Added. The file is in Clips" + (r.game_id ? " and with that game." : " (there is no game on that date)."); $("fFile").value = ""; $("fTitle").value = ""; $("fSrc").value = ""; await load(); } }
   catch(e){ msg.textContent = "Upload failed: " + e; }
   $("fAdd").disabled = false;
 };
@@ -1684,11 +1684,11 @@ async function poll(){
     (!run.length ? ok.slice(-2).map(j => `<div class="job">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}</div>`).join("") : "");
   { const ps = $("pubStatus"), pj = js.filter(j => j.url === "Publish").pop();      // 发布状态单独常驻显示, 做完也不消失
     if(ps){ if(!pj) ps.style.display = "none"; else { ps.style.display = "";
-      if(!pj.done){ const pc = Math.round((pj.progress || 0) * 100); ps.innerHTML = `<b>Publishing…</b> ${esc(pj.stage.replace("Publishing: ", ""))}<div style="height:6px;background:var(--line,#ddd);border-radius:3px;margin-top:4px;max-width:360px"><div style="height:6px;width:${Math.max(pc, 5)}%;background:var(--accent);border-radius:3px;transition:width .4s"></div></div>`; }
+      if(!pj.done){ const pc = Math.round((pj.progress || 0) * 100); ps.innerHTML = `<b>Publish in progress…</b> ${esc(pj.stage.replace("Publish: ", ""))}<div style="height:6px;background:var(--line,#ddd);border-radius:3px;margin-top:4px;max-width:360px"><div style="height:6px;width:${Math.max(pc, 5)}%;background:var(--accent);border-radius:3px;transition:width .4s"></div></div>`; }
       else if(pj.error) ps.innerHTML = `<b style="color:var(--bad)">Publish failed (${esc(pj.at || "")}).</b> ${esc(pj.error)}`;
-      else ps.innerHTML = `<b style="color:var(--assist)">✓ Published at ${esc(pj.at || "")}.</b> The public site shows the update in a few minutes.`; } } }
+      else ps.innerHTML = `<b style="color:var(--assist)">✓ Published at ${esc(pj.at || "")}.</b> The public site shows the update after some minutes.`; } } }
   const tb = $("taskBar");
-  if(tb){ if(run.length){ tb.style.display = ""; tb.innerHTML = `<b>${run.length} task${run.length > 1 ? "s" : ""} running</b> — ${esc((run[0].url || "").slice(0, 60))}: ${esc(run[0].stage)}${bad.length ? ` · ${bad.length} failed (see the Add page)` : ""}`; } else tb.style.display = "none"; }
+  if(tb){ if(run.length){ tb.style.display = ""; tb.innerHTML = `<b>${run.length} task${run.length > 1 ? "s" : ""} running</b> — ${esc((run[0].url || "").slice(0, 60))}: ${esc(run[0].stage)}${bad.length ? ` · ${bad.length} failed (refer to the Add page)` : ""}`; } else tb.style.display = "none"; }
   const fresh = js.filter(j => j.done && !seenJobs.has(j.id));
   fresh.forEach(j => seenJobs.add(j.id));
   const added = js.some(j => j.done && !j.error && j.clip && !clips.find(c => c.id === j.clip));
@@ -1697,7 +1697,7 @@ async function poll(){
     await load();
     // 正在看的片段如果刚生成了摘要, 只更新摘要框, 不覆盖其他还没保存的修改
     if(openId && fresh.some(j => j.clip === openId)){ const c = clips.find(x => x.id === openId);
-      if(c && $("sumView")) $("sumView").textContent = (c.summary || "").trim() || (SNAP ? "(No summary.)" : "(No summary yet. Click “Edit” to write one, or generate it below.)");
+      if(c && $("sumView")) $("sumView").textContent = (c.summary || "").trim() || (SNAP ? "(No summary.)" : "(No summary. Click “Edit” to write a summary, or make one below.)");
       if(c && ($("f_summary") || $("sumView"))){ if($("f_summary")) $("f_summary").value = c.summary || ""; $("sumSrc").textContent = sn(c.summary_src || "未生成");
         const g = $("gen"); if(g){ g.disabled = false; g.textContent = "Regenerate summary"; } } }
   }
@@ -1716,7 +1716,7 @@ async function uploadPhotos(files){
   files = [...files].filter(f => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name)); if(!files.length){ $("upMsg").textContent = "No image files found."; return; }
   $("upBtn").disabled = true; let done = 0, skipped = [];
   for(let i = 0; i < files.length; i += 3){                  // 每次最多传 3 张, 避免一次请求太大
-    $("upMsg").textContent = `Uploading ${Math.min(i + 3, files.length)}/${files.length}…`;
+    $("upMsg").textContent = `Upload ${Math.min(i + 3, files.length)}/${files.length}…`;
     const batch = await Promise.all(files.slice(i, i + 3).map(f => new Promise(res => { const r = new FileReader();
       r.onload = () => res({name: f.name, modified: f.lastModified, data: r.result.replace(/^data:(application\/octet-stream|);/, `data:${f.type || "image/heic"};`)}); r.readAsDataURL(f); })));
     const r = await post("/api/photo/upload", {files: batch, date: $("upDate").value, note: $("upNote").value});
@@ -1737,7 +1737,7 @@ $("nhlSync").onclick = async () => { $("nhlSync").disabled = true; await post("/
 ["q","opp","sort","from","to"].forEach(id => $(id).oninput = $(id).onchange = render);
 (async () => {
   const cfg = await api("/api/config"); TYPES = cfg.types; TEAM = cfg.nhl_team || "PIT";
-  if(SNAP){ document.body.classList.add("ro"); { const lb = document.querySelector("[data-v=learn]"); if(lb){ if(SNAP.guides && SNAP.guides.profile) lb.textContent = "Profile"; else lb.style.display = "none"; } } $("subline").textContent = `Read-only copy · updated ${SNAP.built} · videos open at their original source`; }
+  if(SNAP){ document.body.classList.add("ro"); { const lb = document.querySelector("[data-v=learn]"); if(lb){ if(SNAP.guides && SNAP.guides.profile) lb.textContent = "Profile"; else lb.style.display = "none"; } } $("subline").textContent = `Read-only copy · updated ${SNAP.built} · videos open at the original source`; }
   document.title = cfg.title; $("title").textContent = cfg.title; _pid = cfg.nhl_player_id || 0;
   $("fType").innerHTML = TYPES.map(t => `<option value="${t}"${t === "其他" ? " selected" : ""}>${tn(t)}</option>`).join("");
   $("addType").innerHTML = `<option value="">Type: auto-detect</option>` + TYPES.map(t => `<option value="${t}">${tn(t)}</option>`).join("");
