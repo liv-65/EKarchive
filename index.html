@@ -150,25 +150,25 @@ td.n,th.n{text-align:right}
   .im .im-pp,.im .im-sk{display:none}
   .im .im-nm small{display:none}
 }
-/* Games 标签: 整页深色数据风格 (只在 body.dk 时生效, 字体只用在这个标签里) */
+/* 整个程序: 深色数据风格 (body.dk) */
 body.dk{--bg:#0b0b0f;--card:#14141a;--ink:#fff;--muted:#8d8d96;--line:rgba(255,255,255,.1);--accent:#6cb2e0;--accent-ink:#0c1a24;--bad:#ff5a52;--good:#3ddc84;--event:#3ddc84;--lnew:#ff8a1f;--lmv:#3d8bff;--dk-gold:#f2b705;--dk-cond:"Barlow Condensed","Arial Narrow",sans-serif}
-body.dk #viewGames .gsec{margin:30px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--dk-gold);font-family:var(--dk-cond);font-weight:800;font-size:22px;text-transform:uppercase;color:var(--ink)}
-body.dk #viewGames .gsec .hint{font-family:inherit;text-transform:none}
-body.dk #viewGames .dsec .gsec{font-size:17px;margin:20px 0 6px}
-body.dk #viewGames .box{background:transparent;border:0;border-radius:0;padding:4px 0;margin:6px 0}
-body.dk #viewGames .dsec>summary{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 0;font-family:var(--dk-cond);font-weight:800;font-size:20px;text-transform:uppercase;color:var(--muted)}
-body.dk #viewGames .dsec[open]>summary{color:var(--dk-gold);border-bottom:2px solid var(--dk-gold)}
-body.dk #viewGames .gh-t,body.dk #viewGames .gh-s{font-family:var(--dk-cond);text-transform:uppercase;line-height:1}
-body.dk #viewGames .gh-t{font-size:40px!important;font-weight:900} body.dk #viewGames .gh-t b{font-weight:900} body.dk #viewGames .gh-s{font-size:52px!important;font-weight:900} body.dk #viewGames .gh-s b{font-weight:900;color:var(--dk-gold)}
-body.dk #viewGames .gt th{font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
-body.dk #viewGames .gt td{font-family:var(--dk-cond);font-weight:600;font-size:16px;border-bottom:1px solid var(--line)}
-body.dk #viewGames .gt td b{font-weight:800}
-body.dk #viewGames .gt td.good{color:var(--good)} body.dk #viewGames .gt td.bad{color:var(--bad)}
-body.dk #viewGames .gt .me td{background:rgba(242,183,5,.08);color:var(--dk-gold)}
-body.dk #viewGames .clip{background:var(--card);border-color:var(--line);border-radius:12px}
-body.dk #viewGames .bar2{background:rgba(255,255,255,.1)} body.dk #viewGames .bar2 .o{background:var(--dk-gold)}
-body.dk #viewGames .btn,body.dk #viewGames .chip{border-color:rgba(255,255,255,.18)}
-body.dk #viewGames .btn.primary,body.dk #viewGames .chip.on{background:var(--dk-gold);border-color:var(--dk-gold);color:#1b1b1b}
+body.dk .gsec{margin:30px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--dk-gold);font-family:var(--dk-cond);font-weight:800;font-size:22px;text-transform:uppercase;color:var(--ink)}
+body.dk .gsec .hint{font-family:inherit;text-transform:none}
+body.dk .dsec .gsec{font-size:17px;margin:20px 0 6px}
+body.dk .box{background:transparent;border:0;border-radius:0;padding:4px 0;margin:6px 0}
+body.dk .dsec>summary{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 0;font-family:var(--dk-cond);font-weight:800;font-size:20px;text-transform:uppercase;color:var(--muted)}
+body.dk .dsec[open]>summary{color:var(--dk-gold);border-bottom:2px solid var(--dk-gold)}
+body.dk .gh-t,body.dk .gh-s{font-family:var(--dk-cond);text-transform:uppercase;line-height:1}
+body.dk .gh-t{font-size:40px!important;font-weight:900} body.dk .gh-t b{font-weight:900} body.dk .gh-s{font-size:52px!important;font-weight:900} body.dk .gh-s b{font-weight:900;color:var(--dk-gold)}
+body.dk .gt th{font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
+body.dk .gt td{font-family:var(--dk-cond);font-weight:600;font-size:16px;border-bottom:1px solid var(--line)}
+body.dk .gt td b{font-weight:800}
+body.dk .gt td.good{color:var(--good)} body.dk .gt td.bad{color:var(--bad)}
+body.dk .gt .me td{background:rgba(242,183,5,.08);color:var(--dk-gold)}
+body.dk .clip{background:var(--card);border-color:var(--line);border-radius:12px}
+body.dk .bar2{background:rgba(255,255,255,.1)} body.dk .bar2 .o{background:var(--dk-gold)}
+body.dk .btn,body.dk .chip{border-color:rgba(255,255,255,.18)}
+body.dk .btn.primary,body.dk .chip.on{background:var(--dk-gold);border-color:var(--dk-gold);color:#1b1b1b}
 .gsec{margin:24px 0 8px;font-size:17px;font-weight:700}
 .chip.on .hint{color:inherit;opacity:.85}
 .dsec{margin:10px 0}
@@ -229,8 +229,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
 .cap{white-space:pre-wrap;background:var(--bg);border-radius:8px;padding:10px;font-size:13px;max-height:200px;overflow:auto}
 </style>
 </head>
-<body>
-<script src="data.js"></script>
+<body class="dk">
 <div class="wrap">
   <header>
     <h1 id="title">Clip Archive</h1>
@@ -1544,7 +1543,6 @@ function renderPhotos(){
   $("viewLearn").style.display = view === "learn" ? "" : "none";
   $("viewClips").style.display = view === "clips" ? "" : "none";
   $("viewGames").style.display = view === "games" ? "" : "none";
-  document.body.classList.toggle("dk", view === "games");
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
   $("viewTikTok").style.display = view === "tiktok" ? "" : "none";
   $("viewNews").style.display = view === "news" ? "" : "none";
