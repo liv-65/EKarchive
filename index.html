@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clip Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800;900&family=Barlow:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f5f4f0; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e3e0d8;
@@ -97,6 +98,77 @@ td.n,th.n{text-align:right}
 .chgi.out{background:color-mix(in srgb,var(--muted) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--muted) 45%,transparent)}
 .chgi{background:color-mix(in srgb,var(--lmv) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lmv) 55%,transparent)} .chgi{padding:1px 6px;border-radius:6px} .was{display:block;font-size:11px;font-weight:400;color:var(--muted)} .chgi .was{display:inline;margin-left:4px}
 .gt td.chg{background:none;box-shadow:none;color:var(--lmv);font-weight:600} .gt td.chg.new{color:var(--lnew)} .gt td.chg.mv{color:var(--lmv)} .gt td.chg.out{color:var(--muted)} .gt td.chg .was{color:var(--muted);font-weight:400;opacity:1}
+.lm{background:#0e0e12;color:#fff;border-radius:12px;padding:18px 18px 14px;margin:6px 0 10px;font-family:"Barlow","Barlow Condensed",-apple-system,"PingFang SC",sans-serif;--new:#ff8a1f;--mv:#3d8bff;--out:#8d8d96;--gold:#f2b705}
+.lm .lh{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--gold);padding-bottom:4px;margin:18px 0 2px;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:20px;text-transform:uppercase}
+.lm .lh:first-child{margin-top:0}
+.lm .ln{display:grid;grid-template-columns:40px repeat(var(--n),minmax(0,1fr));gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08);align-items:stretch}
+.lm .num{align-self:center;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:900;font-size:30px;line-height:1;color:#4a4a55}
+.lm .p{display:flex;align-items:center;gap:6px;min-width:0;padding:5px 6px;border-radius:10px;border:1px solid transparent}
+.lm .p .mug{width:30px;height:30px;margin:0;flex:none;border:2px solid #4a4a55;cursor:zoom-in}
+.lm .p>div{min-width:0}
+.lm .nm{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:15px;line-height:1.05;text-transform:uppercase}
+.lm .sb,.lm .was{font-size:12px;color:#8d8d96;margin-top:2px;display:block}
+.lm .nm s{opacity:.8}
+.lm .p.new{background:rgba(255,138,31,.14);border-color:rgba(255,138,31,.6)} .lm .p.new .nm{color:var(--new)} .lm .p.new .mug{border-color:var(--new)}
+.lm .p.mv{background:rgba(61,139,255,.14);border-color:rgba(61,139,255,.6)} .lm .p.mv .nm{color:var(--mv)} .lm .p.mv .mug{border-color:var(--mv)}
+.lm .p.out{background:rgba(141,141,150,.12);border-color:rgba(141,141,150,.45)} .lm .p.out .nm{color:var(--out)}
+.lm .p.ek .nm{color:var(--gold)} .lm .p.ek .mug{border-color:var(--gold)}
+.lm .lgd{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:#b5b5bd}
+.lm .tg{display:inline-block;padding:0 7px;border-radius:6px;border:1px solid;margin-right:4px}
+.im{container-type:inline-size;background:#0e0e12;color:#fff;border-radius:12px;padding:18px 18px 12px;margin:6px 0 10px;font-family:"Barlow","Barlow Condensed",-apple-system,"PingFang SC",sans-serif;--gold:#f2b705;--gf:#3ddc84;--ga:#ff5a52;--mu:#8d8d96}
+.im *{min-width:0}
+.im .im-big{display:flex;gap:6px 26px;flex-wrap:wrap;margin-bottom:4px}
+.im .im-big b{display:block;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:900;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.im .im-big b.g{color:var(--gold)}
+.im .im-big span{display:block;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:12px;text-transform:uppercase;color:var(--mu);margin-top:2px}
+.im .im-h{border-bottom:2px solid var(--gold);padding-bottom:4px;margin:18px 0 0;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:20px;text-transform:uppercase}
+.im .im-th,.im .im-r{display:grid;grid-template-columns:26px minmax(0,1.5fr) 60px minmax(80px,1fr) 44px 44px 44px 26px 26px;gap:8px;align-items:center}
+.im .im-th{padding:7px 0 3px;font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
+.im .im-th>:nth-child(n+3){text-align:right} .im .im-th>:nth-child(4){text-align:left}
+.im .im-r{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.im .im-rk{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:900;font-size:24px;line-height:1;color:#4a4a55}
+.im .t1 .im-rk,.im .t1 .im-toi{color:var(--gold)}
+.im .im-p{display:flex;align-items:center;gap:7px}
+.im .im-p .mug{width:28px;height:28px;margin:0;flex:none;border:2px solid #4a4a55;cursor:zoom-in}
+.im .t1 .im-p .mug{border-color:var(--gold)}
+.im .im-nm{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:16px;line-height:1.05;text-transform:uppercase}
+.im .im-nm small{font-family:"Barlow",sans-serif;font-weight:400;font-size:11px;color:var(--mu);margin-left:4px}
+.im .im-tg{font-size:11px;border:1px solid var(--gold);color:var(--gold);border-radius:5px;padding:0 5px;flex:none}
+.im .im-toi{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:900;font-size:22px;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.im .im-sh{display:flex;align-items:center;gap:6px}
+.im .im-bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+.im .im-bar i{display:block;height:100%;border-radius:3px;background:#6d5fb5} .im .t1 .im-bar i{background:var(--gold)}
+.im .im-pc{font-size:12px;color:#b5b5bd;width:32px;text-align:right;font-variant-numeric:tabular-nums}
+.im .im-n{text-align:right;font-size:13px;color:#b5b5bd;font-variant-numeric:tabular-nums} .im .im-n.top{color:#fff;font-weight:600}
+.im .im-gf{text-align:right;color:var(--gf);font-weight:600} .im .im-ga{text-align:right;color:var(--ga);font-weight:600} .im .im-z{text-align:right;color:#4a4a55}
+.im .im-tri{grid-template-columns:86px 60px minmax(0,1fr)} .im .im-ln{white-space:nowrap}
+.im .im-ln{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:900;font-size:22px;line-height:1;text-transform:uppercase;color:var(--mu)} .im .t1 .im-ln{color:var(--gold)}
+.im .im-pl{display:flex;flex-wrap:wrap;gap:6px 14px}
+@container (max-width:520px){
+  .im .im-th,.im .im-r{grid-template-columns:22px minmax(0,1fr) 60px minmax(50px,.6fr) 40px 24px 24px}
+  .im .im-r.im-tri{grid-template-columns:86px 60px minmax(0,1fr)} .im .im-tri .im-pl{grid-column:1/-1}
+  .im .im-pp,.im .im-sk{display:none}
+  .im .im-nm small{display:none}
+}
+/* Games 标签: 整页深色数据风格 (只在 body.dk 时生效, 字体只用在这个标签里) */
+body.dk{--bg:#0b0b0f;--card:#14141a;--ink:#fff;--muted:#8d8d96;--line:rgba(255,255,255,.1);--accent:#6cb2e0;--accent-ink:#0c1a24;--bad:#ff5a52;--good:#3ddc84;--event:#3ddc84;--lnew:#ff8a1f;--lmv:#3d8bff;--dk-gold:#f2b705;--dk-cond:"Barlow Condensed","Arial Narrow",sans-serif}
+body.dk #viewGames .gsec{margin:30px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--dk-gold);font-family:var(--dk-cond);font-weight:800;font-size:22px;text-transform:uppercase;color:var(--ink)}
+body.dk #viewGames .gsec .hint{font-family:inherit;text-transform:none}
+body.dk #viewGames .dsec .gsec{font-size:17px;margin:20px 0 6px}
+body.dk #viewGames .box{background:transparent;border:0;border-radius:0;padding:4px 0;margin:6px 0}
+body.dk #viewGames .dsec>summary{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 0;font-family:var(--dk-cond);font-weight:800;font-size:20px;text-transform:uppercase;color:var(--muted)}
+body.dk #viewGames .dsec[open]>summary{color:var(--dk-gold);border-bottom:2px solid var(--dk-gold)}
+body.dk #viewGames .gh-t,body.dk #viewGames .gh-s{font-family:var(--dk-cond);text-transform:uppercase;line-height:1}
+body.dk #viewGames .gh-t{font-size:40px!important;font-weight:900} body.dk #viewGames .gh-t b{font-weight:900} body.dk #viewGames .gh-s{font-size:52px!important;font-weight:900} body.dk #viewGames .gh-s b{font-weight:900;color:var(--dk-gold)}
+body.dk #viewGames .gt th{font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
+body.dk #viewGames .gt td{font-family:var(--dk-cond);font-weight:600;font-size:16px;border-bottom:1px solid var(--line)}
+body.dk #viewGames .gt td b{font-weight:800}
+body.dk #viewGames .gt td.good{color:var(--good)} body.dk #viewGames .gt td.bad{color:var(--bad)}
+body.dk #viewGames .gt .me td{background:rgba(242,183,5,.08);color:var(--dk-gold)}
+body.dk #viewGames .clip{background:var(--card);border-color:var(--line);border-radius:12px}
+body.dk #viewGames .bar2{background:rgba(255,255,255,.1)} body.dk #viewGames .bar2 .o{background:var(--dk-gold)}
+body.dk #viewGames .btn,body.dk #viewGames .chip{border-color:rgba(255,255,255,.18)}
+body.dk #viewGames .btn.primary,body.dk #viewGames .chip.on{background:var(--dk-gold);border-color:var(--dk-gold);color:#1b1b1b}
 .gsec{margin:24px 0 8px;font-size:17px;font-weight:700}
 .chip.on .hint{color:inherit;opacity:.85}
 .dsec{margin:10px 0}
@@ -521,25 +593,31 @@ function iceHTML(g){
   const gfa = id => { const f = (ice.gf || {})[id] || 0, a = (ice.ga || {})[id] || 0; return `<td class="${f ? "good" : ""}">${f || "–"}</td><td class="${a ? "bad" : ""}">${a || "–"}</td>`; };    // 一起在冰上时的进球 / 丢球
   const cellT = (m, k, top) => m.has(k) ? (k === top ? `<td class="top">${mmss(m.get(k))}</td>` : `<td>${mmss(m.get(k))}</td>`) : `<td>–</td>`;
   const centerOf = ids => ids.reduce((a, b) => ((dressedMap(g).get(b) || {}).fo || 0) > ((dressedMap(g).get(a) || {}).fo || 0) ? b : a);
+  const cellN = (m, k, top, cls) => m.has(k) ? `<span class="im-n ${cls} ${k === top ? "top" : ""}">${mmss(m.get(k))}</span>` : `<span class="im-z ${cls}">–</span>`;
+  const gfaN = id => { const f = (ice.gf || {})[id] || 0, a = (ice.ga || {})[id] || 0; return `<span class="${f ? "im-gf" : "im-z"}">${f || "–"}</span><span class="${a ? "im-ga" : "im-z"}">${a || "–"}</span>`; };
+  const imHead = lab => `<div class="im-th"><span></span><span>${lab}</span><span>All</span><span>Share</span><span>5v5</span><span class="im-pp">PP</span><span class="im-sk">SH</span><span title="Goals for when they were on the ice together">GF</span><span title="Goals against when they were on the ice together">GA</span></div>`;
+  const imRows = (rows, m5, mPp, mPk, tag) => rows.map(([id, s], i) => { const r = dressedMap(g).get(id), p = Math.round(s / T * 100);
+    return `<div class="im-r ${i === 0 ? "t1" : ""}"><span class="im-rk">${i + 1}</span><div class="im-p">${r ? mug(g, r) : ""}<span class="im-nm">${esc(r ? r.name : "")}${r && r.num != null ? `<small>#${esc(r.num)}</small>` : ""}</span>${tag ? `<span class="im-tg">${esc(pos(id))}</span>` : ""}</div><span class="im-toi">${mmss(s)}</span><div class="im-sh"><div class="im-bar"><i style="width:${Math.round(s / ((rows[0] || [0, 1])[1] || 1) * 100)}%"></i></div><span class="im-pc">${p}%</span></div>${cellN(m5, id, topOf(m5, rows), "")}${cellN(mPp, id, topOf(mPp, rows), "im-pp")}${cellN(mPk, id, topOf(mPk, rows), "im-sk")}${gfaN(id)}</div>`; }).join("") || `<div class="hint" style="padding:8px 0">No data</div>`;
+  const imHTML = () => `<div class="im">
+    <div class="im-big"><div><b class="g">${mmss(ice.total)}</b><span>Total ice time</span></div><div><b>${mmss(ice.sit["5v5"] || 0)}</b><span>5v5</span></div><div><b>${mmss(ice.sit.pp || 0)}</b><span>Power play</span></div><div><b>${mmss(ice.sit.pk || 0)}</b><span>Short handed</span></div></div>
+    <div class="im-h">Defense partners</div>${imHead("Defense")}${imRows(dAll, d5, dPp, dPk, false)}
+    <div class="im-h">Forwards on ice together</div>${imHead("Forward")}${imRows(fAll, f5, fPp, fPk, true)}
+    <div class="im-h">Most frequent forward trios at 5v5</div>
+    ${(ice.trios || []).slice(0, 4).map(([ids, s], ti) => { const c = centerOf(ids), F = (lineData[String(g.id)] || {}).F || [], hit = F.map((row, k) => [k, row.filter(x => ids.includes(x)).length]).sort((x, y) => y[1] - x[1])[0], ln = hit && hit[1] >= 2 ? `Line ${hit[0] + 1}${hit[1] < 3 ? "*" : ""}` : "–";
+      return `<div class="im-r im-tri ${ti === 0 ? "t1" : ""}"><span class="im-ln">${ln}</span><span class="im-toi">${mmss(s)}</span><div class="im-pl">${ids.map(i => { const r = dressedMap(g).get(i); return `<span class="im-p">${r ? mug(g, r) : ""}<span class="im-nm">${esc(r ? r.name : "")}</span>${i === c ? `<span class="im-tg">C</span>` : ""}</span>`; }).join("")}</div></div>`; }).join("") || `<div class="hint" style="padding:8px 0">No data</div>`}
+  </div>`;
   return title + `<div class="box" style="overflow:auto">
-    <div>Total ice time <b>${mmss(ice.total)}</b>: 5v5 ${mmss(ice.sit["5v5"])} · PP ${mmss(ice.sit.pp)} · SH ${mmss(ice.sit.pk)}${ice.sit.other ? " · other " + mmss(ice.sit.other) : ""}</div>
+    ${iceView === "period" && ice.by_period ? `<div>Total ice time <b>${mmss(ice.total)}</b>: 5v5 ${mmss(ice.sit["5v5"])} · PP ${mmss(ice.sit.pp)} · SH ${mmss(ice.sit.pk)}${ice.sit.other ? " · other " + mmss(ice.sit.other) : ""}</div>` : ""}
     ${ice.by_period ? `<div class="row" style="margin:8px 0 2px">${[["all", "All game"], ["period", "By period"]].map(([k, n]) => `<button class="chip ${iceView === k ? "on" : ""}" data-iv="${k}">${n}</button>`).join("")}</div>` : ""}
     ${iceView === "period" && ice.by_period ? iceBuckets(g, ice, "period") : `
-    <div class="hint" style="margin-top:8px">Defense partners</div>
-    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for when they were on the ice together (all goals, power play included)">GF</th><th title="Goals against when they were on the ice together">GA</th></tr>${dAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(d5, id, topOf(d5, dAll))}${cellT(dPp, id, topOf(dPp, dAll))}${cellT(dPk, id, topOf(dPk, dAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
-    <div class="hint" style="margin-top:10px">Forwards on ice together</div>
-    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th><th title="Goals for when they were on the ice together (all goals, power play included)">GF</th><th title="Goals against when they were on the ice together">GA</th></tr>${fAll.map(([id, s], i) => `<tr class="${rk(i)}" style="${bar(s, T)}"><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td>${cellT(f5, id, topOf(f5, fAll))}${cellT(fPp, id, topOf(fPp, fAll))}${cellT(fPk, id, topOf(fPk, fAll))}${gfa(id)}</tr>`).join("") || `<tr><td colspan="8" class="hint">No data</td></tr>`}</table>
-    <div class="hint" style="margin-top:10px">Most frequent forward trios on the ice with him at 5v5</div>
-    <table class="gt l tri"><tr><th>Time</th><th>Line</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s], ti) => { const c = centerOf(ids);
-      const F = (lineData[String(g.id)] || {}).F || [], hit = F.map((row, k) => [k, row.filter(x => ids.includes(x)).length]).sort((x, y) => y[1] - x[1])[0], ln = hit && hit[1] >= 2 ? `Line ${hit[0] + 1}${hit[1] < 3 ? "*" : ""}` : "–";
-      return `<tr class="${rk(ti)}" style="${bar(s, T)}"><td>${mmss(s)}</td><td>${ln}</td><td>${ids.map(i => `<span style="display:inline-block;margin:2px 10px 2px 0">${pChip(g, i)}${i === c ? `<span class="tag2 me">C</span>` : ""}</span>`).join("")}</td></tr>`; }).join("") || `<tr><td colspan="3" class="hint">No data</td></tr>`}</table>
+    ${imHTML()}
     <div class="hint" style="margin-top:4px">GF / GA = goals for / against when he and this player were on the ice together (all goals, power play included). One game is a very small sample. The darkest row shows the most time together. The bar in the time cell is relative to the top row. The best value in each column has a color. Line = the line from the lineup groups that you entered (– if you did not enter them or there is no match; * = only 2 of the 3 players are in that line).</div>
     `}
     <div class="hint" style="margin-top:8px">The app counts each second in the official shift records. The table shows who was on the ice with him (goalies not included). The number of skaters on each side sets 5v5, PP and SH. This can be incorrect when a team pulls its goalie. The app removes line-change overlaps (seconds with more than 5 skaters on one side). It also ignores time together of less than 5 seconds. The app does not count time when he is not on the ice. The sample is only this game, thus the pairings change from game to game.</div></div>`;
 }
 
 // ---------- 阵容分组(手动填写) ----------
-const FL = ["LW", "C", "RW"];
+const FL = ["LW", "C", "RW"], EK_ID = 8474578;
 const dressedMap = g => { const m = new Map(); GRP.forEach(([k]) => ((g.lineup || {})[k] || []).forEach(r => m.set(r.id, r))); return m; };
 const plabel = (g, id) => { const r = id ? dressedMap(g).get(id) : null; return r ? `${r.num} ${r.name}` : ""; };
 const slotLabel = key => { const t = key[0], i = +key[1], j = +key[2];
@@ -619,30 +697,33 @@ function linesHTML(g){
       <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">Save</button><button class="btn" id="lCancel">Cancel</button><span class="hint" id="lMsg"></span></div>`;
   } else if(L){
     const TS = slotsOf(L), mode = PL ? lineView : "this";      // this / prev / cmp: 这一场、上一场、两场对照
-    const mugOf = (G, id) => { const r = dressedMap(G).get(id); return r ? mug(G, r) : ""; };
-    const nameIn = (G, id) => id ? `<span class="pc">${mugOf(G, id)}<span>${esc(plabel(G, id))}</span></span>` : `<span class="hint">—</span>`;
-    const cellOf = (key, tag) => {
+    const lcell = (key, pos) => {
       const t = TS.get(key) ?? null, pv = PL ? (PL.get(key) ?? null) : null, ch = !!PL && t !== pv;
-      // 颜色: 新加入(上一场没出场)= 橙, 换了位置 = 蓝, 上一场的人这场没出场 = 灰 (和下面 “Changes vs. previous game” 里的标签颜色一致)
-      const kind = !ch ? "" : mode === "prev" ? (pv && !dressedMap(g).has(pv) ? "out" : "mv") : (t && !dressedMap(pg).has(t) ? "new" : t ? "mv" : "out"), cls = ch ? `chg ${kind}` : "";
-      const inner = mode === "prev" ? nameIn(pg, pv) + (ch ? `<span class="was">now ${t ? esc(plabel(g, t)) : "empty"}</span>` : "")
-        : mode === "cmp" ? (ch ? `<span class="was" style="text-decoration:line-through">${pv ? esc(plabel(pg, pv)) : "empty"}</span>` : "") + nameIn(g, t)
-        : nameIn(g, t) + (ch ? `<span class="was">was ${pv ? esc(plabel(pg, pv)) : "empty"}</span>` : "");
-      return {cls, inner};
+      // 颜色: 新加入(上一场没出场)= 橙, 换了位置 = 蓝, 上一场的人这场没出场 = 灰
+      const kind = !ch ? "" : mode === "prev" ? (pv && !dressedMap(g).has(pv) ? "out" : "mv") : (t && !dressedMap(pg).has(t) ? "new" : t ? "mv" : "out");
+      const G = mode === "prev" ? pg : g, id = mode === "prev" ? pv : t, r = id ? dressedMap(G).get(id) : null;
+      const other = mode === "prev" ? t : pv, OG = mode === "prev" ? g : pg, ol = other ? esc(plabel(OG, other)) : "empty";
+      const was = !ch ? "" : mode === "prev" ? `<span class="was">now ${ol}</span>` : mode === "cmp" ? `<span class="was"><s>${ol}</s></span>` : `<span class="was">was ${ol}</span>`;
+      if(!r) return `<div class="p ${kind}"><div><div class="nm">—</div><span class="sb">${pos}</span>${was}</div></div>`;
+      return `<div class="p ${kind}${r.id === EK_ID ? " ek" : ""}">${mug(G, r)}<div><div class="nm">${esc(r.name)}</div><span class="sb">${pos}${r.toi ? " · " + esc(r.toi) : ""}</span>${was}</div></div>`;
     };
-    const td = key => { const c = cellOf(key); return `<td class="${c.cls}">${c.inner}</td>`; };
-    const gl = key => { const c = cellOf(key); return `<span class="${c.cls ? "chgi " + c.cls.split(" ")[1] : ""}">${c.inner}</span>`; };
     const nChanged = PL ? [...TS.keys()].filter(k => (TS.get(k) ?? null) !== (PL.get(k) ?? null)).length : 0;
     const tabs = PL ? `<div class="row" style="margin-bottom:8px">${[["this", `This game (${esc(g.date.slice(5))} ${g.home ? "vs" : "@"} ${esc(g.opp)})`], ["prev", `${isPrev ? "Previous" : "Other game"} (${esc(pg.date.slice(5))} ${pg.home ? "vs" : "@"} ${esc(pg.opp)})`], ["cmp", "Compare"]]
       .map(([k, n]) => `<button class="chip ${mode === k ? "on" : ""}" data-lv="${k}">${n}</button>`).join("")}
       ${cand.length > 1 ? `<label class="hint" style="margin-left:6px">Compare with <select data-lvbase>${cand.map(x => `<option value="${esc(x.id)}" ${String(x.id) === String(pg.id) ? "selected" : ""}>${esc(x.date.slice(5))} ${x.home ? "vs" : "@"} ${esc(x.opp)}${prevG && String(x.id) === String(prevG.id) ? " (previous)" : ""}</option>`).join("")}</select></label>` : ""}</div>` : "";
-    const chips = `<span class="chgi new" style="padding:0 6px">New</span> was not on the roster of the ${baseName} · <span class="chgi mv" style="padding:0 6px">Moved</span> played in the last game, in a different slot${mode === "prev" ? ` · <span class="chgi out" style="padding:0 6px">Out</span> did not play in this game` : ""}`;
+    const chips = "";
     const legend = !PL ? "" : mode === "prev" ? `This shows the lineup groups of the <b>${baseName}</b>. The small text shows who is in that slot now. ${chips}`
       : mode === "cmp" ? `Each slot shows the player in this game. If the player changed, the player from the ${baseName} is above it, with a line through the name (${nChanged} slot${nChanged === 1 ? "" : "s"} changed). ${chips}`
       : `Compared with the ${baseName} (${esc(pg.date.slice(5))} vs ${esc(pg.opp)}). The small text shows who was in the slot. ${chips}`;
-    body = `${tabs}<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${[0, 1, 2, 3].map(i => `<tr><td>Line ${i + 1}</td>${[0, 1, 2].map(j => td(`F${i}${j}`)).join("")}</tr>`).join("")}</table>
-      <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${[0, 1, 2].map(i => `<tr><td>Pair ${i + 1}</td>${[0, 1].map(j => td(`D${i}${j}`)).join("")}</tr>`).join("")}</table>
-      <div style="margin-top:8px">Goalies: starter ${gl("G00")} · backup ${gl("G10")}</div>
+    body = `${tabs}<div class="lm">
+      <div class="lh">Forwards<span class="sb">Left wing · center · right wing</span></div>
+      ${[0, 1, 2, 3].map(i => `<div class="ln" style="--n:3"><span class="num">L${i + 1}</span>${[0, 1, 2].map(j => lcell(`F${i}${j}`, FL[j])).join("")}</div>`).join("")}
+      <div class="lh">Defense<span class="sb">Left · right</span></div>
+      ${[0, 1, 2].map(i => `<div class="ln" style="--n:2"><span class="num">D${i + 1}</span>${[0, 1].map(j => lcell(`D${i}${j}`, j ? "RD" : "LD")).join("")}</div>`).join("")}
+      <div class="lh">Goalies</div>
+      <div class="ln" style="--n:2"><span class="num">G</span>${lcell("G00", "Starter")}${lcell("G10", "Backup")}</div>
+      ${PL ? `<div class="lgd"><span><span class="tg" style="color:var(--new);border-color:var(--new);background:rgba(255,138,31,.14)">New</span>not on the roster of the ${baseName}</span><span><span class="tg" style="color:var(--mv);border-color:var(--mv);background:rgba(61,139,255,.14)">Moved</span>different slot</span>${mode === "prev" ? `<span><span class="tg" style="color:var(--out);border-color:var(--out);background:rgba(141,141,150,.12)">Out</span>did not play in this game</span>` : ""}<span><span style="color:var(--gold)">Gold</span> = Karlsson</span></div>` : ""}
+    </div>
       ${legend ? `<div class="hint" style="margin-top:6px">${legend}</div>` : ""}
       <div class="row" style="margin-top:8px"><button class="btn" id="lEdit">Edit</button><button class="btn danger" id="lClear">Clear</button><span class="hint">Entered manually at ${esc((L.updated || "").replace("T", " ").slice(0, 16))}</span></div>`;
   } else {
@@ -1045,8 +1126,8 @@ function renderGameDetail(){
   const head = `<tr><th>Player</th><th>Pos</th><th>G</th><th>A</th><th>P</th><th>+/-</th><th>Hits</th><th>Shots</th><th>Blocks</th><th title="Giveaways">GV</th><th title="Takeaways">TK</th><th>TOI</th></tr>`;
   const photoGroup = k => { const a = it.ps.filter(p => (p.kind || "其他") === k); return a.length ? `<div class="hint" style="margin:8px 0 2px">${k === "数据表" ? "Stats sheet images" : k === "阵容" ? "Lineup images" : "Other photos"}</div><div class="pthumbs">${a.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt=""><div class="ph" style="color:var(--muted)">${esc(tn(p.status))}</div></div>`).join("")}</div>` : ""; };
   $("gameDetail").innerHTML = `<button class="btn" id="gBack">← Back to games</button>
-    <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span style="font-size:18px"><b>${esc(g.date)}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
-      <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
+    <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span class="gh-t" style="font-size:18px"><b>${esc(g.date)}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
+      <span class="gh-s" style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
       ${stLine(g, "Regular-season standings after this game: ")}
       ${oppLine(g)}
       <div class="hint">${esc(g.venue)} · Coach ${esc(g.coach)} (opponent ${esc(g.opp_coach)})${g.officials && (g.officials.referees || []).length ? ` · Referees: ${g.officials.referees.map(esc).join(", ")}` : ""}${g.officials && (g.officials.linesmen || []).length ? ` · Linesmen: ${g.officials.linesmen.map(esc).join(", ")}` : ""}${(g.stars || []).length ? " · Three stars: " + g.stars.map(s => `${s.star}. ${esc(s.name)} (${esc(s.team)})`).join("  ") : ""}</div></div>
@@ -1463,6 +1544,7 @@ function renderPhotos(){
   $("viewLearn").style.display = view === "learn" ? "" : "none";
   $("viewClips").style.display = view === "clips" ? "" : "none";
   $("viewGames").style.display = view === "games" ? "" : "none";
+  document.body.classList.toggle("dk", view === "games");
   $("viewPhotos").style.display = view === "photos" ? "" : "none";
   $("viewTikTok").style.display = view === "tiktok" ? "" : "none";
   $("viewNews").style.display = view === "news" ? "" : "none";
