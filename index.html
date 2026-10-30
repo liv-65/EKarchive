@@ -78,6 +78,7 @@ td.n,th.n{text-align:right}
 .pth .ph{font-size:11px;color:var(--event);margin-top:2px}
 .ptext{font-size:13px;color:var(--muted);margin-top:4px;white-space:pre-wrap;max-height:84px;overflow:auto}
 .gcard{cursor:pointer} .gcard:hover{outline:2px solid var(--accent)}
+.tlink{cursor:pointer} .tlink:hover text{text-decoration:underline}
 .gt{width:100%;border-collapse:collapse;font-size:13px} .gt th,.gt td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 .gt th:first-child,.gt td:first-child{text-align:left} .gt.l th,.gt.l td{text-align:left}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
@@ -230,6 +231,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
 </style>
 </head>
 <body class="dk">
+<script src="data.js"></script>
 <div class="wrap">
   <header>
     <h1 id="title">Clip Archive</h1>
@@ -870,7 +872,9 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
     return `<polyline fill="none" stroke="var(--ink)" stroke-width="2" ${dash ? 'stroke-dasharray="5 4" opacity=".55"' : ""} points="${pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
       pts.map(([px, py, g]) => { const r = perfScore(g, which); return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dash ? 3 : 4.5}" fill="${dash ? "var(--bg, #fff)" : PERF.color[r.tier]}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: ${PERF.tier[r.tier]} (better than ${Math.round(r.pct)}% of ${r.base.short})</title></circle>`; }).join(""); };
   const labels = gs.map((g, i) => { const tx = (dy, t, c = "var(--muted)", w = 400) => `<text x="${x(i).toFixed(1)}" y="${H - dy}" font-size="9" text-anchor="middle" fill="${c}" font-weight="${w}">${t}</text>`, sc = g.our_score != null && g.opp_score != null;
-    return tx(28, esc(g.date.slice(5))) + tx(18, `${g.home ? "" : "@"}${esc(g.opp)}`) + (sc ? tx(7, `${g.our_score}–${g.opp_score}${/加时/.test(g.outcome) ? " OT" : /点球/.test(g.outcome) ? " SO" : ""}`, g.our_score > g.opp_score ? "var(--good)" : "var(--bad)", 600) : ""); }).join("");
+    const half = gs.length > 1 ? (W - L - R) / (gs.length - 1) / 2 : 20;     // 点日期/对手/比分 -> 打开这场比赛的详情
+    return `<g data-g="${esc(g.id)}" class="tlink"><title>Open game details</title><rect x="${(x(i) - half).toFixed(1)}" y="${H - B + 4}" width="${(half * 2).toFixed(1)}" height="${B - 4}" fill="transparent"/>` +
+      tx(28, esc(g.date.slice(5))) + tx(18, `${g.home ? "" : "@"}${esc(g.opp)}`) + (sc ? tx(7, `${g.our_score}–${g.opp_score}${/加时/.test(g.outcome) ? " OT" : /点球/.test(g.outcome) ? " SO" : ""}`, g.our_score > g.opp_score ? "var(--good)" : "var(--bad)", 600) : "") + `</g>`; }).join("");
   const pdoPts = gs.map((g, i) => g.adv ? [x(i), y(Math.max(0, Math.min(100, (g.adv.pdo - PDO_LO) / (PDO_HI - PDO_LO) * 100))), g] : null).filter(Boolean);
   const pdoLayer = () => !pdoPts.length ? "" : `<line x1="${L}" x2="${W - R}" y1="${y(50).toFixed(1)}" y2="${y(50).toFixed(1)}" stroke="#9b8bb4" stroke-width="1" stroke-dasharray="1 4" opacity=".45"/>` +
     [0.7, 0.85, 1.0, 1.15, 1.3].map(v => `<text x="${W - R + 3}" y="${(y((v - PDO_LO) / (PDO_HI - PDO_LO) * 100) + 3).toFixed(1)}" font-size="9" fill="#9b8bb4">${v.toFixed(2)}</text>`).join("") +
