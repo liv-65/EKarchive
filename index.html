@@ -219,7 +219,12 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
 .miss{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line);font-size:13px}
 .miss .m{color:var(--muted)}
 @media (max-width:600px){.gmini{position:static!important;margin-top:6px}}
-.ro #publishBtn,.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #pickCover,.ro #dl43,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=inbox],.ro [data-v=add],.ro #inboxTabs,.ro #exportCsv{display:none!important}
+.ro #publishBtn,.ro #vuBtn,.ro #vuModal,.ro #addBox,.ro #nhlBox,.ro #mkAll,.ro #gSync,.ro #edit,.ro #mkCover,.ro #pickCover,.ro #dl43,.ro #del,.ro #gen,.ro #trd,.ro #lEdit,.ro #lClear,.ro #gGet,.ro #nhlGet,.ro #phUpload,.ro [data-v=inbox],.ro [data-v=add],.ro #inboxTabs,.ro #exportCsv{display:none!important}
+#vuModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:11}
+#vuModal.on{display:flex}
+#vuDrop{border:2px dashed var(--line);border-radius:10px;padding:26px 12px;text-align:center;cursor:pointer;color:var(--muted)}
+#vuDrop.over{border-color:var(--accent);color:var(--accent)}
+#vuBox .row{margin-top:8px;gap:8px;flex-wrap:wrap;align-items:center}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:10}
 #modal.on{display:flex}
 .mbox{background:var(--card);border-radius:14px;max-width:820px;width:100%;padding:16px}
@@ -258,7 +263,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
     </details>
     <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Add a video file from this computer to the archive</summary>
       <div class="row" style="margin-top:6px;gap:8px;flex-wrap:wrap;align-items:center">
-        <input type="file" id="fFile" accept="video/*">
+        <input type="file" id="fFile">
         <select id="fType"></select>
         <label class="hint">Game date <input type="date" id="fDate"></label>
         <input id="fOpp" placeholder="Opponent (optional)" style="width:130px">
@@ -273,7 +278,7 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
 
   <div id="pubStatus" class="hint" style="display:none;margin-bottom:8px"></div>
   <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
-  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="history">History</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button><button class="chip" id="publishBtn" title="Build the public read-only site again and put it on the internet">Publish</button></div>
+  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="history">History</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button><button class="chip" id="vuBtn" title="Add a video from Instagram, X or another place">Upload video</button><button class="chip" id="publishBtn" title="Build the public read-only site again and put it on the internet">Publish</button></div>
   <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button><button class="chip" data-sv="x">X</button></div>
   <div id="rangeBar">
   <div class="row" id="ranges"></div>
@@ -368,6 +373,16 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
   </div>
 </div>
 
+<div id="vuModal"><div class="mbox" id="vuBox" style="max-width:560px">
+  <div class="row" style="justify-content:space-between;margin:0"><b>Upload a video</b><button class="btn" id="vuClose">Close</button></div>
+  <div class="hint" style="margin-top:6px">Save the video from Instagram or X to this computer. Then put the file here. Put the post link in “Source link”.</div>
+  <div id="vuDrop" style="margin-top:8px">Drop a video file here, or click to select<br><span id="vuName" class="hint"></span></div>
+  <input type="file" id="vidFile" style="display:none">
+  <div class="row"><input id="vuSrc" placeholder="Source link (Instagram / X post)" style="flex:1;min-width:200px"><span class="hint" id="vuPlat"></span></div>
+  <div class="row"><input id="vuTitle" placeholder="Title (optional)" style="flex:1;min-width:200px"></div>
+  <div class="row"><select id="vuType"></select><label class="hint">Game date <input type="date" id="vuDate"></label><input id="vuOpp" placeholder="Opponent (optional)" style="width:130px"></div>
+  <div class="row"><button class="btn primary" id="vuGo">Add to archive</button><span class="hint" id="vuMsg"></span></div>
+</div></div>
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 
 <script>
@@ -1736,7 +1751,7 @@ function openClip(id, edit = false){
 }
 function closeModal(){ $("modal").classList.remove("on"); const v = document.querySelector("#mbox video"); if(v) v.pause(); $("mbox").innerHTML = ""; openId = null; }
 $("modal").onclick = e => { if(e.target === $("modal")) closeModal(); };
-document.onkeydown = e => { if(e.key === "Escape") closeModal(); };
+document.onkeydown = e => { if(e.key === "Escape"){ closeModal(); $("vuModal").classList.remove("on"); } };
 
 // ---------- 添加 ----------
 let timer = null;
@@ -1759,6 +1774,30 @@ $("fAdd").onclick = async () => {
   catch(e){ msg.textContent = "Upload failed: " + e; }
   $("fAdd").disabled = false;
 };
+// ---------- 上传视频窗口 ----------
+{ const up = $("vuModal"), fl = $("vidFile"), drop = $("vuDrop");
+  let picked = null;
+  const pick = f => { if(f){ picked = f; $("vuMsg").textContent = ""; $("vuName").textContent = f.name + " (" + (f.size / 1048576).toFixed(1) + " MB)"; if(!$("vuTitle").value) $("vuTitle").value = f.name.replace(/\.[^.]+$/, ""); } };
+  $("vuBtn").onclick = () => { $("vuType").innerHTML = $("fType").innerHTML; if(!$("vuDate").value) $("vuDate").value = new Date().toISOString().slice(0, 10); $("vuMsg").textContent = ""; up.classList.add("on"); };
+  $("vuClose").onclick = () => up.classList.remove("on");
+  up.onclick = e => { if(e.target === up) up.classList.remove("on"); };
+  drop.onclick = () => fl.click(); fl.onchange = () => pick(fl.files[0]);
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); }; drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); pick(e.dataTransfer.files[0]); };
+  $("vuSrc").oninput = () => { const v = $("vuSrc").value; $("vuPlat").textContent = /instagram\.com/i.test(v) ? "Instagram" : /(x|twitter)\.com/i.test(v) ? "X" : ""; };
+  $("vuGo").onclick = async () => {
+    const f = picked || fl.files[0], msg = $("vuMsg");
+    if(!f){ msg.textContent = "First, select a video file."; return; }
+    if(!$("vuDate").value){ msg.textContent = "First, select the game date."; return; }
+    const qs = new URLSearchParams({filename: f.name, type: $("vuType").value, date: $("vuDate").value, opponent: $("vuOpp").value.trim(), title: $("vuTitle").value.trim(), source: $("vuSrc").value.trim()});
+    msg.textContent = "The app uploads and processes the file…"; $("vuGo").disabled = true;
+    try { const r = await fetch("/api/add_file?" + qs, {method: "POST", body: f}).then(x => x.json());
+      if(r.error) msg.textContent = r.error;
+      else { msg.textContent = "Added."; fl.value = ""; picked = null; $("vuName").textContent = ""; $("vuTitle").value = ""; $("vuSrc").value = ""; $("vuPlat").textContent = ""; await load(); setTimeout(() => up.classList.remove("on"), 900); } }
+    catch(e){ msg.textContent = "Upload failed (" + f.name + ", " + (f.type || "no type") + "): " + e; }
+    $("vuGo").disabled = false;
+  };
+}
 async function poll(){
   clearTimeout(timer);
   const js = await api("/api/jobs");
