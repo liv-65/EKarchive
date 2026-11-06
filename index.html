@@ -242,8 +242,11 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
     <h1 id="title">Clip Archive</h1>
     <div class="sub"><span id="subline"><a href="clips.csv" download style="color:var(--accent)" id="exportCsv">Export clips.csv</a> · All data is on this computer</span></div>
   </header>
+  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="history">History</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button><button class="chip" id="vuBtn" title="Add a video from Instagram, X or another place">Upload video</button><button class="chip" id="publishBtn" title="Build the public read-only site again and put it on the internet">Publish</button></div>
+  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button><button class="chip" data-sv="x">X</button></div>
   <div id="autoBar" class="hint" style="display:none;margin:6px 0;gap:14px;flex-wrap:wrap;align-items:center"></div>
-
+  <div id="pubStatus" class="hint" style="display:none;margin-bottom:8px"></div>
+  <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
   <div id="viewAdd" style="display:none"><div class="box" id="addBox">
     <b>Add clips / photos</b> <a href="/cut.html" target="_blank" class="btn" style="text-decoration:none;margin:0 8px">Cut clips from a video →</a> <span class="hint">Paste YouTube or X (Twitter) links. Put one link on each line. The app moves X posts with photos to the Photos tab.</span>
     <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;To download only a part of a video, write the start and end times after the link. Example: https://youtu.be/xxxx 12:30-13:05&#10;For more parts of one video, write one line for each part"></textarea>
@@ -276,10 +279,6 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
     <div id="jobs"></div>
   </div></div>
 
-  <div id="pubStatus" class="hint" style="display:none;margin-bottom:8px"></div>
-  <div id="taskBar" class="hint" style="display:none;margin-bottom:8px"></div>
-  <div class="row nav" style="margin-bottom:8px"><button class="chip" data-v="today">Today</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="clips">Clips</button><button class="chip" data-v="history">History</button><button class="chip" data-v="inbox">Inbox<span id="inbcount"></span></button><button class="chip" data-v="learn">Learn</button><button class="chip" data-v="add">Add</button><button class="chip" id="vuBtn" title="Add a video from Instagram, X or another place">Upload video</button><button class="chip" id="publishBtn" title="Build the public read-only site again and put it on the internet">Publish</button></div>
-  <div class="row" id="inboxTabs" style="display:none;margin-bottom:8px"><button class="chip" data-sv="youtube">YouTube<span id="ytcount"></span></button><button class="chip" data-sv="tiktok">TikTok<span id="ttcount"></span></button><button class="chip" data-sv="photos">Photos<span id="pcount"></span></button><button class="chip" data-sv="news">News</button><button class="chip" data-sv="nhlcom">NHL.com</button><button class="chip" data-sv="x">X</button></div>
   <div id="rangeBar">
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
