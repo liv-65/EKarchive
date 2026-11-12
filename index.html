@@ -70,6 +70,11 @@ td.n,th.n{text-align:right}
 .sum{font-size:12px;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .sumbox{width:100%;min-height:130px;line-height:1.6}
 .src{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px}
+.dupg{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0}
+.dupr{display:grid;grid-template-columns:22px 96px 1fr;gap:10px;align-items:center;padding:6px 0;border-top:1px dashed var(--line)}
+.dupr:first-of-type{border-top:0}
+.dupr .th{width:96px;height:54px;border-radius:6px;background:#0002 center/cover no-repeat;cursor:pointer}
+.dupr .t{font-weight:600;cursor:pointer} .dupr.best .t::after{content:"Suggested: keep";margin-left:8px;font-size:11px;font-weight:700;color:#fff;background:var(--event);border-radius:6px;padding:1px 6px}
 .pthumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
 .pth img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in;display:block;border:3px solid transparent}
 .pth.s-选入 img{border-color:var(--event)} .pth.s-排除 img{border-color:var(--bad);opacity:.5}
@@ -311,6 +316,10 @@ tr.pen-opp td{background:color-mix(in srgb,var(--goal) 11%,transparent)}
   </div>
   </details>
 
+  <details class="dsec" id="dupDet"><summary>Duplicates <span class="hint" id="dupBadge"></span></summary>
+  <div class="box" id="dupBox"></div>
+  </details>
+
   <div class="row" style="margin:14px 0 10px">
     <span id="types" class="row"></span>
     <input id="q" placeholder="Search title, caption, tags" style="flex:1;min-width:160px">
@@ -521,6 +530,7 @@ function render(){
     ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("");
   document.querySelectorAll(".clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
   renderPhotos();
+  renderDups();
 }
 
 
@@ -837,10 +847,77 @@ const oppLine = g => { const st = g.standing, sg = (g.team_stats || {}).sog; if(
   const cmp = st ? (st.opp.pts > st.our.pts ? `<span style="color:var(--bad)">${esc(g.opp)} had a better record than PIT</span>` : st.opp.pts < st.our.pts ? `${esc(g.opp)} had a worse record than PIT` : `${esc(g.opp)} and PIT had the same points`) + ` (${st.opp.pts} vs ${st.our.pts} pts)` : "";
   return `<div class="hint">Opponent: ${[cmp, sg ? `shots on goal PIT ${esc(sg.our)} – ${esc(g.opp)} ${esc(sg.opp)}` : ""].filter(Boolean).join(" · ")}</div>`; };
 const gLabel = g => `${g.date.slice(5)} ${g.home ? "home" : "away"} vs ${g.opp}`;
+// 同一个进球/助攻可能存了好几个视频(不同来源、不同时间抓取, 标签也不一样)。计数以官方事件为准, 每个视频对到一个官方事件
+const MINE = ["进球", "助攻"];
+function offEvent(c){
+  if(!MINE.includes(c.type) || !c.game_id) return null;
+  const ev = (nhl.events || []).filter(e => String(e.game_id) === String(c.game_id) && MINE.includes(e.type));
+  const one = a => a.length === 1 ? a[0] : null;
+  return ev.find(e => String(e.id) === String(c.id)) || (c.moment && ev.find(e => e.moment === c.moment))
+    || one(ev.filter(e => e.type === c.type)) || one(ev) || null;
+}
+function clipsOf(e){ return clips.filter(c => { const o = offEvent(c); return o && o.id === e.id; }); }
 function gameItems(g){
   const gid = String(g.id);
   return {cs: clips.filter(c => String(c.game_id) === gid), ps: photos.filter(p => String(p.game_id) === gid && p.status !== "排除"),
     miss: (nhl.events || []).filter(e => String(e.game_id) === gid && !clips.find(c => c.id === e.id))};
+}
+// 重复视频: 同一个内容存了几个版本(不同来源/不同时间抓取)。按组列出, 建议保留内容最多最全的那个, 删哪个由你自己勾选
+const dupIgn = (() => { try { return new Set(JSON.parse(localStorage.getItem("dupIgnore") || "[]")); } catch(e){ return new Set(); } })();
+const normT = t => String(t || "").replace(/\[[^\]]*\]\s*$/, "").replace(/^[^-–]{2,40}\s[-–]\s/, "").replace(/#\S+/g, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+const nhlSlug = u => { const m = String(u || "").match(/nhl\.com\/video\/(.+?)-\d{8,}/); return m ? m[1] : ""; };
+const normU = u => String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/[?&]t=\d+s?/, "").replace(/\/$/, "");
+const isEK = c => /karlsson/i.test(c.title + " " + (c.caption || ""));
+function findDups(){
+  const P = {}, why = [], find = x => P[x] === x ? x : (P[x] = find(P[x]));
+  clips.forEach(c => P[c.id] = c.id);
+  const join = (a, b, r, strong) => { const x = find(a), y = find(b); if(x !== y) P[y] = x; why.push({a, r, strong}); };
+  const byKey = (keyf, r, strong) => { const m = {}; clips.forEach(c => { const k = keyf(c); if(!k) return; m[k] ? join(m[k], c.id, r, strong) : (m[k] = c.id); }); };
+  byKey(c => "id:" + c.id.replace(/^nhlc_/, ""), "Same NHL video ID", true);
+  byKey(c => c.source_url ? normU(c.source_url) + "|" + (c.seg_start ?? "") + "-" + (c.seg_end ?? "") : "", "Same link", true);
+  byKey(c => nhlSlug(c.source_url), "Same NHL.com video", true);
+  byKey(c => { const e = offEvent(c); return e ? "ev:" + e.id : ""; }, "Same official goal/assist", true);
+  byKey(c => { const t = normT(c.title); return t.length >= 12 ? "t:" + t : ""; }, "Same title", false);
+  byKey(c => c.type === "采访" && isEK(c) ? "iv:" + c.game_date : "", "Karlsson interview on the same day", false);
+  const g = {}; clips.forEach(c => (g[find(c.id)] ||= []).push(c));
+  return Object.values(g).filter(a => a.length > 1).map(a => {
+    const ids = new Set(a.map(c => c.id)), rs = why.filter(w => ids.has(w.a));
+    return {key: a.map(c => c.id).sort().join(","), clips: a, strong: rs.some(r => r.strong), reasons: [...new Set(rs.map(r => r.r))]};
+  }).filter(d => !dupIgn.has(d.key)).sort((x, y) => (y.strong - x.strong) || (y.clips[0].game_date || "").localeCompare(x.clips[0].game_date || ""));
+}
+// 内容最多最全: 先比时长, 再比有没有文字稿/摘要, 再比是不是官方来源
+const dupScore = c => (+c.duration || 0) * 100 + Math.min(99, ((c.transcript || "").length > 0) * 40 + ((c.summary || "").length > 0) * 30 + (/nhl|brightcove/i.test(c.source_url || "") || /NHL官方/.test(c.tags || "")) * 20 + (c.video ? 9 : 0));
+function renderDups(){
+  const ds = findDups(), host = c => { try { return new URL(c.source_url).hostname.replace(/^www\./, "").replace(/^players\.brightcove\.net$/, "nhl.com"); } catch(e){ return c.source_url ? "" : "My file"; } };
+  $("dupBadge").textContent = ds.length ? `· ${ds.length} group${ds.length > 1 ? "s" : ""}` : "· none";
+  if(!ds.length){ $("dupBox").innerHTML = `<span class="hint">No duplicate videos found.${dupIgn.size ? ` <a href="#" id="dupReset">Show the ${dupIgn.size} hidden group${dupIgn.size > 1 ? "s" : ""} again</a>` : ""}</span>`; }
+  else $("dupBox").innerHTML = `<div class="hint">Each group is one play or one interview that you saved more than once. The app suggests the version with the most content (longest video, then text and summary, then the official source). Select the copies to delete. The app moves deleted files to the library/.trash folder.</div>` +
+    ds.map(d => { const best = [...d.clips].sort((x, y) => dupScore(y) - dupScore(x))[0];
+      return `<div class="dupg" data-key="${esc(d.key)}"><div class="row" style="justify-content:space-between"><span><b>${d.strong ? "Same video" : "Possibly the same"}</b> <span class="hint">${d.clips.length} versions · ${d.reasons.map(esc).join(" · ")}</span></span>
+        ${SNAP ? "" : `<button class="btn" data-dupno="${esc(d.key)}" style="padding:2px 8px;font-size:12px">Not duplicates</button>`}</div>` +
+        [...d.clips].sort((x, y) => dupScore(y) - dupScore(x)).map(c => `<div class="dupr ${c === best ? "best" : ""}">${SNAP ? "<span></span>" : `<input type="checkbox" data-dupdel="${esc(c.id)}">`}
+          <div class="th" data-oc="${esc(c.id)}" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"></div>
+          <div><div class="t" data-oc="${esc(c.id)}">${esc(c.title)}</div><div class="hint"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span> ${esc(c.game_date)} · ${esc(host(c) || c.channel || "")} · ${dur(c.duration)}${c.transcript ? " · text" : ""}${c.summary ? " · summary" : ""}${c.video ? "" : " · <b>no video file</b>"}</div></div></div>`).join("") + `</div>`; }).join("") +
+    (SNAP ? "" : `<div class="row" style="margin-top:8px;gap:10px"><button class="btn danger" id="dupDel" disabled>Delete selected</button>${dupIgn.size ? `<a href="#" id="dupReset" class="hint">Show the ${dupIgn.size} hidden group${dupIgn.size > 1 ? "s" : ""} again</a>` : ""}</div>`);
+  const box = $("dupBox"), btn = $("dupDel"), sel = () => [...box.querySelectorAll("[data-dupdel]:checked")].map(x => x.dataset.dupdel);
+  box.querySelectorAll("[data-oc]").forEach(el => el.onclick = () => openClip(el.dataset.oc));
+  box.querySelectorAll("[data-dupdel]").forEach(el => el.onchange = () => { const n = sel().length; btn.disabled = !n; btn.textContent = n ? `Delete ${n} selected` : "Delete selected"; });
+  box.querySelectorAll("[data-dupno]").forEach(el => el.onclick = () => { dupIgn.add(el.dataset.dupno); localStorage.setItem("dupIgnore", JSON.stringify([...dupIgn])); renderDups(); });
+  const rs = $("dupReset"); if(rs) rs.onclick = e => { e.preventDefault(); dupIgn.clear(); localStorage.removeItem("dupIgnore"); renderDups(); };
+  if(btn) btn.onclick = async () => { const ids = sel(), t = ids.map(id => "• " + (clips.find(c => c.id === id) || {}).title).join("\n");
+    const left = ds.filter(d => d.clips.every(c => ids.includes(c.id)));
+    if(!confirm(`Delete these ${ids.length} clip${ids.length > 1 ? "s" : ""}?\n\n${t}${left.length ? `\n\nCAUTION: you selected all versions in ${left.length} group${left.length > 1 ? "s" : ""}. No version stays.` : ""}\n\nThe app moves the files to the library/.trash folder. It does not erase them immediately.`)) return;
+    btn.disabled = true; for(const id of ids) await post("/api/delete", {id}); load(); };
+}
+// 比赛详情里的进球/助攻视频: 按官方事件分组, 同一个进球存了几个视频就写“N videos”
+function mineSec(g, it, extra){
+  const cs = it.cs.filter(c => MINE.includes(c.type)); if(!cs.length && !extra) return "";
+  const ev = (nhl.events || []).filter(e => String(e.game_id) === String(g.id) && MINE.includes(e.type)).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
+  const groups = ev.map(e => [e, cs.filter(c => (offEvent(c) || {}).id === e.id)]).filter(([, a]) => a.length), lone = cs.filter(c => !offEvent(c));
+  const og = ev.filter(e => e.type === "进球").length, oa = ev.length - og;
+  return `<div class="gsec">Goal / assist clips <span class="hint" style="font-weight:400">(official: ${og} goal${og === 1 ? "" : "s"} · ${oa} assist${oa === 1 ? "" : "s"}; ${cs.length} video${cs.length === 1 ? "" : "s"})</span></div>` +
+    groups.map(([e, a]) => `<div class="hint" style="margin:8px 0 2px"><span class="badge ${esc(e.type)}">${esc(tn(e.type))}</span> ${esc(en(e.moment))} · ${esc(e.scorer)}${e.assists.length ? " (" + esc(e.assists.join(", ")) + ")" : ""} · <b>${a.length} video${a.length > 1 ? "s" : ""}</b>${a.length > 1 ? " of the same play" : ""}</div><div class="grid">${a.map(clipHTML).join("")}</div>`).join("") +
+    (lone.length ? `<div class="hint" style="margin:8px 0 2px">Not matched to an official goal or assist (${lone.length} video${lone.length > 1 ? "s" : ""}). Add the period and time to match it.</div><div class="grid">${lone.map(clipHTML).join("")}</div>` : "") + extra;
 }
 function clipHTML(c){
   return `<div class="clip" data-id="${esc(c.id)}"><div class="thumb" style="${cv(c) ? `background-image:url('${cv(c)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
@@ -873,9 +950,10 @@ function seasonHTML(list){
       ${fr.map(e => `<tr style="${barBg(e.sec, totSec)}"><td>${esc(e.name)}</td><td>${e.n}</td><td><b>${mmss(e.sec)}</b></td><td>${Math.round(e.sec / totSec * 100)}%</td><td class="${e.gf ? "good" : ""}">${e.gf || "–"}</td><td class="${e.ga ? "bad" : ""}">${e.ga || "–"}</td>${net(e.gf - e.ga)}</tr>`).join("")}</table></div>
     <div class="hint" style="margin-top:6px">With only a small number of games, these numbers change much. For example, a forward who was on the ice for one goal looks good. Use these numbers only as a record now. Patterns are important only after many games.</div></div>`;
 }
-const PASS = 63.5;    // 趋势图的固定及格线(百分位): Karlsson 2026 年 3 月 17 场在"对他自己 2025-26"基准下的平均百分位
+const PROV_TXT = "Not final: the official +/- for this game is not available yet. Thus the on-ice goal difference is not in the score. Click “Sync NHL official data” again later";
+const PASS = 64.7;    // 趋势图的固定及格线(百分位): Karlsson 2026 年 3 月 17 场在"对他自己 2025-26"基准下的平均百分位
 const PDO_LO = 0.70, PDO_HI = 1.30;   // 趋势图右侧轴: PDO 0.70–1.30 对应图的 0–100 高度, 1.000 正好在中间(50)
-const FLOOR = 39.3;   // 固定下限: Karlsson 2025-26 表现最差的一个月(2026 年 4 月, 5 场; 场数少, 仅作参考)的平均百分位, 基准同 PASS
+const FLOOR = 37.4;   // 固定下限: Karlsson 2025-26 表现最差的一个月(2026 年 1 月, 10 场)的平均百分位, 基准同 PASS
 function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 实线 = 对比他自己去年, 虚线 = 对比联盟后卫
   const gs = list.filter(g => g.player).slice().sort((a, b) => a.date < b.date ? -1 : 1);
   if(gs.length < 2) return "";
@@ -884,7 +962,9 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
   const grid = [0, ...PERF.bands, 100].map(p => `<text x="${L - 4}" y="${(y(p) + 3).toFixed(1)}" font-size="9" text-anchor="end" fill="var(--muted)">${p}</text>`).join("");
   const line = (which, dash) => { const pts = gs.map((g, i) => [x(i), y(perfScore(g, which).pct), g]);
     return `<polyline fill="none" stroke="var(--ink)" stroke-width="2" ${dash ? 'stroke-dasharray="5 4" opacity=".55"' : ""} points="${pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
-      pts.map(([px, py, g]) => { const r = perfScore(g, which); return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dash ? 3 : 4.5}" fill="${dash ? "var(--bg, #fff)" : PERF.color[r.tier]}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: ${PERF.tier[r.tier]} (better than ${Math.round(r.pct)}% of ${r.base.short})</title></circle>`; }).join(""); };
+      pts.map(([px, py, g]) => { const r = perfScore(g, which), nf = r.prov && !dash;     // 不是最终结果的点: 白底虚线圈 + 上方 "?"
+        return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dash ? 3 : 4.5}" fill="${dash || nf ? "var(--bg, #fff)" : PERF.color[r.tier]}" stroke="${nf ? "var(--warn)" : "var(--ink)"}" stroke-width="${nf ? 2 : 1.5}"${nf ? ' stroke-dasharray="2 1.5"' : ""}><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: ${PERF.tier[r.tier]} (better than ${Math.round(r.pct)}% of ${r.base.short})${nf ? ". " + PROV_TXT : ""}</title></circle>` +
+          (nf ? `<text x="${px.toFixed(1)}" y="${(py - 8).toFixed(1)}" font-size="10" font-weight="700" text-anchor="middle" fill="var(--warn)">?</text>` : ""); }).join(""); };
   const labels = gs.map((g, i) => { const tx = (dy, t, c = "var(--muted)", w = 400) => `<text x="${x(i).toFixed(1)}" y="${H - dy}" font-size="9" text-anchor="middle" fill="${c}" font-weight="${w}">${t}</text>`, sc = g.our_score != null && g.opp_score != null;
     const half = gs.length > 1 ? (W - L - R) / (gs.length - 1) / 2 : 20;     // 点日期/对手/比分 -> 打开这场比赛的详情
     return `<g data-g="${esc(g.id)}" class="tlink"><title>Open game details</title><rect x="${(x(i) - half).toFixed(1)}" y="${H - B + 4}" width="${(half * 2).toFixed(1)}" height="${B - 4}" fill="transparent"/>` +
@@ -895,7 +975,7 @@ function trendHTML(list){      // 每场表现的趋势图: 纵轴是百分位, 
     `<polyline fill="none" stroke="var(--train)" stroke-width="1.5" opacity=".55" points="${pdoPts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ")}"/>` +
     pdoPts.map(([px, py, g]) => { const bad = g.adv.pdo <= 0.97, z = bad ? 4.5 : 2.5;       // 运气差的比赛(PDO ≤ 0.97)用深色大点标出来, 其余保持淡色
       return `<rect x="${(px - z).toFixed(1)}" y="${(py - z).toFixed(1)}" width="${z * 2}" height="${z * 2}" fill="${bad ? "var(--interview)" : "#9b8bb4"}" ${bad ? 'stroke="#fff" stroke-width="1"' : 'opacity=".7"'} transform="rotate(45 ${px.toFixed(1)} ${py.toFixed(1)})"><title>${esc(g.date)} ${g.home ? "vs" : "@"} ${esc(g.opp)}: PDO ${g.adv.pdo.toFixed(3)}${bad ? " (unlucky)" : ""} (team shooting ${pct1(g.adv.sh)}, goalie save ${pct1(g.adv.sv)})</title></rect>`; }).join("");
-  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game compared with his 2025-26 season · blue dotted line = fixed pass line (63.5 = his best month, March 2026) · red dotted line = floor (39.3 = his worst month, April 2026, 5 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:var(--interview)">dark ◆ = a game with bad luck (PDO ≤ 0.97)</b> · color bands = the five tiers</span>
+  return `<div class="box" style="margin-bottom:10px"><b>Performance trend</b> <span class="hint">· percentile of each game compared with his 2025-26 season · blue dotted line = fixed pass line (64.7 = his best month, March 2026) · red dotted line = floor (37.4 = his worst month, January 2026, 10 games) · <span style="color:#9b8bb4">light ◆ line = PDO, luck (right axis; 1.000 is the middle)</span> · <b style="color:var(--interview)">dark ◆ = a game with bad luck (PDO ≤ 0.97)</b> · color bands = the five tiers${gs.some(g => perfScore(g, "self").prov) ? ` · <b style="color:var(--warn)">dashed ○ with ? = not final</b> (the on-ice goal data is not available yet)` : ""}</span>
     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Performance trend by game" style="margin-top:6px">${bands}${grid}<line x1="${L}" x2="${W - R}" y1="${y(PASS).toFixed(1)}" y2="${y(PASS).toFixed(1)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2 3"/><line x1="${L}" x2="${W - R}" y1="${y(FLOOR).toFixed(1)}" y2="${y(FLOOR).toFixed(1)}" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="2 3"/>${pdoLayer()}${line("self", false)}${labels}</svg></div>`;
 }
 // ---------- NHL EDGE: 赛季累计的区域时间和射门位置(球队 + 他本人), 官方追踪数据, 只在本机页面 ----------
@@ -986,14 +1066,15 @@ function renderGames(){
   $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (in the date range above). Click a game to show its details.` : ""}</span>
     <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
     ? `<div class="box hint">There is no game data. Click “Sync official data” at the top right. The app reads the completed games of this season: scores, team stats, rosters and the scoring timeline. It also puts your clips, interviews and photos with the correct game by date.</div>` : "") +
-    trendHTML(list) + (SNAP && !(SNAP.edge && SNAP.edge.team_zone) ? "" : `<div id="edgeBox"></div>`) + list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
+    trendHTML(list) + (SNAP && !(SNAP.edge && SNAP.edge.team_zone) ? "" : `<div id="edgeBox"></div>`) + list.map(g => { const it = gameItems(g), m = g.player, hlc = it.cs.filter(c => MINE.includes(c.type)), hlE = new Set(hlc.map(c => (offEvent(c) || {}).id).filter(Boolean)),
+        hl = hlE.size ? `${hlE.size} ${hlE.size > 1 ? "goals/assists" : "goal/assist"} (${hlc.length} video${hlc.length > 1 ? "s" : ""})` : `${hlc.length} goal/assist video${hlc.length === 1 ? "" : "s"}`, iv = it.cs.filter(c => c.type === "采访").length;
       return `<div class="box gcard" data-g="${esc(g.id)}" style="position:relative"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${haTag(g)} ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
         <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
         <div class="gmini" style="position:absolute;right:50px;top:30px;width:160px;display:flex;flex-direction:column;align-items:center">${perfMini(g)}${pressChip(g, false)}</div>
         <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
         ${stLine(g, "Regular season: ")}
         <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "There is no previous game to compare"; })()}</div>
-        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length && !SNAP ? ` · <b style="color:var(--bad)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
+        <div class="hint">Archived: ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length && !SNAP ? ` · <b style="color:var(--bad)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("") + (seasonHTML(list) ? `<details class="dsec" style="margin-top:16px"${openSecs.has("season") ? " open" : ""} data-sec="season"><summary>Season: which forwards he plays with</summary>${seasonHTML(list)}</details>` : "");
   document.querySelectorAll("#gameList details[data-sec]").forEach(d => d.ontoggle = () => { d.open ? openSecs.add(d.dataset.sec) : openSecs.delete(d.dataset.sec); });
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
   loadEdge(false);
@@ -1003,17 +1084,25 @@ function renderGames(){
 // 综合分在基准“单场分布”里排第几(百分位)决定档位和指针位置。基准有两套, 可以在表盘上切换:
 //   self   = Karlsson 自己 2025-26 常规赛 75 场(NHL 官方接口)——默认, 看这场比他去年的水平好还是差
 //   league = 联盟后卫 2025-26 常规赛 14,963 个单场(上冰不少于 12 分钟)——看这场放在联盟里算什么水平
-// 权重 w 是我按重要程度定的(没有做回归); 抢断减失误记分员人工判定、对进攻型后卫噪声大, 所以权重只给 0.2; 平均/标准差/分位数是从数据算出来的, 换赛季时可以重新取数更新。
+// 权重 w (2026-11 重定), 两套基准各用各的权重, 都是回归“球队本场净胜球”:
+//   self   基准: 用 Karlsson 生涯 1,178 场常规赛(2009-10 起), bootstrap 1000 次, 三段生涯(OTT/SJS/PIT)分开验证。
+//          得分 1.0 / 封堵 0.3 (95% 区间 0.13–0.47) / 抢断−失误 0.1 (−0.06–0.26)
+//   league 基准: 用联盟后卫 2025-26 常规赛 14,963 场, 按球员重抽样 bootstrap 300 次, 上下半季分开验证。
+//          得分 1.0 / 封堵 0.2 (0.14–0.26) / 抢断−失误 0.1 (0.02–0.16)
+//   +/- 设为 0: 它本身就是比赛结果的一部分, 回归给不出可信的权重。
+//   射门 0.5 / 上冰时间 0.5: 人工定, 表示本场的积极程度。回归里这两项是负数, 原因是比分效应(落后时他打得多、射得多), 不是打得差。
+// 平均/标准差/分位数是从数据算出来的, 换赛季时可以重新取数更新。
 const PERF = {tier: ["Very poor", "Poor", "Average", "Good", "Excellent"], color: ["var(--t0)", "var(--t1)", "var(--t2)", "var(--t3)", "var(--t4)"], cap: 3,
   bands: [10, 30, 70, 90],                      // 百分位分界: 0-10 很差 · 10-30 偏差 · 30-70 一般 · 70-90 不错 · 90-100 很好
-  w: {pts: 1.0, gd: 0.6, sog: 0.5, blk: 0.35, net: 0.2, toi: 0.5},
   base: {
     self: {label: "his own 2025-26", short: "his 2025-26 games", games: 75, who: "Karlsson's average",
+      w: {pts: 1.0, gd: 0, sog: 0.5, blk: 0.3, net: 0.1, toi: 0.5},           // 权重: 用他生涯 1,178 场回归
       m: {pts: [0.88, 1.019], gd: [0.107, 1.638], sog: [2.347, 1.709], blk: [0.853, 0.811], net: [-0.867, 1.32], toi: [23.6, 2.902]},          // [平均, 标准差]
-      q: [-3.17, -2.76, -2.24, -1.91, -1.54, -1.28, -1.09, -0.84, -0.48, -0.39, -0.21, 0.13, 0.57, 0.7, 1.01, 1.17, 1.57, 1.96, 2.29, 2.78, 4.54]},
+      q: [-3.14, -2.03, -1.81, -1.49, -1.28, -1.18, -1.07, -0.82, -0.56, -0.29, -0.18, 0.03, 0.31, 0.56, 0.72, 1.1, 1.47, 1.77, 2.02, 2.27, 4.14]},
     league: {label: "NHL defensemen", short: "NHL defenseman games", games: 14963, who: "NHL defenseman average",
+      w: {pts: 1.0, gd: 0, sog: 0.5, blk: 0.2, net: 0.1, toi: 0.5},           // 权重: 用联盟后卫 14,963 场回归
       m: {pts: [0.362, 0.630], gd: [0.034, 1.295], sog: [1.317, 1.290], blk: [1.396, 1.283], net: [-0.741, 1.140], toi: [19.88, 3.842]},
-      q: [-4.04, -2.26, -1.91, -1.68, -1.47, -1.28, -1.1, -0.93, -0.74, -0.56, -0.36, -0.14, 0.09, 0.35, 0.64, 0.99, 1.35, 1.82, 2.4, 3.32, 7.66]}}};     // q = 该基准单场综合分的 0%,5%,…,100% 分位数
+      q: [-2.53, -1.8, -1.56, -1.38, -1.22, -1.06, -0.93, -0.79, -0.65, -0.5, -0.34, -0.18, 0.02, 0.24, 0.51, 0.8, 1.11, 1.47, 2.0, 2.81, 5.96]}}};     // q = 该基准单场综合分的 0%,5%,…,100% 分位数
 let perfBase = (() => { try { return localStorage.getItem("perfBase") === "league" ? "league" : "self"; } catch(e){ return "self"; } })();
 function perfPct(t, q){         // 综合分 -> 百分位(在分位数表里线性插值)
   if(t <= q[0]) return 0; if(t >= q[q.length - 1]) return 100;
@@ -1023,14 +1112,16 @@ function perfPct(t, q){         // 综合分 -> 百分位(在分位数表里线�
 function perfScore(g, which = perfBase){
   const m = g.player; if(!m) return null;
   const P = PERF, B = P.base[which], rows = [];
-  const add = (k, label, x, note, tip) => { const [mu, sd] = B.m[k], w = P.w[k], z = Math.max(-P.cap, Math.min(P.cap, (x - mu) / sd));
+  const add = (k, label, x, note, tip) => { if(!B.w[k]) return; const [mu, sd] = B.m[k], w = B.w[k], z = Math.max(-P.cap, Math.min(P.cap, (x - mu) / sd));
     rows.push({k: label, v: w * z, note, tip: `${tip ? tip + ". " : ""}${B.who} ${k === "toi" ? mmss(Math.round(mu * 60)) : mu.toFixed(2)} per game`}); };
   const pts = (m.g || 0) + (m.a || 0);
   add("pts", "Points (G + A)", pts, `${pts} point${pts === 1 ? "" : "s"}`);
-  const sc = g.scoring || [];
-  if(sc.some(x => x.ek === true || x.ek === false)){       // 在冰上的 5v5 进失球, 多打少进球不算(和官方 +/- 同口径)
-    const on = sc.filter(x => x.ek === true && x.strength !== "pp"), gd = on.filter(x => x.team === "PIT").length - on.filter(x => x.team !== "PIT").length;
-    add("gd", "On-ice goal difference", gd, `${gd > 0 ? "+" : ""}${gd}`, "Power-play goals are not counted, the same as the official +/-");
+  const sc = g.scoring || [], hasEk = sc.some(x => x.ek === true || x.ek === false);
+  // 在冰上净胜球 = 官方 +/- (boxscore 里赛后马上就有)。官方 +/- 没有时, 才用换人记录逐个进球判断他在不在冰上(多打少进球不算, 同口径)
+  const pmOk = typeof m.pm === "number", prov = B.w.gd > 0 && !pmOk && sc.length > 0 && !hasEk;   // +/- 权重为 0 时, 少了它也不影响分数      // 两种来源都没有: 少了这一项, 分数不是最终结果
+  if(pmOk || hasEk){
+    const on = sc.filter(x => x.ek === true && x.strength !== "pp"), gd = pmOk ? m.pm : on.filter(x => x.team === "PIT").length - on.filter(x => x.team !== "PIT").length;
+    add("gd", "On-ice goal difference", gd, `${gd > 0 ? "+" : ""}${gd}`, "The official +/-. Power-play goals are not counted");
   }
   if(m.sog != null) add("sog", "Shots", m.sog, `${m.sog} on goal`);
   if(m.blk != null) add("blk", "Blocked shots", m.blk, `${m.blk}`);
@@ -1040,7 +1131,7 @@ function perfScore(g, which = perfBase){
   const tier = pct < b[0] ? 0 : pct < b[1] ? 1 : pct < b[2] ? 2 : pct < b[3] ? 3 : 4;
   // 指针位置: 5 个等宽色段, 每段对应一个百分位区间(10/20/40/20/10), 区间内线性
   const lo = [0, ...b], hi = [...b, 100], idx = Math.round(tier * 20 + (pct - lo[tier]) / (hi[tier] - lo[tier]) * 20);
-  return {rows, total, pct, idx: Math.max(0, Math.min(100, idx)), tier, base: B};
+  return {rows, total, pct, idx: Math.max(0, Math.min(100, idx)), tier, base: B, prov};
 }
 const pct1 = x => x == null ? "–" : (x * 100).toFixed(1) + "%";
 function advHTML(g){
@@ -1078,9 +1169,9 @@ function perfGauge(g){
       <svg viewBox="0 0 220 128" width="220" role="img" aria-label="Performance gauge: ${PERF.tier[r.tier]}, better than ${better} percent of ${r.base.short}">${arcs}
         <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="var(--ink)"/>
         <text x="${pt(180, R + 4)[0] - 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="start">worst</text><text x="${pt(0, R + 4)[0] + 2}" y="124" font-size="10" fill="var(--muted)" text-anchor="end">best</text></svg>
-      <div style="font-size:20px;font-weight:600;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Better than ${better}% of ${r.base.short}</div>
+      <div style="font-size:20px;font-weight:600;color:${color};margin-top:-2px">${PERF.tier[r.tier]}</div><div class="hint">Better than ${better}% of ${r.base.short}</div>${r.prov ? `<div class="hint" style="color:var(--warn);font-weight:600;max-width:240px;margin:4px auto 0">Not final. The on-ice goal difference is not in the score yet.</div>` : ""}
       <div class="row" style="justify-content:center;margin:6px 0 0;gap:6px"><button class="chip ${perfBase === "self" ? "on" : ""}" data-pb="self" title="Compare with Karlsson's own 2025-26 regular season (75 games)">vs his 2025-26</button><button class="chip ${perfBase === "league" ? "on" : ""}" data-pb="league" title="Compare with all NHL defenseman games in 2025-26">vs NHL defensemen</button></div></div>
-    <div style="flex:1;min-width:260px"><div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row shows the difference from ${esc(r.base.label)} (weighted). Put the pointer on a row to see the average</div>${bars}
+    <div style="flex:1;min-width:260px">${r.prov ? `<div class="hint" style="color:var(--warn);margin-bottom:6px">${esc(PROV_TXT)}.</div>` : ""}<div class="hint" style="margin-bottom:4px"><b>This game's performance</b> — each row shows the difference from ${esc(r.base.label)} (weighted). Put the pointer on a row to see the average</div>${bars}
       <div class="hint" style="margin-top:6px">Compared with ${esc(r.base.short)} (${r.base.games.toLocaleString("en-US")} games, NHL 2025-26 regular season). The weights are an estimate, and one game is a small sample. This is not an official rating. Tiers: bottom 10% / 10–30% / middle 40% / 70–90% / top 10%.</div></div></div>`;
 }
 function perfMini(g){
@@ -1089,8 +1180,8 @@ function perfMini(g){
   const arcs = PERF.color.map((c, i) => { const [x1, y1] = pt(180 - i * 36 - 1.2), [x2, y2] = pt(180 - (i + 1) * 36 + 1.2);
     return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${c}" stroke-width="8" ${r.tier === i ? "" : 'opacity=".38"'}/>`; }).join("");
   const [nx, ny] = pt(180 - r.idx * 1.8, 28);
-  return `<div style="text-align:center;flex:none;width:90px" title="Better than ${Math.round(r.pct)}% of ${r.base.short}"><svg viewBox="0 0 90 50" width="90" role="img" aria-label="Performance: ${PERF.tier[r.tier]}">${arcs}<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--ink)"/></svg>
-    <div style="font-size:12px;font-weight:700;color:${PERF.color[r.tier]};margin-top:-2px">${PERF.tier[r.tier]}</div></div>`;
+  return `<div style="text-align:center;flex:none;width:90px" title="Better than ${Math.round(r.pct)}% of ${r.base.short}${r.prov ? ". " + esc(PROV_TXT) : ""}"><svg viewBox="0 0 90 50" width="90" role="img" aria-label="Performance: ${PERF.tier[r.tier]}">${arcs}<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--ink)"/></svg>
+    <div style="font-size:12px;font-weight:700;color:${PERF.color[r.tier]};margin-top:-2px">${PERF.tier[r.tier]}${r.prov ? `<span style="color:var(--warn)"> ?</span>` : ""}</div>${r.prov ? `<div style="font-size:10px;color:var(--warn)">Not final</div>` : ""}</div>`;
 }
 // 位置按“阵容分组”里填的线来标: 前锋第几线的左翼/中锋/右翼, 后卫第几对; 没填阵容分组时只按官方的前锋/后卫标
 function roleTools(g){
@@ -1154,13 +1245,13 @@ function renderGameDetail(){
     <div class="gsec">Karlsson this game</div>
     <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play in this game.</span>`}</div>
     <div class="gsec">Scoring timeline <span class="hint" style="font-weight:400">(times use the game clock on the screen, which counts down)</span></div>
-    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th title="PIT skaters on the ice at that second, for all goals (goalie not counted)">PIT skaters on ice</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
+    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th>EK on ice</th><th title="PIT skaters on the ice at that second, for all goals (goalie not counted)">PIT skaters on ice</th><th></th></tr>${(g.scoring || []).map(x => { const xe = x.mine && x.clip && (nhl.events || []).find(e => String(e.id) === String(x.clip)), xa = xe ? clipsOf(xe) : [], c = (x.clip && clips.find(cc => cc.id === x.clip)) || xa[0];
       return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period + " " + (x.time || "")))}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td><td>${x.ek === true ? (x.strength === "pp" ? `<span class="tag2 ppn" style="margin-left:0" title="Power-play goals do not count toward +/-">On (PP, not counted)</span>` : `<span class="tag2 ${x.team === "PIT" ? "plus" : "minus"}" style="margin-left:0">On ${x.team === "PIT" ? "(+1)" : "(−1)"}</span>`) : x.ek === false ? `<span class="hint">Off</span>` : `<span class="hint">–</span>`}</td>
         <td>${pitOn(x)}</td>
-        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? (SNAP ? "" : `<span class="hint">Not downloaded</span>`) : (x.ek === true && x.clip && !SNAP ? `<button class="btn" data-dl="${esc(x.clip)}" style="padding:2px 8px;font-size:12px">⬇ Download</button>` : ""))}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
+        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>${xa.length > 1 ? ` <span class="hint">(${xa.length} videos)</span>` : ""}` : (x.mine ? (SNAP ? "" : `<span class="hint">Not downloaded</span>`) : (x.ek === true && x.clip && !SNAP ? `<button class="btn" data-dl="${esc(x.clip)}" style="padding:2px 8px;font-size:12px">⬇ Download</button>` : ""))}</td></tr>`; }).join("")}</table>${(() => { const sc = g.scoring || [], k = sc.filter(x => x.ek === true); if(!sc.some(x => x.ek !== null && x.ek !== undefined)) return "";
       const cnt = (me, pp) => k.filter(x => (x.team === "PIT") === me && (x.strength === "pp") === pp).length, gf = cnt(true, false), ga = cnt(false, false), ppf = cnt(true, true), ppa = cnt(false, true), pm = gf - ga;
       return `<div class="hint" style="margin-top:6px">EK +/- from this table: <b style="color:${pm > 0 ? "var(--event)" : pm < 0 ? "var(--bad)" : "inherit"}">${pm > 0 ? "+" : ""}${pm}</b> (on ice for <b style="color:var(--event)">${gf}</b> goal${gf === 1 ? "" : "s"} for, <b style="color:var(--bad)">${ga}</b> against).${ppf + ppa ? ` Also on the ice for ${ppf + ppa} power-play goal${ppf + ppa > 1 ? "s" : ""}. The NHL does not count these goals for +/-.` : ""}${g.player && g.player.pm !== undefined ? ` Official +/-: ${g.player.pm > 0 ? "+" : ""}${g.player.pm}.` : ""}</div>`; })()}</div>
-    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), missMain.length && !SNAP ? `<div class="box"><b style="color:var(--bad)">${missMain.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${missMain.filter(e => e.clip).length}</button></div>` : "")}
+    ${mineSec(g, it, missMain.length && !SNAP ? `<div class="box"><b style="color:var(--bad)">${missMain.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${missMain.filter(e => e.clip).length}</button></div>` : "")}
     ${sec("PIT goals with EK on ice (no point)", clipsBy(c => c.type === "在场进球"), onIceMiss("在场进球"))}
     ${sec("Goals against (EK on ice)", clipsBy(c => c.type === "失球"), onIceMiss("失球"))}
     ${sec("Pre-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
@@ -1827,9 +1918,11 @@ async function poll(){
   if(run.length) timer = setTimeout(poll, 2500);
 }
 if(!SNAP){      // 告诉本机程序“页面还开着”; 页面关了它就能自己退出(start.command 会开这个功能)
-  const ping = () => fetch("/api/ping").catch(() => {});
+  const pageId = Math.random().toString(36).slice(2, 10);      // 每个页面一个编号: 开着几个页面时, 关掉其中一个不会让程序退出
+  const ping = () => fetch("/api/ping?p=" + pageId).catch(() => {});
   ping(); setInterval(ping, 15000);
-  addEventListener("pagehide", () => { try { navigator.sendBeacon("/api/bye"); } catch(e){} });
+  addEventListener("pagehide", () => { try { navigator.sendBeacon("/api/bye?p=" + pageId); } catch(e){} });
+  addEventListener("pageshow", e => { if(e.persisted) ping(); });      // 从浏览器的“后退缓存”回到页面时马上报一次
 }
 async function load(){ coverVer = Date.now(); let gm, ln; [clips, nhl, photos, gm, ln, tiktok, youtube] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines"), api("/api/tiktok"), api("/api/youtube")]); games = gm.games || []; lineData = ln || {}; render(); }
 $("ttCheck").onclick = checkTikTok;
